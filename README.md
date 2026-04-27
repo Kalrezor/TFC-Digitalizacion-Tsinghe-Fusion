@@ -1,15 +1,10 @@
-### feat: control de disponibilidad y validación de precios
+### feat: modificada la carta para ser automatica a la base de datos
 
-Se ha mejorado la lógica de negocio y la integridad de los datos en el panel de administración.
+Se ha actualizado la carta para que el almacenamiento se guie de la base de datos, mostrando cada plato dentro de su respectiva categoría.
 
 **Cambios principales:**
 
-* **Gestión de Disponibilidad (Toggle)**: Implementación de la función para activar/desactivar platos sin borrarlos. Esto modifica el campo `available` en Firestore, permitiendo ocultar platos temporalmente de la vista del cliente.
-
-* **Refuerzo en Validación de Precios**:
-    * Bloqueo de valores negativos.
-    * Eliminación de los controles de incremento/decremento para forzar la entrada de datos manual y precisa.
-    
-* **Feedback Visual de Estado**:
-    * Los platos desactivados muestran una opacidad reducida y una etiqueta indicadora en el listado administrativo.
-    * Botones de acción diferenciados por color (Verde/Rojo) para una gestión intuitiva de los estados.
+* **Platos Ocultos**: La carta solo muestra lo que esté marcado como "Disponible". Lo que desactives en el panel desaparece de la vista del cliente.
+* **Alérgenos Visuales**: Los iconos aparecen junto a cada plato y se ha incluido una leyenda al final de la carta para informar a los comensales.
+* **Carta Dinámica**: Conexión directa con la base de datos eliminando textos fijos.
+* **Categorización Inteligente**: Los platos se organizan solos según su sección.
