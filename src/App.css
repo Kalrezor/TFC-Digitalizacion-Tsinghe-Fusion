@@ -157,6 +157,68 @@
   margin-left: 5px;
 }
 
+/* --- CARTA VIEW --- */
+
+.carta-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.carta-header h2 {
+  letter-spacing: 0.15em;
+}
+
+.carta-category-title {
+  color: #b45309;
+  border-bottom: 2px solid #f59e0b;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.plato-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.plato-precio {
+  background-color: #f3f4f6;
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  min-width: fit-content;
+  color: #333;
+}
+
+.img-alergeno-small {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  background-color: #fff;
+  padding: 2px;
+  margin-right: 0.25rem;
+}
+
+.img-alergeno-footer {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  background-color: #fff;
+  padding: 4px;
+  margin-right: 0.5rem;
+}
+
+.carta-footer-info {
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #374151;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 3rem;
+}
+
 /* --- FOOTER --- */
 .footer-main {
   padding: 1.5rem;

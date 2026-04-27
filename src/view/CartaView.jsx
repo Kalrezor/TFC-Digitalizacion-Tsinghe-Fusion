@@ -361,72 +361,41 @@ const menuData = {
 
 const ImagenAlergeno = ({ idAlergeno }) => {
   const infoAlergeno = menuData.alergenos.find(a => a.id === idAlergeno);
-  
   if (!infoAlergeno) return null;
-
   return (
     <img 
       src={infoAlergeno.imagen}
       alt={infoAlergeno.nombre}
       title={infoAlergeno.nombre}
-      className="me-1 border rounded"
-      style={{ 
-        width: '2rem',
-        height: '2rem', 
-        objectFit: 'contain',
-        backgroundColor: '#fff',
-        padding: '2px'
-      }}
+      className="me-1 border rounded img-alergeno-small" 
     />
   );
 };
 
 export default function CartaView() {
   return (
-    <div className="container py-5 px-3" style={{ maxWidth: '900px' }}>
-      <header className="text-center mb-5">
-        <h2 className="display-5 fw-bold text-dark text-uppercase" style={{ letterSpacing: '0.15em' }}>
-          Nuestra Carta
-        </h2>
+    <div className="container py-5 px-3 carta-container">
+      <header className="text-center mb-5 carta-header">
+        <h2 className="display-5 fw-bold text-dark text-uppercase">Nuestra Carta</h2>
         <p className="text-secondary fst-italic">Tsinghe Cocina Fusión</p>
       </header>
 
       <div className="d-flex flex-column gap-5">
         {menuData.menu.map((seccion, idx) => (
           <section key={idx}>
-            <h3 className="h4 fw-bold pb-2 mb-4 text-uppercase" 
-                style={{ 
-                  color: '#b45309',
-                  borderBottom: '2px solid #f59e0b'
-                }}>
-              {seccion.categoria}
-            </h3>
-
+            <h3 className="h4 fw-bold carta-category-title">{seccion.categoria}</h3>
             <div className="row g-4">
               {seccion.platos.map((plato, pIdx) => (
                 <div key={pIdx} className="col-12 col-md-6">
-                  <div className="d-flex justify-content-between align-items-start h-100 border-0">
-                    <div className="pe-3 flex-grow-1">
-                      <h5 className="fw-bold text-dark mb-1" style={{ fontSize: '1.1rem' }}>
-                        {plato.nombre}
-                      </h5>
-                      {plato.descripcion && (
-                        <p className="text-muted mb-1 small" style={{ lineHeight: '1.2' }}>
-                          {plato.descripcion}
-                        </p>
-                      )}
-                      
-                      {plato.alergenos && plato.alergenos.length > 0 && (
-                        <div className="d-flex flex-wrap mt-2">
-                          {plato.alergenos.map(id => (
-                            <ImagenAlergeno key={id} idAlergeno={id} />
-                          ))}
-                        </div>
-                      )}
+                  <div className="plato-item">
+                    <div className="pe-3 flex-grow-1 text-start">
+                      <h5 className="fw-bold text-dark mb-1" style={{ fontSize: '1.1rem' }}>{plato.nombre}</h5>
+                      {plato.descripcion && <p className="text-muted mb-1 small">{plato.descripcion}</p>}
+                      <div className="d-flex flex-wrap mt-2">
+                        {plato.alergenos?.map(id => <ImagenAlergeno key={id} idAlergeno={id} />)}
+                      </div>
                     </div>
-                    
-                    <span className="fw-bold text-dark px-2 py-1 rounded" 
-                          style={{ backgroundColor: '#f3f4f6', minWidth: 'fit-content' }}>
+                    <span className="plato-precio">
                       {typeof plato.precio === 'number' ? `${plato.precio.toFixed(2)}€` : plato.precio}
                     </span>
                   </div>
@@ -437,39 +406,18 @@ export default function CartaView() {
         ))}
       </div>
 
-      <footer className="mt-5 p-4 rounded-3 border" 
-              style={{ 
-                backgroundColor: '#fffbeb',
-                borderColor: '#fde68a',
-                color: '#374151'
-              }}>
+      <footer className="carta-footer-info">
         <p className="fw-bold mb-3 h5 text-dark">Información sobre alérgenos:</p>
-
-        <p className="small mb-0 mt-4 fst-italic">
-          Si usted tiene alguna alergia alimentaria, por favor póngase en contacto con nuestro personal. 
-          Debido a nuestra elaboración artesanal, todos los platos pueden contener trazas de alérgenos.
-        </p>
-        
         <div className="row g-3">
           {menuData.alergenos.map(alergeno => (
             <div key={alergeno.id} className="col-12 col-sm-6 col-md-4 d-flex align-items-center">
-              <img 
-                src={alergeno.imagen}
-                alt={alergeno.nombre}
-                className="me-2 border rounded"
-                style={{ 
-                  width: '3rem',
-                  height: '3rem', 
-                  objectFit: 'contain', 
-                  backgroundColor: '#fff', 
-                  padding: '4px' 
-                }}
-              />
+              <img src={alergeno.imagen} alt={alergeno.nombre} className="border rounded img-alergeno-footer" />
               <span className="text-muted small">{alergeno.nombre}</span>
             </div>
           ))}
         </div>
-      
+        <p className="small mb-0 mt-4 fst-italic">Si usted tiene alguna alergia alimentaria, por favor póngase en contacto con nuestro personal.
+          Debido a nuestra elaboración artesanal, todos los platos pueden contener trazas de alérgenos.</p>
       </footer>
     </div>
   );
