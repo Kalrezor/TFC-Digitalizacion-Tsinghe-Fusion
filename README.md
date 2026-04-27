@@ -1,10 +1,21 @@
-### feat: login y registro funcionales con Firebase
+### feat: control de acceso por roles y navegación inteligente
 
-He integrado la lógica necesaria para que el inicio de sesión y la creación de cuentas funcionen de forma real, conectando la aplicación con los servicios de autenticación y base de datos.
+He implementado un sistema robusto de permisos y navegación condicional que personaliza la experiencia del usuario según su perfil (visitante, comensal o administrador).
 
 **Cambios principales:**
 
-* **Conexión con Firebase**: Implementación del sistema de autenticación que permite a los usuarios registrarse e iniciar sesión de manera segura.
-* **Registro de Usuarios**: Al crear una cuenta, el sistema guarda automáticamente la información en la base de datos (Firestore) asignando por defecto el rol de "comensal" y activando su perfil.
-* **Flexibilidad de Acceso**: Se han simplificado los requisitos de los formularios para permitir un acceso rápido, validando únicamente el formato de correo electrónico y una longitud mínima de contraseña.
-* **Experiencia de Usuario**: El formulario permite alternar dinámicamente entre el modo de acceso y el de registro, ofreciendo una navegación más fluida y sencilla.
+* **Control de Roles (Firestore)**: Integración completa con la base de datos para identificar el rol del usuario (`comensal` o `admin`) en tiempo real al iniciar sesión.
+* **Navegación Condicional**: 
+    * **Visitantes**: Pueden visualizar "Inicio", "La Carta", "Nosotros" y el formulario de "Login".
+    * **Comensales**: Tienen acceso a "Inicio", "La Carta" y "Reservar". Se ocultan las secciones informativas de visitantes.
+    * **Administradores**: Interfaz exclusiva de gestión. Se eliminan las secciones públicas ("Inicio" y "La Carta") y se habilitan el "Panel de Control", "Gestión de Menú" y "Gestión de Reservas".
+
+* **Lógica de Redirección Automática**:
+    * Al iniciar sesión como administrador, el sistema redirige directamente al **Panel de Control**.
+    * Al cerrar sesión, el sistema limpia el estado y devuelve automáticamente al usuario a la vista de **Inicio**.
+
+* **Seguridad y Estabilidad**:
+    * Implementación de un estado de carga (`loading`) para evitar parpadeos visuales mientras Firebase verifica la identidad.
+    * Refuerzo de las condiciones de renderizado en `App.jsx` para impedir el acceso accidental a vistas que no corresponden al rol activo.
+    
+* **Vistas de Gestión (Placeholders)**: Creación de los componentes base para el Panel de Administración y la Gestión del Menú, permitiendo verificar el flujo de trabajo completo.
