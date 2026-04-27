@@ -1,10 +1,13 @@
-### feat: modificada la carta para ser automatica a la base de datos
+### feat: rediseño de la carta con tarjetas visuales y formato extendido
 
-Se ha actualizado la carta para que el almacenamiento se guie de la base de datos, mostrando cada plato dentro de su respectiva categoría.
+He modificado la carta para que sea mucho más visual y profesional, utilizando un diseño de tarjetas rectangulares y aprovechando todo el ancho de la pantalla.
 
 **Cambios principales:**
 
-* **Platos Ocultos**: La carta solo muestra lo que esté marcado como "Disponible". Lo que desactives en el panel desaparece de la vista del cliente.
-* **Alérgenos Visuales**: Los iconos aparecen junto a cada plato y se ha incluido una leyenda al final de la carta para informar a los comensales.
-* **Carta Dinámica**: Conexión directa con la base de datos eliminando textos fijos.
-* **Categorización Inteligente**: Los platos se organizan solos según su sección.
+* **Diseño en Tarjetas**: Cada plato aparece ahora en un rectángulo que organiza de forma clara la foto, el nombre, la descripción y el precio.
+
+* **Fotos de Platos**: Integración de imágenes dinámicas para cada plato.
+
+* **Formato Extendido**: Se ha ampliado el ancho de la carta para reducir espacios vacíos y permitir una navegación más cómoda y moderna.
+
+* **Categorización Automática**: Los platos se agrupan solos por secciones (Sopas, Sushi, Arroces...) sin necesidad de retocar el código.

@@ -21,7 +21,6 @@ const menuData = {
   ]
 };
 
-// Componente para renderizar cada icono de alérgeno
 const ImagenAlergeno = ({ idAlergeno }) => {
   const infoAlergeno = menuData.alergenos.find(a => a.id === idAlergeno);
   if (!infoAlergeno) return null;
@@ -30,7 +29,7 @@ const ImagenAlergeno = ({ idAlergeno }) => {
       src={infoAlergeno.imagen}
       alt={infoAlergeno.nombre}
       title={infoAlergeno.nombre}
-      className="me-1 border rounded img-alergeno-small" 
+      className="img-alergeno-small" 
     />
   );
 };
@@ -40,13 +39,11 @@ export default function CartaView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Consultamos solo los platos disponibles
     const q = query(collection(db, "menus"), where("available", "==", true));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const platos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       
-      // Agrupamos los platos por categoría
       const agrupados = platos.reduce((acc, plato) => {
         const cat = plato.category || "OTROS";
         if (!acc[cat]) acc[cat] = [];
@@ -61,38 +58,43 @@ export default function CartaView() {
     return () => unsubscribe();
   }, []);
 
-  if (loading) return <div className="view-container">Cargando la carta...</div>;
+  if (loading) return <div className="view-container">Cargando la carta fusión...</div>;
 
   return (
-    <div className="container py-5 px-3 carta-container">
+    <div className="container-fluid py-5 px-4 carta-container-wide">
       <header className="text-center mb-5 carta-header">
-        <h2 className="display-5 fw-bold text-dark text-uppercase">Nuestra Carta</h2>
-        <p className="text-secondary fst-italic">Tsinghe Cocina Fusión</p>
+        <h2 className="display-4 fw-bold text-dark text-uppercase">Nuestra Carta</h2>
+        <p className="text-secondary h5 fst-italic">Tsinghe Cocina Fusión</p>
       </header>
 
       <div className="d-flex flex-column gap-5">
         {Object.keys(menuAgrupado).map((categoria) => (
-          <section key={categoria}>
-            <h3 className="h4 fw-bold carta-category-title">{categoria}</h3>
+          <section key={categoria} className="categoria-section">
+            <h3 className="carta-category-title">{categoria}</h3>
             <div className="row g-4">
               {menuAgrupado[categoria].map((plato) => (
-                <div key={plato.id} className="col-12 col-md-6">
-                  <div className="plato-item">
-                    <div className="pe-3 flex-grow-1 text-start">
-                      <h5 className="fw-bold text-dark mb-1" style={{ fontSize: '1.1rem' }}>
-                        {plato.name}
-                      </h5>
-                      {plato.description && (
-                        <p className="text-muted mb-1 small">{plato.description}</p>
+                <div key={plato.id} className="col-12 col-xl-6">
+                  <div className="plato-card-rect">
+                    <div className="plato-card-img-wrapper">
+                      {plato.imageUrl ? (
+                        <img src={plato.imageUrl} alt={plato.name} className="plato-img-full" />
+                      ) : (
+                        <div className="plato-img-placeholder">Tsinghe</div>
                       )}
-                      <div className="d-flex flex-wrap mt-2">
+                    </div>
+                    
+                    <div className="plato-card-body">
+                      <div className="d-flex justify-content-between align-items-start">
+                        <h5 className="plato-name-full">{plato.name}</h5>
+                        <span className="plato-precio-bold">{Number(plato.price).toFixed(2)}€</span>
+                      </div>
+                      <p className="plato-desc-full">{plato.description}</p>
+                      
+                      <div className="plato-alergenos-row">
                         {Array.isArray(plato.allergens) && 
                           plato.allergens.map(id => <ImagenAlergeno key={id} idAlergeno={id} />)}
                       </div>
                     </div>
-                    <span className="plato-precio">
-                      {typeof plato.price === 'number' ? `${plato.price.toFixed(2)}€` : plato.price}
-                    </span>
                   </div>
                 </div>
               ))}
@@ -101,19 +103,18 @@ export default function CartaView() {
         ))}
       </div>
 
-      <footer className="carta-footer-info">
-        <p className="fw-bold mb-3 h5 text-dark">Información sobre alérgenos:</p>
-        <div className="row g-3">
+      <footer className="carta-footer-info mt-5">
+        <p className="fw-bold mb-4 h4 text-dark text-center">Información sobre alérgenos</p>
+        <div className="alergenos-footer-grid">
           {menuData.alergenos.map(alergeno => (
-            <div key={alergeno.id} className="col-12 col-sm-6 col-md-4 d-flex align-items-center">
-              <img src={alergeno.imagen} alt={alergeno.nombre} className="border rounded img-alergeno-footer" />
+            <div key={alergeno.id} className="alergeno-footer-item">
+              <img src={alergeno.imagen} alt={alergeno.nombre} className="img-alergeno-footer" />
               <span className="text-muted small">{alergeno.nombre}</span>
             </div>
           ))}
         </div>
-        <p className="small mb-0 mt-4 fst-italic">
+        <p className="small mb-0 mt-4 text-center fst-italic border-top pt-3 text-secondary">
           Si usted tiene alguna alergia alimentaria, por favor póngase en contacto con nuestro personal.
-          Debido a nuestra elaboración artesanal, todos los platos pueden contener trazas de alérgenos.
         </p>
       </footer>
     </div>
