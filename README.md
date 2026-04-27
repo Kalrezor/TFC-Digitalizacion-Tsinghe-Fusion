@@ -1,21 +1,22 @@
-### feat: control de acceso por roles y navegación inteligente
+### feat: agregada la visualización y gestión de los platos para el admin
 
-He implementado un sistema robusto de permisos y navegación condicional que personaliza la experiencia del usuario según su perfil (visitante, comensal o administrador).
+He hecho la parte tanto visual como tecnica iniciar para la gestión de platos por parte del admin, ahora este tiene un panel donde visualiza los platos que hay en la base de datos y tiene la opción de eliminarlos. Tambien puede registrar nuevos platos desde esa ventana.
 
 **Cambios principales:**
 
-* **Control de Roles (Firestore)**: Integración completa con la base de datos para identificar el rol del usuario (`comensal` o `admin`) en tiempo real al iniciar sesión.
-* **Navegación Condicional**: 
-    * **Visitantes**: Pueden visualizar "Inicio", "La Carta", "Nosotros" y el formulario de "Login".
-    * **Comensales**: Tienen acceso a "Inicio", "La Carta" y "Reservar". Se ocultan las secciones informativas de visitantes.
-    * **Administradores**: Interfaz exclusiva de gestión. Se eliminan las secciones públicas ("Inicio" y "La Carta") y se habilitan el "Panel de Control", "Gestión de Menú" y "Gestión de Reservas".
+* **Gestión de Menú**:
+    * Implementación de una interfaz de doble columna: listado dinámico a la izquierda y panel de creación a la derecha.
+    * Sincronización en tiempo real con la colección `menus` de Firestore mediante `onSnapshot`.
 
-* **Lógica de Redirección Automática**:
-    * Al iniciar sesión como administrador, el sistema redirige directamente al **Panel de Control**.
-    * Al cerrar sesión, el sistema limpia el estado y devuelve automáticamente al usuario a la vista de **Inicio**.
+* **Sistema de Alérgenos Visual**:
+    * Creación de una arquitectura de datos donde los platos se vinculan a alérgenos mediante IDs (1-14).
+    * Selector visual en el formulario mediante una cuadrícula de iconos interactivos.
+    * Visualización de iconos de alérgenos en cada tarjeta de la lista de platos actuales.
 
-* **Seguridad y Estabilidad**:
-    * Implementación de un estado de carga (`loading`) para evitar parpadeos visuales mientras Firebase verifica la identidad.
-    * Refuerzo de las condiciones de renderizado en `App.jsx` para impedir el acceso accidental a vistas que no corresponden al rol activo.
-    
-* **Vistas de Gestión (Placeholders)**: Creación de los componentes base para el Panel de Administración y la Gestión del Menú, permitiendo verificar el flujo de trabajo completo.
+* **Integración con Firebase Storage**:
+    * Sustitución de entradas de texto por un **botón de carga de archivos**.
+    * Flujo de subida automatizado: el sistema sube la imagen al Storage, genera la URL de descarga y la vincula al documento de Firestore.
+
+* **Seguridad y Reglas (RBAC)**:
+    * Actualización de las **Security Rules** en Firestore para proteger las colecciones `menus` y `allergen`, permitiendo escritura solo a usuarios con rol `admin`.
+    * Configuración de reglas de **Storage** para permitir la lectura pública de imágenes y restringir la subida a personal autorizado.

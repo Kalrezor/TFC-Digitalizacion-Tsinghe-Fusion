@@ -219,6 +219,278 @@
   margin-top: 3rem;
 }
 
+/* --- GESTIÓN DEL MENÚ --- */
+
+/* --- GESTIÓN DEL MENÚ --- */
+
+.admin-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px; 
+  gap: 30px;
+  width: 95%;
+  max-width: 1400px;
+  margin: 1rem auto;
+  align-items: start;
+}
+
+.admin-column-left, .admin-column-right {
+  text-align: left;
+}
+
+.admin-subtitle {
+  color: var(--color-secondary);
+  font-family: serif;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 10px;
+}
+
+/* Rectángulo de lista (Fondo claro y bordes suaves) */
+.main-list-container {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+  height: calc(100vh - 300px); 
+  overflow-y: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+/* Columna Derecha (Formulario) */
+.admin-side-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+}
+
+.form-group-admin {
+  margin-bottom: 1.2rem;
+}
+
+.form-group-admin label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.form-group-admin input, 
+.form-group-admin select, 
+.form-group-admin textarea {
+  background: #fdfdfd;
+  border: 1px solid #ddd;
+  color: #333;
+  padding: 12px;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.form-group-admin textarea {
+  resize: none;
+  min-height: 80px;
+}
+
+.form-group-admin input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* --- BOTONES --- */
+
+/* Botón de Cargar Imagen (Estilizado) */
+.btn-upload-custom {
+  display: block;
+  background: white;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.btn-upload-custom:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.file-name-display {
+  display: block;
+  font-size: 0.7rem;
+  color: #888;
+  text-align: center;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+.btn-save {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 14px;
+  width: 100%;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+  margin-top: 10px;
+}
+
+.btn-save:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-save:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-delete {
+  background: #fff;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+/* --- TARJETAS DE LISTADO --- */
+
+.plato-card-admin {
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.img-plato-mini {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 15px;
+  border: 1px solid #ddd;
+}
+
+.plato-info {
+  flex: 1;
+}
+
+.plato-category-tag {
+  font-size: 0.7rem;
+  color: var(--color-primary);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.plato-name-admin {
+  color: #333;
+  margin: 2px 0;
+  font-family: serif;
+  font-size: 1.1rem;
+}
+
+.plato-desc-admin {
+  color: #777;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.plato-price-admin {
+  font-weight: bold;
+  color: #333;
+}
+
+.empty-msg {
+  color: var(--color-text-light);
+  padding: 2rem;
+  font-style: italic;
+  text-align: center;
+}
+
+/* --- SECCIÓN ALÉRGENOS --- */
+
+.alergenos-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+  gap: 8px;
+  background: #fdfcf9;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.alergeno-box {
+  width: 42px;
+  height: 42px;
+  padding: 4px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-sizing: border-box;
+}
+
+.alergeno-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.alergeno-box:hover {
+  background: #f0f0f0;
+}
+
+.alergeno-box.active {
+  border-color: var(--color-primary);
+  background: #fff5f5;
+}
+
+.plato-alergenos-tags {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.img-alergeno-tiny {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  background: white;
+  padding: 2px;
+  border-radius: 4px;
+  border: 1px solid #eee;
+}
+
 /* --- FOOTER --- */
 .footer-main {
   padding: 1.5rem;
