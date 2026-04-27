@@ -1,7 +1,9 @@
-### style: mejora de visualización en la carta con alergenos y sus iconos
+### feat: diseño visual de inicio de sesión y creación de archivo css global
 
-He añadido para que se puedan visualizar los alergenos en la carta y mejora en la visualización de la carta.
+He realizado el diseño de las vistas de login y registro, y he adaptando sus estilos en un unico archivo para asi empezar a organizar asi tambien los estilos de todas las partes en ese archivo de forma global
 
 **Cambios principales:**
 
-* **Visualización de la Carta**: He añadido para que se pueda visualizar los alergenos con sus iconos para cada plato, además tambien he agregado un indice de cada alergeno con su icono correspondiente.
+* **Diseño de Autenticación**: Creación del diseño visual para el login y el registro de usuarios, permitiendo alternar entre ambos de forma sencilla.
+* **Consistencia Visual**: Unificación de los estilos en App.css, adaptando los colores y la tipografía para que coincidan con el diseño inicial de la página.
+* **Interfaz de Usuario**: Mejora en la presentación de los formularios, botones y títulos para que el acceso al sistema sea más intuitivo y visualmente atractivo.

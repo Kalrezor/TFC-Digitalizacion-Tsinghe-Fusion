@@ -384,12 +384,11 @@ const ImagenAlergeno = ({ idAlergeno }) => {
 export default function CartaView() {
   return (
     <div className="container py-5 px-3" style={{ maxWidth: '900px' }}>
-      {/* Encabezado */}
       <header className="text-center mb-5">
         <h2 className="display-5 fw-bold text-dark text-uppercase" style={{ letterSpacing: '0.15em' }}>
           Nuestra Carta
         </h2>
-        <p className="text-secondary fst-italic">Qinghe Cocina Fusión - El Cañaveral</p>
+        <p className="text-secondary fst-italic">Tsinghe Cocina Fusión</p>
       </header>
 
       <div className="d-flex flex-column gap-5">
