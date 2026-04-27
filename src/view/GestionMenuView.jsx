@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db, storage } from '../firebase/config'; 
-import { collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const categoriasDisponibles = [
@@ -59,9 +59,17 @@ export default function GestionMenuView() {
     });
   };
 
+  const toggleDisponibilidad = async (id, estadoActual) => {
+    try {
+      await updateDoc(doc(db, "menus", id), { available: !estadoActual });
+    } catch (error) {
+      console.error("Error al actualizar disponibilidad:", error);
+    }
+  };
+
   const handleAddPlato = async (e) => {
     e.preventDefault();
-    if (!imagenArchivo) return alert("Por favor, selecciona una imagen");
+    if (!imagenArchivo) return alert("Por favor, carga una imagen para el plato.");
     
     setSubiendo(true);
     try {
@@ -80,7 +88,7 @@ export default function GestionMenuView() {
       setImagenArchivo(null);
     } catch (error) {
       console.error(error);
-      alert("Error al guardar");
+      alert("Error al guardar el plato.");
     } finally {
       setSubiendo(false);
     }
@@ -94,11 +102,11 @@ export default function GestionMenuView() {
           <h3 className="admin-subtitle">Platos Actuales</h3>
           <div className="main-list-container">
             {platos.map((plato) => (
-              <div key={plato.id} className="plato-card-admin">
+              <div key={plato.id} className={`plato-card-admin ${!plato.available ? 'plato-disabled' : ''}`}>
                 {plato.imageUrl && <img src={plato.imageUrl} alt="" className="img-plato-mini" />}
                 <div className="plato-info">
                   <span className="plato-category-tag">{plato.category}</span>
-                  <h4 className="plato-name-admin">{plato.name}</h4>
+                  <h4 className="plato-name-admin">{plato.name} {!plato.available && <span className="status-label">(Oculto)</span>}</h4>
                   <p className="plato-desc-admin">{plato.description}</p>
                   <span className="plato-price-admin">{plato.price}€</span>
                   <div className="plato-alergenos-tags">
@@ -108,7 +116,15 @@ export default function GestionMenuView() {
                     })}
                   </div>
                 </div>
-                <button onClick={() => deleteDoc(doc(db, "menus", plato.id))} className="btn-delete">Eliminar</button>
+                <div className="admin-actions-btns">
+                  <button 
+                    onClick={() => toggleDisponibilidad(plato.id, plato.available)} 
+                    className={`btn-status ${plato.available ? 'btn-active' : 'btn-inactive'}`}
+                  >
+                    {plato.available ? 'Desactivar' : 'Activar'}
+                  </button>
+                  <button onClick={() => deleteDoc(doc(db, "menus", plato.id))} className="btn-delete">Eliminar</button>
+                </div>
               </div>
             ))}
           </div>
@@ -118,28 +134,27 @@ export default function GestionMenuView() {
           <div className="admin-side-card">
             <h3 className="admin-subtitle">Nuevo Plato</h3>
             <form onSubmit={handleAddPlato} className="admin-form">
-              
               <div className="form-group-admin">
                 <label>Nombre del Plato</label>
-                <input type="text" value={nuevoPlato.name} onChange={(e) => setNuevoPlato({...nuevoPlato, name: e.target.value})} required placeholder="Ej: Pato Pekín" />
+                <input type="text" value={nuevoPlato.name} onChange={(e) => setNuevoPlato({...nuevoPlato, name: e.target.value})} required />
               </div>
-
-              {/* NUEVO CAMPO: DESCRIPCIÓN */}
               <div className="form-group-admin">
                 <label>Descripción</label>
-                <textarea 
-                  value={nuevoPlato.description} 
-                  onChange={(e) => setNuevoPlato({...nuevoPlato, description: e.target.value})} 
-                  placeholder="Ingredientes o detalles..."
-                  rows="3"
-                />
+                <textarea value={nuevoPlato.description} onChange={(e) => setNuevoPlato({...nuevoPlato, description: e.target.value})} rows="3" />
               </div>
-
               <div className="form-group-admin">
                 <label>Precio (€)</label>
-                <input type="number" step="0.01" value={nuevoPlato.price} onChange={(e) => setNuevoPlato({...nuevoPlato, price: e.target.value})} required />
+                <input 
+                  type="number" 
+                  min="0" 
+                  step="any" 
+                  className="no-spin" 
+                  value={nuevoPlato.price} 
+                  onChange={(e) => setNuevoPlato({...nuevoPlato, price: e.target.value})} 
+                  required 
+                  placeholder="0.00"
+                />
               </div>
-
               <div className="form-group-admin">
                 <label>Categoría</label>
                 <select value={nuevoPlato.category} onChange={(e) => setNuevoPlato({...nuevoPlato, category: e.target.value})} required>
@@ -147,12 +162,10 @@ export default function GestionMenuView() {
                   {categoriasDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-
-              {/* MEJORA: BOTÓN DE CARGA DE IMAGEN */}
               <div className="form-group-admin">
                 <label>Imagen del Plato</label>
                 <label htmlFor="file-input" className="btn-upload-custom">
-                   {imagenArchivo ? "✓ IMAGEN SELECCIONADA" : "CARGAR IMAGEN"}
+                  {imagenArchivo ? "✓ IMAGEN SELECCIONADA" : "CARGAR IMAGEN"}
                 </label>
                 <input 
                   type="file" 
@@ -163,23 +176,20 @@ export default function GestionMenuView() {
                 />
                 {imagenArchivo && <span className="file-name-display">{imagenArchivo.name}</span>}
               </div>
-              
               <div className="form-group-admin">
                 <label>Alérgenos</label>
                 <div className="alergenos-visual-grid">
                   {listaAlergenos.map(al => (
                     <div 
                       key={al.id} 
-                      className={`alergeno-box ${(nuevoPlato.allergens || []).includes(al.id) ? 'active' : ''}`}
+                      className={`alergeno-box ${(nuevoPlato.allergens || []).includes(al.id) ? 'active' : ''}`} 
                       onClick={() => toggleAlergeno(al.id)}
-                      title={al.nombre}
                     >
                       <img src={al.imagen} alt={al.nombre} />
                     </div>
                   ))}
                 </div>
               </div>
-
               <button type="submit" className="btn-save" disabled={subiendo}>
                 {subiendo ? 'SUBIENDO...' : 'GUARDAR PLATO'}
               </button>

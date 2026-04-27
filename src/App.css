@@ -221,8 +221,6 @@
 
 /* --- GESTIÓN DEL MENÚ --- */
 
-/* --- GESTIÓN DEL MENÚ --- */
-
 .admin-main-grid {
   display: grid;
   grid-template-columns: 1fr 380px; 
@@ -246,7 +244,6 @@
   padding-bottom: 10px;
 }
 
-/* Rectángulo de lista (Fondo claro y bordes suaves) */
 .main-list-container {
   background: #ffffff;
   border: 1px solid var(--color-border);
@@ -257,7 +254,6 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
 }
 
-/* Columna Derecha (Formulario) */
 .admin-side-card {
   background: #ffffff;
   border: 1px solid var(--color-border);
@@ -301,9 +297,19 @@
   border-color: var(--color-primary);
 }
 
+/* Quitar flechas del input de precio */
+input.no-spin::-webkit-outer-spin-button,
+input.no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input.no-spin[type=number] {
+  -moz-appearance: textfield;
+}
+
 /* --- BOTONES --- */
 
-/* Botón de Cargar Imagen (Estilizado) */
 .btn-upload-custom {
   display: block;
   background: white;
@@ -356,6 +362,29 @@
   cursor: not-allowed;
 }
 
+.admin-actions-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.btn-status {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.btn-active { background: #f0fdf4; color: #16a34a; border-color: #16a34a; }
+.btn-active:hover { background: #16a34a; color: white; }
+
+.btn-inactive { background: #fef2f2; color: #dc2626; border-color: #dc2626; }
+.btn-inactive:hover { background: #dc2626; color: white; }
+
 .btn-delete {
   background: #fff;
   color: #e74c3c;
@@ -367,10 +396,7 @@
   transition: all 0.2s;
 }
 
-.btn-delete:hover {
-  background: #e74c3c;
-  color: #fff;
-}
+.btn-delete:hover { background: #e74c3c; color: #fff; }
 
 /* --- TARJETAS DE LISTADO --- */
 
@@ -383,6 +409,12 @@
   display: flex;
   align-items: center;
   text-align: left;
+  transition: all 0.3s;
+}
+
+.plato-disabled {
+  opacity: 0.5;
+  background: #f0f0f0;
 }
 
 .img-plato-mini {
@@ -396,6 +428,13 @@
 
 .plato-info {
   flex: 1;
+}
+
+.status-label {
+  font-size: 0.75rem;
+  color: #dc2626;
+  font-weight: normal;
+  font-style: italic;
 }
 
 .plato-category-tag {
@@ -466,9 +505,7 @@
   object-fit: contain;
 }
 
-.alergeno-box:hover {
-  background: #f0f0f0;
-}
+.alergeno-box:hover { background: #f0f0f0; }
 
 .alergeno-box.active {
   border-color: var(--color-primary);
