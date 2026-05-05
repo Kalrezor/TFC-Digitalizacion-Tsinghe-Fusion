@@ -1,4 +1,4 @@
-### feat: rediseño de la carta con tarjetas visuales y formato extendido
+### refactor: mejora de estilos en App.css y orden de categorias de la carta
 
 He modificado la carta para que sea mucho más visual y profesional, utilizando un diseño de tarjetas rectangulares y aprovechando todo el ancho de la pantalla.
 

@@ -3,6 +3,12 @@ import { db } from '../firebase/config';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 
 const menuData = {
+  ordenCategorias: [
+    "ENSALADAS", "SOPAS", "ARROZES", "FIDEOS Y TALLARINES", "DIM SUM", 
+    "VERDURA", "TERNERA", "POLLO", "PATO", "CERDO", "MARISCO", 
+    "NIGIRIS", "GUNKAN", "MAKI", "ROLL", "TEMAKI", "SASHIMI", 
+    "TATAKI", "TARTAR", "POKE", "BANDEJAS", "POSTRES", "CAFÉS Y TÉS", "BEBIDAS", "VINOS"
+  ],
   alergenos: [
     { id: 1, nombre: "Cereales con gluten", imagen: "/assets/ico_cereales.png" },
     { id: 2, nombre: "Crustáceos", imagen: "/assets/ico_crustaceos.png" },
@@ -60,6 +66,10 @@ export default function CartaView() {
 
   if (loading) return <div className="view-container">Cargando la carta fusión...</div>;
 
+  const categoriasOrdenadas = menuData.ordenCategorias.filter(
+    cat => menuAgrupado[cat] && menuAgrupado[cat].length > 0
+  );
+
   return (
     <div className="container-fluid py-5 px-4 carta-container-wide">
       <header className="text-center mb-5 carta-header">
@@ -68,7 +78,7 @@ export default function CartaView() {
       </header>
 
       <div className="d-flex flex-column gap-5">
-        {Object.keys(menuAgrupado).map((categoria) => (
+        {categoriasOrdenadas.map((categoria) => (
           <section key={categoria} className="categoria-section">
             <h3 className="carta-category-title">{categoria}</h3>
             <div className="row g-4">

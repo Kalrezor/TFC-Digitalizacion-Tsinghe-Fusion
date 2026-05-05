@@ -255,6 +255,7 @@
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -382,7 +383,6 @@
   border-color: var(--color-primary);
 }
 
-/* Quitar flechas del input de precio */
 input.no-spin::-webkit-outer-spin-button,
 input.no-spin::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -391,6 +391,7 @@ input.no-spin::-webkit-inner-spin-button {
 
 input.no-spin[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* --- BOTONES ADMINISTRATIVOS --- */
