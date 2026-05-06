@@ -1,13 +1,7 @@
-### refactor: mejora de estilos en App.css y orden de categorias de la carta
+### feat: sincronización con repositorio base y limpieza estructural de node_modules (rama: feat/angel)
 
-He modificado la carta para que sea mucho más visual y profesional, utilizando un diseño de tarjetas rectangulares y aprovechando todo el ancho de la pantalla.
+Se ha procedido a la **eliminación de los tres últimos commits erróneos** para limpiar el historial de la rama. Posteriormente, se ha sincronizado el proyecto mediante la **copia directa del código original** desde el repositorio personal de Angel, asegurando la integridad de la estructura MVC y Tailwind sin los problemas previos de archivos pesados.
 
-**Cambios principales:**
+**Consolidación técnica:**
 
-* **Diseño en Tarjetas**: Cada plato aparece ahora en un rectángulo que organiza de forma clara la foto, el nombre, la descripción y el precio.
-
-* **Fotos de Platos**: Integración de imágenes dinámicas para cada plato.
-
-* **Formato Extendido**: Se ha ampliado el ancho de la carta para reducir espacios vacíos y permitir una navegación más cómoda y moderna.
-
-* **Categorización Automática**: Los platos se agrupan solos por secciones (Sopas, Sushi, Arroces...) sin necesidad de retocar el código.
+* **Gestión de Dependencias**: Configuración de un `.gitignore` robusto que excluye definitivamente `node_modules/`, `functions/node_modules/` y `.env`.
