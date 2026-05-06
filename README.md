@@ -1,7 +1,8 @@
-### feat: sincronización con repositorio base y limpieza estructural de node_modules (rama: feat/angel)
+### refactor: arreglo del estilo visual y funcionalidad en la gestión de menu y carga de nuevas tablas de la bbdd
 
-Se ha procedido a la **eliminación de los tres últimos commits erróneos** para limpiar el historial de la rama. Posteriormente, se ha sincronizado el proyecto mediante la **copia directa del código original** desde el repositorio personal de Angel, asegurando la integridad de la estructura MVC y Tailwind sin los problemas previos de archivos pesados.
+Se ha mejorado el estilo visual y funcionalidad agregandole las opciones de que al rellenar el formulario de agregar el plato puedas visualizar todas las categorias y puedas visualizar bien los alergenos para poder rellenar el formulario facilmente, tambien se ha modificado la tabla donde se muestra todo para que se visualicen los alergenos establecidos y las imagenes de los platos .
 
-**Consolidación técnica:**
+**Cambios principales:**
 
-* **Gestión de Dependencias**: Configuración de un `.gitignore` robusto que excluye definitivamente `node_modules/`, `functions/node_modules/` y `.env`.
+* **Consistencia Visual**: Modificación de la tabla de platos agregandole imagenes de estos y logos de los alergenos incluidos, mejora de visualización en las partes de seleccionar categorias para verlas de forma que no ocupe mucho y sea sencillo, y mejora en la visualización de los alergenos en un checklist para poder seleccionar varios.
+* **Cambios BBDD**: Agregados la tabla de **allergens**, **category**, y **plate** y actualizados mejor en el codigo para que estraiga los datos de ahí.

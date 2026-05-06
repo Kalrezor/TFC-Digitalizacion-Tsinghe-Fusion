@@ -1,26 +1,24 @@
 // Vista: AdminMenu.js
-// Vista de administracion del menu para usuarios con rol de administrador.
-// CRUD completo de platos del menu para administradores.
-// Importaciones corregidas desde models/ (no services/).
+// Vista de administración del menú para usuarios con rol de administrador.
+// CRUD completo de platos vinculado a Firebase con Selectores Personalizados.
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import menuService from "../models/MenuService";
 import "../styles/ChineseStyle.css";
 
-const CATEGORIES = ["Entradas", "Platos Principales", "Postres", "Bebidas", "Otros"];
-
 const EMPTY_FORM = {
-  name: "",
-  description: "",
-  price: "",
-  category: "",
-  allergens: "",
-  imageUrl: "",
-  available: true,
+  nombre: "",
+  descripcion: "",
+  precio: "",
+  idCategoria: "",
+  alergenos: [],
+  imagen: "",
 };
 
 const AdminMenu = () => {
-  const [dishes, setDishes]           = useState([]);
+  const [plates, setPlates]           = useState([]);
+  const [categories, setCategories]   = useState([]);
+  const [allAllergens, setAllAllergens] = useState({});
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState(null);
   const [success, setSuccess]         = useState(null);
@@ -29,266 +27,289 @@ const AdminMenu = () => {
   const [showForm, setShowForm]       = useState(false);
   const [editingId, setEditingId]     = useState(null);
   const [formData, setFormData]       = useState(EMPTY_FORM);
+  const [imagePreview, setImagePreview] = useState(null);
 
-  // Carga inicial
-  useEffect(() => { loadDishes(); }, []);
+  const [isOpenCat, setIsOpenCat] = useState(false);
+  const [isOpenFilter, setIsOpenFilter] = useState(false);
+  const catRef = useRef(null);
+  const filterRef = useRef(null);
 
-  const loadDishes = async () => {
-    setLoading(true);
-    setError(null);
-    const result = await menuService.getAllMenus();
-    setLoading(false);
-    if (result.success) {
-      setDishes(result.menus);
-    } else {
-      setError("Error al cargar los platos: " + result.error);
-    }
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (catRef.current && !catRef.current.contains(event.target)) setIsOpenCat(false);
+      if (filterRef.current && !filterRef.current.contains(event.target)) setIsOpenFilter(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const [resAllergens, resCats, resPlates] = await Promise.all([
+        menuService.getAllAllergens(),
+        menuService.getAllCategories(),
+        menuService.getAllPlates()
+      ]);
+      if (resAllergens.success) setAllAllergens(resAllergens.data);
+      if (resCats.success) setCategories(resCats.data);
+      if (resPlates.success) setPlates(resPlates.data);
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  const loadPlatesOnly = async () => {
+    const result = await menuService.getAllPlates();
+    if (result.success) setPlates(result.data);
   };
 
-  // Formulario - abrir nuevo
   const openNew = () => {
     setFormData(EMPTY_FORM);
     setEditingId(null);
     setShowForm(true);
+    setImagePreview(null);
     setError(null);
     setSuccess(null);
   };
 
-  // Formulario - abrir edicion
-  const openEdit = (dish) => {
+  const openEdit = (plate) => {
     setFormData({
-      name:        dish.name        || "",
-      description: dish.description || "",
-      price:       dish.price       || "",
-      category:    dish.category    || "",
-      allergens:   dish.allergens   || "",
-      imageUrl:    dish.imageUrl    || "",
-      available:   dish.available !== false,
+      ...plate,
+      alergenos: Array.isArray(plate.alergenos) ? plate.alergenos : [],
     });
-    setEditingId(dish.id);
+    setEditingId(plate.id);
     setShowForm(true);
+    setImagePreview(plate.imagen);
     setError(null);
     setSuccess(null);
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    const { name, value } = e.target;
+    if (name === "precio") {
+      const val = value.replace(",", ".");
+      if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) setFormData(prev => ({ ...prev, [name]: val }));
+      return;
+    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAlergenoToggle = (id) => {
+    setFormData(prev => {
+      const exists = prev.alergenos.includes(id);
+      return { ...prev, alergenos: exists ? prev.alergenos.filter(a => a !== id) : [...prev.alergenos, id] };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.price) {
-      setError("Nombre y precio son obligatorios.");
+    if (!formData.nombre.trim() || !formData.precio || !formData.idCategoria) {
+      setError("Nombre, categoría y precio son obligatorios.");
       return;
     }
     setLoading(true);
-    setError(null);
-
-    const payload = { ...formData, price: parseFloat(formData.price) };
-    const result = editingId
-      ? await menuService.updateMenu(editingId, payload, true)
-      : await menuService.createMenu(payload, true);
-
+    const payload = { ...formData, precio: parseFloat(formData.precio) };
+    const result = editingId 
+      ? await menuService.updatePlate(editingId, payload, true)
+      : await menuService.createPlate(payload, true);
     setLoading(false);
     if (result.success) {
-      setSuccess(editingId ? "Plato actualizado correctamente." : "Plato creado correctamente.");
+      setSuccess("¡Guardado correctamente!");
       setShowForm(false);
-      setFormData(EMPTY_FORM);
-      setEditingId(null);
-      loadDishes();
-    } else {
-      setError("Error al guardar: " + result.error);
-    }
+      loadPlatesOnly();
+    } else setError(result.error);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Esta accion es irreversible. Eliminar este plato?")) return;
-    setLoading(true);
-    const result = await menuService.deleteMenu(id, true);
-    setLoading(false);
-    if (result.success) { setSuccess("Plato eliminado."); loadDishes(); }
-    else setError("Error al eliminar: " + result.error);
-  };
-
-  const handleToggle = async (dish) => {
-    const result = await menuService.toggleMenuAvailability(dish.id, !dish.available, true);
-    if (result.success) loadDishes();
-    else setError("Error al cambiar disponibilidad.");
-  };
-
-  // Filtros
-  const filtered = dishes.filter((d) => {
-    const matchSearch =
-      d.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      d.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCat = filterCat === "all" || d.category === filterCat;
+  const filtered = plates.filter(p => {
+    const matchSearch = p.nombre?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCat = filterCat === "all" || p.idCategoria === filterCat;
     return matchSearch && matchCat;
   });
 
+  const selectedCatName = categories.find(c => c.id === formData.idCategoria)?.nombre || "";
+  const filterCatName = filterCat === "all" ? "TODAS LAS CATEGORÍAS" : categories.find(c => c.id === filterCat)?.nombre || "";
+
   return (
     <div style={{ padding: "20px" }}>
-
-      {/* Cabecera */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h1 style={{ color: "#DC143C", margin: 0 }}>Administracion de Menu</h1>
-        <button onClick={openNew} disabled={loading} style={btnPrimary}>
-          + Nuevo Plato
-        </button>
+        <h1 style={{ color: "#DC143C", margin: 0 }}>Administración de Menú</h1>
+        <button onClick={openNew} disabled={loading} style={btnPrimary}>+ Nuevo Plato</button>
       </div>
 
-      {/* Mensajes */}
-      {error   && <div style={alertError}>{error}</div>}
+      {error && <div style={alertError}>{error}</div>}
       {success && <div style={alertSuccess}>{success}</div>}
 
-      {/* Formulario */}
       {showForm && (
         <div style={{ background: "#fff8f0", border: "2px solid #DC143C", borderRadius: "10px", padding: "24px", marginBottom: "24px" }}>
-          <h2 style={{ color: "#DC143C", marginTop: 0 }}>{editingId ? "Editar Plato" : "Nuevo Plato"}</h2>
           <form onSubmit={handleSubmit}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-
-              <div style={{ gridColumn: "1 / -1" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div>
                 <label style={labelStyle}>Nombre del Plato *</label>
-                <input name="name" value={formData.name} onChange={handleChange}
-                  placeholder="Ej: Pato Pekin" required style={inputStyle} />
-              </div>
-
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={labelStyle}>Descripcion</label>
-                <textarea name="description" value={formData.description} onChange={handleChange}
-                  rows={3} placeholder="Descripcion del plato..." style={{ ...inputStyle, resize: "vertical" }} />
+                <input name="nombre" value={formData.nombre} onChange={handleChange} required style={inputStyle} />
               </div>
 
               <div>
-                <label style={labelStyle}>Precio (euros) *</label>
-                <input name="price" type="number" step="0.01" min="0" value={formData.price}
-                  onChange={handleChange} placeholder="0.00" required style={inputStyle} />
+                <label style={labelStyle}>Descripción</label>
+                <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows={2} style={inputStyle} />
+              </div>
+
+              <div style={{ position: "relative", display: "inline-block", minWidth: "280px" }} ref={catRef}>
+                <label style={labelStyle}>Categoría *</label>
+                <div onClick={() => setIsOpenCat(!isOpenCat)} style={customSelectTrigger}>
+                  <span style={{ fontWeight: formData.idCategoria ? "bold" : "normal" }}>
+                    {selectedCatName.toUpperCase()}
+                  </span>
+                  <span>{isOpenCat ? "▲" : "▼"}</span>
+                </div>
+                {isOpenCat && (
+                  <div style={megaSelectDropdown}>
+                    <div style={megaSelectGrid}>
+                      {categories.map((cat) => (
+                        <div key={cat.id} onClick={() => { setFormData(p => ({ ...p, idCategoria: cat.id })); setIsOpenCat(false); }}
+                          style={{ ...megaSelectItem, backgroundColor: formData.idCategoria === cat.id ? "#DC143C" : "transparent", color: formData.idCategoria === cat.id ? "#fff" : "#333" }}>
+                          {cat.nombre.toUpperCase()}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
-                <label style={labelStyle}>Categoria</label>
-                <select name="category" value={formData.category} onChange={handleChange} style={inputStyle}>
-                  <option value="">Seleccionar...</option>
-                  {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <label style={labelStyle}>Alérgenos</label>
+                <div style={allergenRecuadroStyle}>
+                  {Object.values(allAllergens).map(ale => (
+                    <div key={ale.id} onClick={() => handleAlergenoToggle(ale.id)}
+                      style={{ ...allergenItem, border: formData.alergenos.includes(ale.id) ? "2px solid #DC143C" : "1px solid #eee", background: formData.alergenos.includes(ale.id) ? "#fff1f1" : "transparent" }}>
+                      <img src={ale.imagen} alt="" style={{ width: "30px", height: "30px" }} />
+                      <span style={{ fontSize: "9px" }}>{ale.nombre}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div>
-                <label style={labelStyle}>Alergenos</label>
-                <input name="allergens" value={formData.allergens} onChange={handleChange}
-                  placeholder="Ej: Gluten, Lacteos" style={inputStyle} />
-              </div>
-
-              <div>
-                <label style={labelStyle}>URL de Imagen</label>
-                <input name="imageUrl" type="url" value={formData.imageUrl} onChange={handleChange}
-                  placeholder="https://..." style={inputStyle} />
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <input name="available" type="checkbox" checked={formData.available}
-                  onChange={handleChange} id="chk-available" />
-                <label htmlFor="chk-available" style={{ color: "#8B0000", fontWeight: "bold" }}>
-                  Disponible en carta
-                </label>
+              {/* Precio e Imagen*/}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "end" }}>
+                <div>
+                  <label style={labelStyle}>Precio (€) *</label>
+                  <input name="precio" type="text" value={formData.precio} onChange={handleChange} placeholder="0.00" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Imagen del Plato</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <input type="file" id="img-upload" accept="image/*" style={{ display: "none" }} onChange={(e) => {
+                       const file = e.target.files[0];
+                       if (file) {
+                         const reader = new FileReader();
+                         reader.onloadend = () => { setImagePreview(reader.result); setFormData(p => ({...p, imagen: reader.result})); };
+                         reader.readAsDataURL(file);
+                       }
+                    }} />
+                    <label htmlFor="img-upload" style={{ ...btnEdit, padding: "12px 20px", flex: 1, textAlign: "center" }}>
+                        Subir Imagen
+                    </label>
+                    {imagePreview && <img src={imagePreview} alt="Preview" style={{ width: "41px", height: "41px", borderRadius: "6px", objectFit: "cover", border: "1px solid #FFD700" }} />}
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div style={{ marginTop: "20px", display: "flex", gap: "12px" }}>
-              <button type="submit" disabled={loading} style={btnPrimary}>
-                {loading ? "Guardando..." : "Guardar"}
-              </button>
-              <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} style={btnSecondary}>
-                Cancelar
-              </button>
+            <div style={{ marginTop: "25px", display: "flex", gap: "12px" }}>
+              <button type="submit" style={btnPrimary}>Guardar Plato</button>
+              <button type="button" onClick={() => setShowForm(false)} style={btnSecondary}>Cancelar</button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Filtros */}
-      <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap" }}>
-        <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar plato..." style={{ ...inputStyle, maxWidth: "260px" }} />
-        <select value={filterCat} onChange={(e) => setFilterCat(e.target.value)} style={{ ...inputStyle, maxWidth: "200px" }}>
-          <option value="all">Todas las categorias</option>
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </div>
-
-      {/* Estadisticas */}
-      <div style={{ display: "flex", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
-        {[
-          { label: "Total Platos", value: dishes.length },
-          { label: "Disponibles", value: dishes.filter((d) => d.available).length },
-          { label: "No disponibles", value: dishes.filter((d) => !d.available).length },
-        ].map((s) => (
-          <div key={s.label} style={statBox}>
-            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#DC143C" }}>{s.value}</div>
-            <div style={{ fontSize: "12px", color: "#555" }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Loading */}
-      {loading && <p style={{ color: "#DC143C" }}>Cargando...</p>}
-
-      {/* Sin resultados */}
-      {!loading && filtered.length === 0 && (
-        <p style={{ textAlign: "center", color: "#888", padding: "30px" }}>
-          No hay platos que coincidan.
-        </p>
-      )}
-
-      {/* Tabla de platos */}
-      {!loading && filtered.length > 0 && (
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
-            <thead>
-              <tr style={{ background: "#DC143C", color: "#fff" }}>
-                {["Nombre", "Categoria", "Precio", "Alergenos", "Disponible", "Acciones"].map((h) => (
-                  <th key={h} style={{ padding: "10px 12px", textAlign: "left" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((dish, i) => (
-                <tr key={dish.id} style={{ background: i % 2 === 0 ? "#fff" : "#fff8f0", borderBottom: "1px solid #eee" }}>
-                  <td style={td}><strong>{dish.name}</strong></td>
-                  <td style={td}>{dish.category || "Sin categoria"}</td>
-                  <td style={td}>{parseFloat(dish.price || 0).toFixed(2)} euros</td>
-                  <td style={td}>{dish.allergens || "Ninguno"}</td>
-                  <td style={td}>
-                    <button onClick={() => handleToggle(dish)}
-                      style={{ background: dish.available ? "#4CAF50" : "#f44336", color: "#fff", border: "none", padding: "4px 12px", borderRadius: "12px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}>
-                      {dish.available ? "Si" : "No"}
-                    </button>
-                  </td>
-                  <td style={{ ...td, whiteSpace: "nowrap" }}>
-                    <button onClick={() => openEdit(dish)} style={{ ...btnEdit, marginRight: "8px" }}>Editar</button>
-                    <button onClick={() => handleDelete(dish.id)} style={btnDelete}>Eliminar</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Filtros Tabla */}
+      <div style={{ display: "flex", gap: "15px", marginBottom: "20px", alignItems: "flex-end" }}>
+        <div style={{ flex: 1, maxWidth: "300px" }}>
+          <label style={labelStyle}>Buscar plato:</label>
+          <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar plato..." style={inputStyle} />
         </div>
-      )}
+
+        <div style={{ position: "relative", display: "inline-block", minWidth: "280px" }} ref={filterRef}>
+          <label style={labelStyle}>Filtrar por Categoría:</label>
+          <div onClick={() => setIsOpenFilter(!isOpenFilter)} style={customSelectTrigger}>
+            <span style={{ fontWeight: filterCat === "all" ? "normal" : "bold" }}>
+              {filterCatName.toUpperCase()}
+            </span>
+            <span>{isOpenFilter ? "▲" : "▼"}</span>
+          </div>
+          {isOpenFilter && (
+            <div style={megaSelectDropdown}>
+              <div style={megaSelectGrid}>
+                <div onClick={() => { setFilterCat("all"); setIsOpenFilter(false); }}
+                  style={{ ...megaSelectItem, backgroundColor: filterCat === "all" ? "#DC143C" : "transparent", color: filterCat === "all" ? "#fff" : "#333" }}>
+                  TODAS
+                </div>
+                {categories.map((cat) => (
+                  <div key={cat.id} onClick={() => { setFilterCat(cat.id); setIsOpenFilter(false); }}
+                    style={{ ...megaSelectItem, backgroundColor: filterCat === cat.id ? "#DC143C" : "transparent", color: filterCat === cat.id ? "#fff" : "#333" }}>
+                    {cat.nombre.toUpperCase()}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff" }}>
+          <thead>
+            <tr style={{ background: "#DC143C", color: "#fff" }}>
+              <th style={th}>Imagen</th>
+              <th style={th}>Nombre</th>
+              <th style={th}>Categoría</th>
+              <th style={th}>Precio</th>
+              <th style={th}>Alérgenos</th>
+              <th style={th}>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(p => (
+              <tr key={p.id} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={td}><img src={p.imagen} alt="" style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "4px" }} /></td>
+                <td style={td}><strong>{p.nombre}</strong></td>
+                <td style={td}>{p.idCategoria}</td>
+                <td style={td}>{parseFloat(p.precio || 0).toFixed(2)} €</td>
+                <td style={td}>
+                  <div style={{ display: "flex", gap: "4px" }}>
+                    {p.alergenos?.map(id => <img key={id} src={allAllergens[id]?.imagen} title={allAllergens[id]?.nombre} style={{ width: "20px" }} alt="" />)}
+                  </div>
+                </td>
+                <td style={td}>
+                  <button onClick={() => openEdit(p)} style={btnEditSmaller}>Editar</button>
+                  <button onClick={() => {if(window.confirm("¿Eliminar?")) menuService.deletePlate(p.id, true).then(loadPlatesOnly)}} style={{...btnDelete, marginLeft: "5px"}}>Eliminar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
-// Estilos reutilizables
-const labelStyle   = { display: "block", color: "#8B0000", fontWeight: "bold", marginBottom: "4px", fontSize: "13px" };
-const inputStyle   = { width: "100%", padding: "10px", border: "2px solid #FFD700", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" };
-const btnPrimary   = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" };
+// --- ESTILOS ---
+const labelStyle = { display: "block", color: "#8B0000", fontWeight: "bold", marginBottom: "4px", fontSize: "12px" };
+const inputStyle = { width: "100%", padding: "10px", border: "2px solid #FFD700", borderRadius: "6px", background: "#fff", boxSizing: "border-box" };
+const customSelectTrigger = { ...inputStyle, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "41px" };
+const megaSelectDropdown = { position: "absolute", top: "100%", left: 0, minWidth: "450px", zIndex: 100, background: "#fff", border: "2px solid #FFD700", borderRadius: "6px", marginTop: "4px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", padding: "10px" };
+const megaSelectGrid = { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" };
+const megaSelectItem = { padding: "8px", fontSize: "10px", borderRadius: "4px", cursor: "pointer", textAlign: "center", fontWeight: "bold", border: "1px solid #eee" };
+const allergenRecuadroStyle = { display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "10px", background: "#fff", padding: "15px", borderRadius: "8px", border: "2px solid #FFD700" };
+const allergenItem = { display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", padding: "5px", borderRadius: "6px" };
+const btnPrimary = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" };
 const btnSecondary = { backgroundColor: "#888", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer" };
-const btnEdit      = { background: "#FFD700", color: "#1a1a1a", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" };
-const btnDelete    = { background: "#DC143C", color: "#fff", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" };
-const statBox      = { background: "#fff", border: "2px solid #DC143C", borderRadius: "8px", padding: "16px 24px", textAlign: "center", minWidth: "100px" };
-const td           = { padding: "10px 12px", verticalAlign: "middle" };
-const alertError   = { background: "#ffe0e0", border: "1px solid #DC143C", padding: "10px", borderRadius: "6px", marginBottom: "12px", color: "#8B0000" };
-const alertSuccess = { background: "#e0ffe0", border: "1px solid #4CAF50", padding: "10px", borderRadius: "6px", marginBottom: "12px", color: "#2e7d32" };
+const btnEdit = { background: "#FFD700", color: "#1a1a1a", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "14px", display: "inline-block" };
+const btnEditSmaller = { ...btnEdit, padding: "6px 12px", fontSize: "12px" };
+const btnDelete = { background: "#DC143C", color: "#fff", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "12px" };
+const th = { padding: "12px", textAlign: "left" };
+const td = { padding: "12px", verticalAlign: "middle" };
+const alertError = { background: "#ffe0e0", color: "#8B0000", padding: "10px", marginBottom: "10px", borderRadius: "6px" };
+const alertSuccess = { background: "#e0ffe0", color: "#2e7d32", padding: "10px", marginBottom: "10px", borderRadius: "6px" };
 
 export default AdminMenu;
