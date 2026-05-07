@@ -1,8 +1,8 @@
-### refactor: arreglo del estilo visual y funcionalidad en la gestión de menu y carga de nuevas tablas de la bbdd
+### feat: agregado la disponibilidad de los platos en la gestión de menu y en la tabla 'plate' de la bbdd
 
-Se ha mejorado el estilo visual y funcionalidad agregandole las opciones de que al rellenar el formulario de agregar el plato puedas visualizar todas las categorias y puedas visualizar bien los alergenos para poder rellenar el formulario facilmente, tambien se ha modificado la tabla donde se muestra todo para que se visualicen los alergenos establecidos y las imagenes de los platos .
+Se ha agregado la opción de que el administrador pueda marcar si el plato esta disponible o no lo esta tambien se ha modificado en la base de datos para que en la tabla 'plate' esté actualizado al nuevo parametro y se ha integrado en los platos antiguos. 
 
 **Cambios principales:**
 
-* **Consistencia Visual**: Modificación de la tabla de platos agregandole imagenes de estos y logos de los alergenos incluidos, mejora de visualización en las partes de seleccionar categorias para verlas de forma que no ocupe mucho y sea sencillo, y mejora en la visualización de los alergenos en un checklist para poder seleccionar varios.
-* **Cambios BBDD**: Agregados la tabla de **allergens**, **category**, y **plate** y actualizados mejor en el codigo para que estraiga los datos de ahí.
+* **Consistencia Visual**: Agregada la checklist para marcar si el plato esta disponible o no lo esta, tambien se a agregado la visualización de esto en la tabla de visualización de platos.
+* **Cambios BBDD**: Agregado a la tabla **plate** el atributo boleano **disponible** para marcar si el plato está o no está.

@@ -13,6 +13,7 @@ const EMPTY_FORM = {
   idCategoria: "",
   alergenos: [],
   imagen: "",
+  disponible: true, 
 };
 
 const AdminMenu = () => {
@@ -29,6 +30,7 @@ const AdminMenu = () => {
   const [formData, setFormData]       = useState(EMPTY_FORM);
   const [imagePreview, setImagePreview] = useState(null);
 
+  // Refs y Estados para los Selectores (Formulario y Filtro Tabla)
   const [isOpenCat, setIsOpenCat] = useState(false);
   const [isOpenFilter, setIsOpenFilter] = useState(false);
   const catRef = useRef(null);
@@ -43,6 +45,7 @@ const AdminMenu = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // --- CARGA DE DATOS ---
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -64,6 +67,7 @@ const AdminMenu = () => {
     if (result.success) setPlates(result.data);
   };
 
+  // --- MANEJADORES ---
   const openNew = () => {
     setFormData(EMPTY_FORM);
     setEditingId(null);
@@ -77,6 +81,7 @@ const AdminMenu = () => {
     setFormData({
       ...plate,
       alergenos: Array.isArray(plate.alergenos) ? plate.alergenos : [],
+      disponible: plate.disponible !== undefined ? plate.disponible : true,
     });
     setEditingId(plate.id);
     setShowForm(true);
@@ -86,13 +91,14 @@ const AdminMenu = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     if (name === "precio") {
       const val = value.replace(",", ".");
       if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) setFormData(prev => ({ ...prev, [name]: val }));
       return;
     }
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const val = type === "checkbox" ? checked : value;
+    setFormData(prev => ({ ...prev, [name]: val }));
   };
 
   const handleAlergenoToggle = (id) => {
@@ -157,9 +163,7 @@ const AdminMenu = () => {
               <div style={{ position: "relative", display: "inline-block", minWidth: "280px" }} ref={catRef}>
                 <label style={labelStyle}>Categoría *</label>
                 <div onClick={() => setIsOpenCat(!isOpenCat)} style={customSelectTrigger}>
-                  <span style={{ fontWeight: formData.idCategoria ? "bold" : "normal" }}>
-                    {selectedCatName.toUpperCase()}
-                  </span>
+                  <span style={{ fontWeight: formData.idCategoria ? "bold" : "normal" }}>{selectedCatName.toUpperCase()}</span>
                   <span>{isOpenCat ? "▲" : "▼"}</span>
                 </div>
                 {isOpenCat && (
@@ -189,7 +193,6 @@ const AdminMenu = () => {
                 </div>
               </div>
 
-              {/* Precio e Imagen*/}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "end" }}>
                 <div>
                   <label style={labelStyle}>Precio (€) *</label>
@@ -206,12 +209,18 @@ const AdminMenu = () => {
                          reader.readAsDataURL(file);
                        }
                     }} />
-                    <label htmlFor="img-upload" style={{ ...btnEdit, padding: "12px 20px", flex: 1, textAlign: "center" }}>
-                        Subir Imagen
-                    </label>
-                    {imagePreview && <img src={imagePreview} alt="Preview" style={{ width: "41px", height: "41px", borderRadius: "6px", objectFit: "cover", border: "1px solid #FFD700" }} />}
+                    <label htmlFor="img-upload" style={{ ...btnEdit, padding: "12px 20px", flex: 1, textAlign: "center" }}>Subir Imagen</label>
+                    {imagePreview && <img src={imagePreview} alt="Preview" style={{ width: "45px", height: "45px", borderRadius: "6px", objectFit: "cover", border: "1px solid #FFD700" }} />}
                   </div>
                 </div>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#fff", padding: "10px", borderRadius: "6px", border: "1px solid #FFD700", width: "fit-content" }}>
+                <label style={{ ...labelStyle, marginBottom: 0 }}>¿Disponible?</label>
+                <input name="disponible" type="checkbox" checked={formData.disponible} onChange={handleChange} style={{ width: "18px", height: "18px", cursor: "pointer" }} />
+                <span style={{ fontWeight: "bold", color: formData.disponible ? "#2e7d32" : "#DC143C", fontSize: "13px" }}>
+                    {formData.disponible ? "SÍ" : "NO"}
+                </span>
               </div>
             </div>
             <div style={{ marginTop: "25px", display: "flex", gap: "12px" }}>
@@ -222,19 +231,16 @@ const AdminMenu = () => {
         </div>
       )}
 
-      {/* Filtros Tabla */}
+      {/* Filtros fuera del formulario */}
       <div style={{ display: "flex", gap: "15px", marginBottom: "20px", alignItems: "flex-end" }}>
         <div style={{ flex: 1, maxWidth: "300px" }}>
-          <label style={labelStyle}>Buscar plato:</label>
           <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar plato..." style={inputStyle} />
         </div>
 
         <div style={{ position: "relative", display: "inline-block", minWidth: "280px" }} ref={filterRef}>
           <label style={labelStyle}>Filtrar por Categoría:</label>
           <div onClick={() => setIsOpenFilter(!isOpenFilter)} style={customSelectTrigger}>
-            <span style={{ fontWeight: filterCat === "all" ? "normal" : "bold" }}>
-              {filterCatName.toUpperCase()}
-            </span>
+            <span style={{ fontWeight: filterCat === "all" ? "normal" : "bold" }}>{filterCatName.toUpperCase()}</span>
             <span>{isOpenFilter ? "▲" : "▼"}</span>
           </div>
           {isOpenFilter && (
@@ -264,6 +270,7 @@ const AdminMenu = () => {
               <th style={th}>Nombre</th>
               <th style={th}>Categoría</th>
               <th style={th}>Precio</th>
+              <th style={th}>Estado</th>
               <th style={th}>Alérgenos</th>
               <th style={th}>Acciones</th>
             </tr>
@@ -275,6 +282,18 @@ const AdminMenu = () => {
                 <td style={td}><strong>{p.nombre}</strong></td>
                 <td style={td}>{p.idCategoria}</td>
                 <td style={td}>{parseFloat(p.precio || 0).toFixed(2)} €</td>
+                <td style={td}>
+                    <span style={{ 
+                        color: p.disponible ? "#2e7d32" : "#DC143C", 
+                        fontWeight: "bold", 
+                        fontSize: "11px",
+                        background: p.disponible ? "#e8f5e9" : "#ffebee",
+                        padding: "4px 8px",
+                        borderRadius: "12px"
+                    }}>
+                        {p.disponible ? "DISPONIBLE" : "NO DISPONIBLE"}
+                    </span>
+                </td>
                 <td style={td}>
                   <div style={{ display: "flex", gap: "4px" }}>
                     {p.alergenos?.map(id => <img key={id} src={allAllergens[id]?.imagen} title={allAllergens[id]?.nombre} style={{ width: "20px" }} alt="" />)}
