@@ -79,6 +79,21 @@ class MenuService {
     }
   }
 
+  // Actualizar categoría solo admin
+  async updateCategory(id, categoryData, isAdmin = false) {
+    try {
+      if (!isAdmin) return { success: false, error: "No autorizado" };
+      await updateDoc(doc(db, "category", id), {
+        ...categoryData,
+        updatedAt: serverTimestamp(),
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Error actualizando categoría:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // Crear un plato solo admin
   async createPlate(plateData, isAdmin = false) {
     try {

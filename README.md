@@ -1,8 +1,10 @@
-### feat: agregado la disponibilidad de los platos en la gestión de menu y en la tabla 'plate' de la bbdd
+### feat: actualización del estilo en menu y funcionalidad para que el admin pueda modifiscar la carta
 
-Se ha agregado la opción de que el administrador pueda marcar si el plato esta disponible o no lo esta tambien se ha modificado en la base de datos para que en la tabla 'plate' esté actualizado al nuevo parametro y se ha integrado en los platos antiguos. 
+Se ha agregado un nuevo estilo visual para que el usuario pueda visualizar la carta con sus platos divididos por categorias y una leyenda con los alergenos, además se ha añadido la forma para que si un usuario registrado como admin entra puede modificar la colocación de la carta, de tal manera que puede cambiar el orden de las categorias si estas las arrastra al lugar que quiere, y puede activar o desactivar los platos para que se visualicen o no. 
 
 **Cambios principales:**
 
-* **Consistencia Visual**: Agregada la checklist para marcar si el plato esta disponible o no lo esta, tambien se a agregado la visualización de esto en la tabla de visualización de platos.
-* **Cambios BBDD**: Agregado a la tabla **plate** el atributo boleano **disponible** para marcar si el plato está o no está.
+* **Consistencia Visual**: Diseño visual de la carta con las catgorias agrupando los platos y una leyenda para los alergenos.
+* **Funcionalidad de admin**: El admin tiene de:
+    * la opción de modificar la colocación de las categorias y organizarlas aplicando el orden que quiera. Las mueve arrastrandolas y dejandolas en la posición que desea
+    * la opción de habilitar la vista de platos o desabilitarla, este solo tiene que pulsar encima del plato que quier que se muestre o desaparezca

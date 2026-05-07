@@ -136,6 +136,8 @@ const renderContent = (selectedOption, role, userId, userName, userEmail) => {
       );
 
     // Admin
+    case "preview-menu":
+      return <Menu role={role} />;
     case "admin-menu":
       return <AdminMenu />;
     case "admin-mesas":
