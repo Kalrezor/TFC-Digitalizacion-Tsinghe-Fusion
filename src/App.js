@@ -1,7 +1,3 @@
-// App.js
-// Componente principal con React Router.
-// Rutas publicas, protegidas por login y protegidas por rol admin.
-
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -10,64 +6,70 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import useAuth          from "./controllers/useAuth";
-import NavigationBar    from "./components/NavigationBar";
+import useAuth from "./controllers/useAuth";
+import NavigationBar from "./components/NavigationBar";
 
-// Vistas publicas
-import Home             from "./views/Home";
-import Menu             from "./views/Menu";
-import Login            from "./views/Login";
-import Register         from "./views/Register";
-import ForgotPassword   from "./views/ForgotPassword";
+// Vistas públicas
+import Home from "./views/Home";
+import Menu from "./views/Menu";
+import Login from "./views/Login";
+import Register from "./views/Register";
+import ForgotPassword from "./views/ForgotPassword";
+import ConfirmReservation from "./views/ConfirmReservation";
 
 // Vistas de usuario autenticado
-import Dashboard        from "./views/Dashboard";
+import Dashboard from "./views/Dashboard";
 import ReservationsView from "./views/ReservationsView";
 
 // Vistas solo admin
-import AdminMenu        from "./views/AdminMenu";
-import AdminTables      from "./views/AdminTables";
-import AdminOffers      from "./views/AdminOffers";
+import AdminMenu from "./views/AdminMenu";
+import AdminTables from "./views/AdminTables";
+import AdminOffers from "./views/AdminOffers";
 
-import "./styles/ChineseStyle.css";
+import "./styles/MinimalStyle.css";
 
-// ── Ruta protegida: requiere login ──────────────────────────────────────────
+// ── Pantalla de Carga ────────────────────────────────────────────────────────
+const LoadingScreen = () => (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "60vh",
+    }}
+  >
+    <div style={{ textAlign: "center" }}>
+      <div style={{ fontSize: "16px", color: "#568d6e", fontWeight: "600" }}>
+        Cargando autenticación...
+      </div>
+    </div>
+  </div>
+);
+
+// ── Componentes de Ruta Protegida ───────────────────────────────────────────
 const ProtectedRoute = ({ children, isAuthenticated, loading }) => {
-  if (loading) {
-    return (
-      <div style={{ padding: "40px", textAlign: "center", color: "#DC143C", fontSize: "18px" }}>
-        Cargando...
-      </div>
-    );
-  }
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
+  if (loading) return <LoadingScreen />;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
-// ── Ruta protegida: requiere rol admin ──────────────────────────────────────
 const AdminRoute = ({ children, isAuthenticated, loading, role }) => {
-  if (loading) {
-    return (
-      <div style={{ padding: "40px", textAlign: "center", color: "#DC143C", fontSize: "18px" }}>
-        Cargando...
-      </div>
-    );
-  }
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  if (role !== "admin") {
-    return <Navigate to="/dashboard" replace />;
-  }
-  return children;
+  if (loading) return <LoadingScreen />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return role === "admin" ? children : <Navigate to="/dashboard" replace />;
 };
 
-// ── App principal ───────────────────────────────────────────────────────────
+// ── App Principal ───────────────────────────────────────────────────────────
 function App() {
-  const { user, role, loading, logout } = useAuth();
+  const { user, userName, userEmail, role, loading, logout } = useAuth();
+
   const isAuthenticated = !!user;
+  const needsGooglePasswordSetup =
+    sessionStorage.getItem("googlePasswordSetupPending") === "true";
+
+  // IMPORTANTE: El chequeo de loading debe ir AQUÍ dentro
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Router>
@@ -79,30 +81,54 @@ function App() {
       />
 
       <Routes>
-        {/* ── Rutas publicas ─────────────────────────────────────────────── */}
-        <Route path="/"      element={<Home />} />
-        <Route path="/menu"  element={<Menu />} />
+        {/* Rutas públicas */}
+        <Route path="/" element={<Home />} />
+        <Route path="/menu" element={<Menu />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/confirm-reservation" element={<ConfirmReservation />} />
 
-        {/* ── Autenticacion (redirige si ya esta logueado) ────────────────── */}
+        {/* Lógica de Login mejorada */}
         <Route
           path="/login"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
-        />
-        <Route
-          path="/register"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />}
-        />
-        <Route
-          path="/forgot-password"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
+          element={
+            isAuthenticated ? (
+              needsGooglePasswordSetup ? (
+                <Navigate
+                  to={`/forgot-password?email=${encodeURIComponent(user.email)}&setup=google`}
+                  replace
+                />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            ) : (
+              <Login />
+            )
+          }
         />
 
-        {/* ── Rutas de usuario autenticado ────────────────────────────────── */}
+        <Route
+          path="/register"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Register />
+            )
+          }
+        />
+
+        {/* Rutas protegidas (Usuario) */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-              <Dashboard role={role} userId={user?.uid} logout={logout} />
+              <Dashboard
+                role={role}
+                userId={user?.uid}
+                userName={userName}
+                userEmail={userEmail}
+                logout={logout}
+              />
             </ProtectedRoute>
           }
         />
@@ -110,38 +136,57 @@ function App() {
           path="/reservations"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-              <ReservationsView role={role} userId={user?.uid} />
+              <ReservationsView
+                role={role}
+                userId={user?.uid}
+                userEmail={userEmail}
+                userName={userName}
+              />
             </ProtectedRoute>
           }
         />
 
-        {/* ── Rutas solo admin ────────────────────────────────────────────── */}
+        {/* Rutas protegidas (Admin) */}
         <Route
           path="/admin/menu"
           element={
-            <AdminRoute isAuthenticated={isAuthenticated} loading={loading} role={role}>
+            <AdminRoute
+              isAuthenticated={isAuthenticated}
+              loading={loading}
+              role={role}
+            >
               <AdminMenu />
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/tables"
           element={
-            <AdminRoute isAuthenticated={isAuthenticated} loading={loading} role={role}>
-              <AdminTables />
+            <AdminRoute
+              isAuthenticated={isAuthenticated}
+              loading={loading}
+              role={role}
+            >
+              <AdminTables userId={user?.uid} userRole={role} />
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/offers"
           element={
-            <AdminRoute isAuthenticated={isAuthenticated} loading={loading} role={role}>
+            <AdminRoute
+              isAuthenticated={isAuthenticated}
+              loading={loading}
+              role={role}
+            >
               <AdminOffers />
             </AdminRoute>
           }
         />
 
-        {/* ── Fallback ─────────────────────────────────────────────────────── */}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

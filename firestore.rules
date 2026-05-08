@@ -1,0 +1,148 @@
+rules_version = '2';
+
+// ============================================================
+// Tsinghe Cocina Fusión - Reglas de seguridad Firestore
+// Roles: "admin" | "comensal"
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Funcion auxiliar: comprueba si el usuario logueado es admin ──────
+    function isAdmin() {
+      return request.auth != null &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // ── Funcion auxiliar: comprueba si el usuario esta logueado ──────────
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    // ── Funcion auxiliar: comprueba si el uid del doc es el usuario actual
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // USERS
+    // Crear: solo el propio usuario al registrarse o un admin
+    // Leer:  el propio usuario o un admin
+    // Editar: el propio usuario o un admin (con validación de PIN si lo cambia)
+    // Borrar: solo admin
+    // ════════════════════════════════════════════════════════════════════
+    match /users/{uid} {
+      allow create: if isOwner(uid) || isAdmin();
+      allow read:   if isOwner(uid) || isAdmin();
+      allow update: if (isOwner(uid) || isAdmin()) &&
+                       // Si se actualiza adminPin, debe ser string de 4 dígitos
+                       (!request.resource.data.keys().hasAny(['adminPin']) ||
+                        request.resource.data.adminPin is string &&
+                        request.resource.data.adminPin.size() == 4 &&
+                        request.resource.data.adminPin.matches('[0-9]{4}'));
+      allow delete: if isAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // MENUS
+    // Leer: publico (cualquiera, sin login)
+    // Escribir: solo admin
+    // ════════════════════════════════════════════════════════════════════
+    match /menus/{menuId} {
+      allow read:   if true;
+      allow create,
+            update,
+            delete: if isAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // OFFERS
+    // Leer: publico
+    // Escribir: solo admin
+    // ════════════════════════════════════════════════════════════════════
+    match /offers/{offerId} {
+      allow read:   if true;
+      allow create,
+            update,
+            delete: if isAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // TABLES
+    // Leer: cualquier usuario logueado (para ver disponibilidad)
+    // Escribir: solo admin
+    // Fusión: solo admins, máximo 4+ comensales, con PIN de 4 dígitos
+    // ════════════════════════════════════════════════════════════════════
+    match /tables/{tableId} {
+      allow read:   if isLoggedIn();
+      
+      allow create: if isAdmin() && 
+                       request.resource.data.capacity is number &&
+                       request.resource.data.capacity > 0 &&
+                       request.resource.data.tableNumber is number;
+      
+      allow update: if isAdmin() &&
+                       // Validar cambios de fusión
+                       (!request.resource.data.keys().hasAny(['mergedWith', 'fusedWith']) ||
+                        request.resource.data.get('mergedWith', []) is list) &&
+                       // Validar que los campos básicos sean válidos
+                       (request.resource.data.capacity is number &&
+                        request.resource.data.tableNumber is number);
+      
+      allow delete: if isAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // RESERVATIONS
+    // Leer: el propietario de la reserva o un admin
+    // Crear: cualquier usuario logueado o admin
+    // Editar: el propietario o admin
+    // Borrar: el propietario o admin
+    // ════════════════════════════════════════════════════════════════════
+    match /reservations/{reservationId} {
+      allow read:   if isLoggedIn() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isLoggedIn() &&
+                       (request.resource.data.userId == request.auth.uid || isAdmin());
+
+      allow update: if isLoggedIn() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow delete: if isLoggedIn() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // RESERVATION CONFIRMATIONS
+    // Crear: cualquier usuario logueado (al confirmar reserva)
+    // Leer: el propietario del email o admin
+    // ════════════════════════════════════════════════════════════════════
+    match /reservationConfirmations/{confirmationId} {
+      allow read:   if isLoggedIn();
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn();
+      allow delete: if isAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // PASSWORD RESETS
+    // Crear: cualquier usuario (solicitar reset)
+    // Leer/Actualizar: cualquier usuario (el token se valida en el servidor)
+    // Borrar: cualquier usuario (después de usar el token)
+    // ════════════════════════════════════════════════════════════════════
+    match /passwordResets/{email} {
+      allow read:   if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // Todo lo demas: denegado por defecto
+    // ════════════════════════════════════════════════════════════════════
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

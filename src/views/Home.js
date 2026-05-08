@@ -1,190 +1,270 @@
 // Vista: Home.js
-// P�gina de inicio del restaurante - Visible sin login requerido
-// Muestra bienvenida, informaci�n del restaurante y call-to-action para reservas
+// Página de inicio del restaurante - Diseño responsivo y minimalista
+// Paleta: Perla, Dorado, Verde Sage
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../controllers/useAuth";
-import "../styles/ChineseStyle.css";
+import "../styles/MinimalStyle.css";
 
 const Home = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   return (
-    <div className="home-container">
-      {/* Header con navegaci�n */}
-      <header className="home-header">
-        <div className="header-content">
-          <div className="restaurant-logo">
-            <h1>🍜 Tsinghe Cocina Fusión</h1>
-            <p className="tagline">Aut�ntica Cocina China</p>
-          </div>
-          <nav className="header-nav">
-            <button onClick={() => navigate("/menu")} className="nav-btn">
-              ?? Ver MENU
-            </button>
-            {user ? (
-              <>
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="nav-btn"
-                >
-                  ?? Mi Perfil
-                </button>
-                <button onClick={() => logout()} className="nav-btn btn-logout">
-                  Cerrar Sesi�n
-                </button>
-              </>
-            ) : (
-              <>
-                <button onClick={() => navigate("/login")} className="nav-btn">
-                  Iniciar Sesi�n
-                </button>
-                <button
-                  onClick={() => navigate("/register")}
-                  className="nav-btn btn-register"
-                >
-                  Registrarse
-                </button>
-              </>
-            )}
-          </nav>
-        </div>
-      </header>
-
-      {/* Secci�n Hero */}
-      <section className="hero-section">
-        <div className="hero-content">
-          <h2>¡Bienvenido a Tsinghe Cocina Fusión!</h2>
-          <p className="hero-subtitle">
-            Descubre la m�s aut�ntica cocina china en un ambiente acogedor
+    <div style={{ minHeight: "100vh", backgroundColor: "#e8dccf" }}>
+      {/* Hero Section */}
+      <section style={{
+        backgroundColor: "#e8dccf",
+        padding: "clamp(40px, 10vw, 80px) 16px",
+        textAlign: "center",
+        borderBottom: "2px solid #ffd700",
+      }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <h1 style={{
+            fontSize: "clamp(32px, 8vw, 56px)",
+            color: "#568d6e",
+            marginBottom: "16px",
+          }}>
+            Tsinghe Cocina Fusión
+          </h1>
+          <p style={{
+            fontSize: "clamp(14px, 3vw, 18px)",
+            color: "#666666",
+            marginBottom: "32px",
+            maxWidth: "600px",
+            margin: "0 auto 32px",
+          }}>
+            Auténtica cocina china en un ambiente acogedor
           </p>
-          <div className="hero-buttons">
+          
+          {/* CTA Buttons */}
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            justifyContent: "center",
+            alignItems: "center",
+            "@media (min-width: 640px)": {
+              flexDirection: "row",
+            }
+          }}>
             <button
               onClick={() => navigate("/menu")}
-              className="btn-primary btn-large"
+              className="btn btn-primary"
+              style={{
+                minWidth: "160px",
+                fontSize: "14px",
+              }}
             >
-              ??? Explorar MENU
+              Ver Menú
             </button>
             <button
-              onClick={() =>
-                user ? navigate("/reservations") : navigate("/login")
-              }
-              className="btn-secondary btn-large"
+              onClick={() => user ? navigate("/reservations") : navigate("/login")}
+              className="btn btn-secondary"
+              style={{
+                minWidth: "160px",
+                fontSize: "14px",
+              }}
             >
-              ?? Reservar Mesa
+              Reservar Mesa
             </button>
           </div>
         </div>
       </section>
 
-      {/* Informaci�n del Restaurante */}
-      <section className="info-section">
-        <div className="info-cards">
-          <div className="info-card">
-            <div className="card-icon">?????</div>
-            <h3>Chefs Especializados</h3>
-            <p>
-              Con m�s de 20 a�os de experiencia en la gastronom�a china
-              tradicional
+      {/* Info Sections - Grid Responsivo */}
+      <section style={{
+        padding: "clamp(40px, 10vw, 60px) 16px",
+        backgroundColor: "white",
+      }}>
+        <div style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          display: "grid",
+          gridTemplateColumns: "1fr",
+          gap: "32px",
+          "@media (min-width: 768px)": {
+            gridTemplateColumns: "repeat(3, 1fr)",
+          }
+        }} className="grid-responsive">
+          {/* Info Card 1 */}
+          <div className="card">
+            <h3 style={{
+              color: "#2e8b57",
+              marginBottom: "12px",
+              fontSize: "18px",
+            }}>
+              ✓ Auténtico
+            </h3>
+            <p style={{ fontSize: "13px", color: "#666666" }}>
+              Recetas tradicionales chinas preparadas con ingredientes de calidad
             </p>
           </div>
-          <div className="info-card">
-            <div className="card-icon">??</div>
-            <h3>Ingredientes Premium</h3>
-            <p>
-              Seleccionamos cuidadosamente los mejores ingredientes importados
+
+          {/* Info Card 2 */}
+          <div className="card">
+            <h3 style={{
+              color: "#2e8b57",
+              marginBottom: "12px",
+              fontSize: "18px",
+            }}>
+              ✓ Acogedor
+            </h3>
+            <p style={{ fontSize: "13px", color: "#666666" }}>
+              Ambiente cálido y moderno perfecto para compartir en familia
             </p>
           </div>
-          <div className="info-card">
-            <div className="card-icon">??</div>
-            <h3>Ambiente Familiar</h3>
-            <p>
-              Un lugar perfecto para disfrutar en compa��a de amigos y familia
+
+          {/* Info Card 3 */}
+          <div className="card">
+            <h3 style={{
+              color: "#2e8b57",
+              marginBottom: "12px",
+              fontSize: "18px",
+            }}>
+              ✓ Fácil
+            </h3>
+            <p style={{ fontSize: "13px", color: "#666666" }}>
+              Reserva en línea en segundos y gestiona tus preferencias
             </p>
           </div>
         </div>
       </section>
 
-      {/* Men� Destacado */}
-      <section className="featured-section">
-        <h2>Especialidades de la Casa</h2>
-        <div className="featured-items">
-          <div className="featured-item">
-            <div className="item-image">??</div>
-            <h4>Pato Pekin�s</h4>
-            <p>Receta tradicional con salsa agridulce</p>
-            <p className="item-price">�18.50</p>
-          </div>
-          <div className="featured-item">
-            <div className="item-image">??</div>
-            <h4>Arroz Frito Especial</h4>
-            <p>Con camarones, huevo y vegetales</p>
-            <p className="item-price">�12.99</p>
-          </div>
-          <div className="featured-item">
-            <div className="item-image">??</div>
-            <h4>Noodles Salteados</h4>
-            <p>A la manera de Chongqing</p>
-            <p className="item-price">�11.50</p>
+      {/* Featured Section */}
+      <section style={{
+        padding: "clamp(40px, 10vw, 60px) 16px",
+        backgroundColor: "#faf5ed",
+        borderTop: "1px solid #e0e0e0",
+      }}>
+        <div style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          textAlign: "center",
+        }}>
+          <h2 style={{
+            fontSize: "clamp(24px, 5vw, 32px)",
+            color: "#568d6e",
+            marginBottom: "32px",
+          }}>
+            Explora Nuestras Opciones
+          </h2>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr",
+            gap: "20px",
+            "@media (min-width: 768px)": {
+              gridTemplateColumns: "repeat(2, 1fr)",
+            }
+          }} className="grid-2">
+            {/* Option 1 */}
+            <div className="card">
+              <h3 style={{ color: "#6db888", marginBottom: "12px" }}>
+                📋 Menú Completo
+              </h3>
+              <p style={{ fontSize: "13px", color: "#666666", marginBottom: "16px" }}>
+                Descubre toda nuestra oferta culinaria
+              </p>
+              <Link
+                to="/menu"
+                className="btn btn-secondary"
+                style={{ fontSize: "12px", padding: "8px 16px" }}
+              >
+                Ver Menú
+              </Link>
+            </div>
+
+            {/* Option 2 */}
+            <div className="card">
+              <h3 style={{ color: "#6db888", marginBottom: "12px" }}>
+                📅 Reservar
+              </h3>
+              <p style={{ fontSize: "13px", color: "#666666", marginBottom: "16px" }}>
+                Asegura tu mesa en el momento que prefieras
+              </p>
+              <button
+                onClick={() => user ? navigate("/reservations") : navigate("/login")}
+                className="btn btn-secondary"
+                style={{ fontSize: "12px", padding: "8px 16px" }}
+              >
+                Reservar Ahora
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="cta-section">
-        <h2>�Listo para reservar?</h2>
-        <p>
-          Haz tu reserva ahora y disfruta de una experiencia culinaria �nica
-        </p>
-        {user ? (
-          <button
-            onClick={() => navigate("/reservations")}
-            className="btn-primary btn-large"
-          >
-            ?? Reservar Ahora
-          </button>
-        ) : (
-          <>
-            <p className="cta-login-message">
-              Inicia sesi�n para hacer una reserva
-            </p>
-            <button
-              onClick={() => navigate("/login")}
-              className="btn-primary btn-large"
-            >
-              ?? Iniciar Sesi�n
-            </button>
-          </>
-        )}
+      {/* CTA Final */}
+      <section style={{
+        padding: "clamp(40px, 10vw, 60px) 16px",
+        backgroundColor: "white",
+        textAlign: "center",
+        borderTop: "2px solid #ffd700",
+      }}>
+        <div style={{
+          maxWidth: "600px",
+          margin: "0 auto",
+        }}>
+          <h2 style={{
+            fontSize: "clamp(20px, 4vw, 28px)",
+            color: "#568d6e",
+            marginBottom: "20px",
+          }}>
+            {user ? `Bienvenido, ${user.email?.split("@")[0]}` : "¿Listo para disfrutar?"}
+          </h2>
+          
+          {user ? (
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+              <Link
+                to="/dashboard"
+                className="btn btn-primary"
+                style={{ fontSize: "14px" }}
+              >
+                Mi Panel
+              </Link>
+              <button
+                onClick={logout}
+                className="btn btn-secondary"
+                style={{ fontSize: "14px" }}
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+              <Link
+                to="/login"
+                className="btn btn-primary"
+                style={{ fontSize: "14px" }}
+              >
+                Iniciar Sesión
+              </Link>
+              <Link
+                to="/register"
+                className="btn btn-secondary"
+                style={{ fontSize: "14px" }}
+              >
+                Registrarse
+              </Link>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="home-footer">
-        <div className="footer-content">
-          <div className="footer-section">
-            <h4>Tsinghe Cocina Fusión</h4>
-            <p>Calle Principal 123</p>
-            <p>?? +34 900 123 456</p>
-            <p>?? info@tsinghefusion.es</p>
-          </div>
-          <div className="footer-section">
-            <h4>Horario</h4>
-            <p>Lunes a Jueves: 12:00 - 23:00</p>
-            <p>Viernes a S�bado: 12:00 - 00:30</p>
-            <p>Domingo: 13:00 - 23:00</p>
-          </div>
-          <div className="footer-section">
-            <h4>S�guenos</h4>
-            <p>Facebook | Instagram | TikTok</p>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>
-            &copy; 2026 Tsinghe Cocina Fusión. Todos los derechos reservados.
-          </p>
-        </div>
+      <footer style={{
+        backgroundColor: "#2d2d2d",
+        color: "#999999",
+        padding: "24px 16px",
+        textAlign: "center",
+        fontSize: "12px",
+        borderTop: "1px solid #444",
+      }}>
+        <p style={{ margin: 0 }}>
+          © 2026 Tsinghe Cocina Fusión. Todos los derechos reservados.
+        </p>
       </footer>
     </div>
   );

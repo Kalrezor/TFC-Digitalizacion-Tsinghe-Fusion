@@ -1,252 +1,501 @@
-// Vista: AdminTables.js
-// Gestion grafica de las 20 mesas del restaurante para administradores.
-// Importaciones corregidas desde models/ (no services/).
-// Sin errores de sintaxis en template literals.
-
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import tableService from "../models/TableService";
-import "../styles/ChineseStyle.css";
+import { db } from "../firebaseConfig";
+import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 
-const TOTAL_TABLES = 20;
-const CAPACITIES = [2, 4, 6, 8, 10, 12];
+const AdminTables = ({ userId, userRole }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const pendingRes = location.state?.pendingAssignment || null;
 
-// Genera la estructura base de las 20 mesas si Firestore aun no las tiene
-const buildDisplayTables = (firestoreTables) => {
-  const result = [];
-  for (let i = 1; i <= TOTAL_TABLES; i++) {
-    const found = firestoreTables.find((t) => t.tableNumber === i || t.number === i);
-    result.push(
-      found
-        ? found
-        : { id: null, tableNumber: i, number: i, capacity: 4, active: true, available: true }
+  const [display, setDisplay] = useState([]);
+  const [selectedMultiple, setSelectedMultiple] = useState([]);
+  const [showPinSettings, setShowPinSettings] = useState(false);
+  const [dbPin, setDbPin] = useState("1234");
+  const [currentPinInput, setCurrentPinInput] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [pinError, setPinError] = useState(null);
+  const [pinSuccess, setPinSuccess] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(userRole === "admin"); // Iniciar como true si es admin
+  const [loading, setLoading] = useState(false);
+
+  // 0. INICIALIZAR MESAS (primera carga)
+  useEffect(() => {
+    const initializeMesas = async () => {
+      const result = await tableService.initializeTables();
+      console.log("Resultado inicialización:", result);
+    };
+    initializeMesas();
+  }, []);
+
+  // 1. CARGA DE MESAS
+  useEffect(() => {
+    const unsubscribe = tableService.subscribeToAllTables((result) => {
+      if (result.success) {
+        const fullTables = [];
+        for (let i = 1; i <= 20; i++) {
+          const found = result.tables.find((t) => t.tableNumber === i);
+          fullTables.push(
+            found || {
+              id: null,
+              tableNumber: i,
+              capacity: 4,
+              active: true,
+              available: true,
+            },
+          );
+        }
+        setDisplay(fullTables);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 2. VERIFICAR SI ES ADMIN Y CARGAR PIN EN TIEMPO REAL
+  useEffect(() => {
+    if (!userId) return;
+
+    // La ruta AdminRoute ya verificó que es admin, así que confiamos en userRole
+    if (userRole === "admin") {
+      setIsAdmin(true);
+    }
+
+    // Listener en tiempo real para el PIN (SINCRONIZACIÓN)
+    const unsubscribe = onSnapshot(doc(db, "users", userId), (doc) => {
+      if (doc.exists()) {
+        const userData = doc.data();
+        // Asegurar que si viene de la ruta protegida AdminRoute, es admin
+        const isAdminFromDb = userData.role === "admin";
+        if (isAdminFromDb) {
+          setIsAdmin(true);
+        }
+        const pin = String(userData.adminPin || "1234").trim();
+        setDbPin(pin);
+      }
+    }, (error) => {
+      console.error("Error cargando PIN en tiempo real:", error);
+    });
+
+    return () => unsubscribe();
+  }, [userId, userRole]);
+
+  // 3. LÓGICA DE SELECCIÓN (FUSIÓN)
+  const handleTableClick = (table) => {
+    // Validar que sea admin
+    if (!isAdmin) {
+      alert("⚠️ Solo administradores pueden fusionar mesas.");
+      return;
+    }
+
+    // Si no hay una reserva pendiente de asignar, el clic no hace nada
+    if (!pendingRes || !table.active) return;
+
+    // Si la mesa ya está ocupada por OTRA reserva, no deja seleccionarla
+    if (table.reservationId && table.reservationId !== pendingRes.resId) {
+      return alert("Esta mesa ya está ocupada.");
+    }
+
+    // Toggle de selección
+    if (selectedMultiple.find((t) => t.tableNumber === table.tableNumber)) {
+      setSelectedMultiple(
+        selectedMultiple.filter((t) => t.tableNumber !== table.tableNumber),
+      );
+    } else {
+      setSelectedMultiple([...selectedMultiple, table]);
+    }
+  };
+
+  // 4. CONFIRMAR FUSIÓN (USAR NUEVO MÉTODO)
+  const handleConfirmFusion = async () => {
+    if (!isAdmin) {
+      return alert("⚠️ Solo administradores pueden fusionar mesas.");
+    }
+
+    if (selectedMultiple.length === 0) {
+      return alert("Selecciona al menos una mesa.");
+    }
+
+    try {
+      setLoading(true);
+      
+      const tableIds = selectedMultiple
+        .filter(t => t.id)
+        .map(t => t.id);
+
+      // Usar el nuevo método mergeTables de TableService
+      const result = await tableService.mergeTables(
+        pendingRes.resId,
+        tableIds,
+        Number(pendingRes.numberOfPeople) || 2
+      );
+
+      if (result.success) {
+        alert(`✅ ${result.message}`);
+        setSelectedMultiple([]);
+        navigate("/reservations");
+      } else {
+        alert(`❌ Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error en fusión:", error);
+      alert("Error al fusionar mesas: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // LIBERAR/DESVINCULAR MESAS
+  const handleReleaseTable = async (table) => {
+    if (!isAdmin) {
+      alert("⚠️ Solo administradores pueden desvincular mesas.");
+      return;
+    }
+
+    if (!table.reservationId) {
+      alert("Esta mesa no está fusionada.");
+      return;
+    }
+
+    // Solicitar PIN
+    const confirmPass = prompt("⚠️ Mesa FUSIONADA. Ingresa PIN de 4 dígitos:");
+    if (!confirmPass) return;
+
+    // Validar PIN
+    if (confirmPass.trim() !== dbPin) {
+      return alert("❌ PIN incorrecto.");
+    }
+
+    try {
+      setLoading(true);
+      
+      // Obtener todas las mesas de esta reserva
+      const tablesResult = await tableService.getTablesByReservation(table.reservationId);
+      
+      if (!tablesResult.success) {
+        return alert("Error obteniendo mesas fusionadas");
+      }
+
+      const tableIdsToUnmerge = tablesResult.tables
+        .filter(t => t.id)
+        .map(t => t.id);
+
+      // Usar el nuevo método unmergeTables
+      const result = await tableService.unmergeTables(tableIdsToUnmerge);
+
+      if (result.success) {
+        alert(`✅ ${result.message}`);
+      } else {
+        alert(`❌ Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error desvinculando:", error);
+      alert("Error al desvincular mesas: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // CAMBIAR PIN (SINCRONIZAR CON FIRESTORE)
+  const handleChangePin = async () => {
+    setPinError(null);
+    setPinSuccess(false);
+
+    // Validar PIN actual
+    if (!currentPinInput || currentPinInput.trim() !== dbPin) {
+      setPinError("PIN actual incorrecto");
+      return;
+    }
+
+    // Validar nuevo PIN (4 dígitos)
+    if (!newPin || !/^\d{4}$/.test(newPin)) {
+      setPinError("El nuevo PIN debe ser 4 dígitos numéricos");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Actualizar en Firestore (con validación en reglas)
+      await updateDoc(doc(db, "users", userId), { 
+        adminPin: newPin 
+      });
+
+      setPinSuccess(true);
+      setPinError(null);
+      setCurrentPinInput("");
+      setNewPin("");
+      
+      // El listener en tiempo real actualizará dbPin automáticamente
+      setTimeout(() => {
+        setShowPinSettings(false);
+        setPinSuccess(false);
+      }, 1500);
+    } catch (error) {
+      console.error("Error cambiando PIN:", error);
+      setPinError("Error al cambiar PIN: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- ESTILOS ---
+  const tableGrid = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+    gap: "15px",
+  };
+  const tableCard = {
+    padding: "12px",
+    borderRadius: "12px",
+    color: "white",
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    minHeight: "140px",
+    cursor: "pointer",
+    position: "relative",
+  };
+  const badgeFusion = {
+    fontSize: "10px",
+    background: "rgba(0,0,0,0.2)",
+    borderRadius: "4px",
+    padding: "3px 6px",
+    marginTop: "5px",
+    fontWeight: "bold",
+  };
+  const fusionBanner = {
+    background: "#fffde7",
+    padding: "15px",
+    borderRadius: "12px",
+    border: "2px solid #fbc02d",
+    marginBottom: "20px",
+    textAlign: "center",
+  };
+  const pinSettingsStyle = {
+    background: "#f9f9f9",
+    padding: "15px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    marginBottom: "20px",
+  };
+  const inputStyle = {
+    padding: "8px",
+    margin: "8px 0",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    width: "100%",
+    boxSizing: "border-box",
+  };
+  const buttonStyle = {
+    background: "#2e7d32",
+    color: "white",
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    marginRight: "10px",
+  };
+
+  // Verificar permisos
+  if (!isAdmin) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <h2>⚠️ Acceso Denegado</h2>
+        <p>Solo administradores pueden acceder a esta vista.</p>
+        <button 
+          onClick={() => navigate("/")}
+          style={{ ...buttonStyle, background: "#1976d2" }}
+        >
+          Volver a Inicio
+        </button>
+      </div>
     );
   }
-  return result;
-};
 
-const AdminTables = () => {
-  const [tables, setTables]           = useState([]);
-  const [display, setDisplay]         = useState([]);
-  const [loading, setLoading]         = useState(false);
-  const [error, setError]             = useState(null);
-  const [success, setSuccess]         = useState(null);
-  const [selected, setSelected]       = useState(null); // mesa seleccionada para panel detalle
-
-  // Carga inicial
-  useEffect(() => { loadTables(); }, []);
-
-  const loadTables = async () => {
-    setLoading(true);
-    setError(null);
-    const result = await tableService.getAllTables();
-    setLoading(false);
-    if (result.success) {
-      setTables(result.tables);
-      setDisplay(buildDisplayTables(result.tables));
-    } else {
-      setError("Error al cargar mesas: " + result.error);
-    }
-  };
-
-  // Alternar activo/inactivo de una mesa
-  const handleToggle = async (table) => {
-    setError(null);
-    setSuccess(null);
-
-    if (!table.id) {
-      // La mesa no existe en Firestore todavia, crearla
-      const newTable = {
-        tableNumber: table.tableNumber,
-        number:      table.tableNumber,
-        capacity:    table.capacity || 4,
-        active:      false,   // la desactivamos porque el usuario hizo click en "ocupar"
-        available:   false,
-      };
-      const result = await tableService.createTable(newTable);
-      if (result.success) { setSuccess("Mesa " + table.tableNumber + " guardada y desactivada."); loadTables(); }
-      else setError("Error al crear mesa: " + result.error);
-      return;
-    }
-
-    const newActive = !(table.active !== false);
-    const result = await tableService.updateTable(table.id, { active: newActive, available: newActive });
-    if (result.success) {
-      setSuccess("Mesa " + table.tableNumber + " actualizada.");
-      loadTables();
-      if (selected && selected.tableNumber === table.tableNumber) setSelected(null);
-    } else {
-      setError("Error al actualizar mesa: " + result.error);
-    }
-  };
-
-  // Cambiar capacidad desde el panel de detalle
-  const handleCapacity = async (table, newCap) => {
-    if (!table.id) {
-      setError("Guarda primero la mesa antes de cambiar su capacidad.");
-      return;
-    }
-    const result = await tableService.updateTable(table.id, { capacity: parseInt(newCap) });
-    if (result.success) { setSuccess("Capacidad actualizada."); loadTables(); }
-    else setError("Error al actualizar capacidad: " + result.error);
-  };
-
-  // Estadisticas
-  const activeCount    = display.filter((t) => t.active !== false).length;
-  const inactiveCount  = TOTAL_TABLES - activeCount;
-  const totalCapacity  = display.reduce((s, t) => s + (t.capacity || 4), 0);
+  if (display.length === 0) return <div>Cargando...</div>;
 
   return (
-    <div style={{ padding: "20px" }}>
-
-      {/* Cabecera */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h1 style={{ color: "#DC143C", margin: 0 }}>Administracion de Mesas</h1>
-        <button onClick={loadTables} disabled={loading} style={btnPrimary}>
-          {loading ? "Actualizando..." : "Actualizar"}
+    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+        }}
+      >
+        <h2>⛩️ Plano de Mesas</h2>
+        <button onClick={() => setShowPinSettings(!showPinSettings)}>
+          ⚙️ Ajustes PIN
         </button>
       </div>
 
-      {/* Mensajes */}
-      {error   && <div style={alertError}>{error}</div>}
-      {success && <div style={alertSuccess}>{success}</div>}
+      {/* Banner de Fusión: Solo aparece si vienes de Reservas */}
+      {pendingRes && (
+        <div style={fusionBanner}>
+          <h3>📍 Asignando a: {pendingRes.userName}</h3>
+          <p>Selecciona las mesas en el plano y pulsa Vincular</p>
+          <button
+            onClick={handleConfirmFusion}
+            style={{
+              background: "#2e7d32",
+              color: "white",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            VINCULAR ({selectedMultiple.length})
+          </button>
+          <button
+            onClick={() => navigate("/reservations")}
+            style={{
+              background: "#757575",
+              color: "white",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "5px",
+              marginLeft: "10px",
+              cursor: "pointer",
+            }}
+          >
+            CANCELAR
+          </button>
+        </div>
+      )}
 
-      {/* Estadisticas */}
-      <div style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
-        {[
-          { label: "Mesas Activas",   value: activeCount,   color: "#4CAF50" },
-          { label: "Mesas Inactivas", value: inactiveCount, color: "#f44336" },
-          { label: "Capacidad Total", value: totalCapacity, color: "#DC143C" },
-        ].map((s) => (
-          <div key={s.label} style={{ ...statBox, borderColor: s.color }}>
-            <div style={{ fontSize: "28px", fontWeight: "bold", color: s.color }}>{s.value}</div>
-            <div style={{ fontSize: "12px", color: "#555" }}>{s.label}</div>
+      {showPinSettings && (
+        <div style={pinSettingsStyle}>
+          <h3>🔐 Cambiar PIN de Seguridad</h3>
+          
+          {pinError && (
+            <div style={{ background: "#ffebee", padding: "10px", borderRadius: "4px", marginBottom: "10px", color: "#c62828" }}>
+              {pinError}
+            </div>
+          )}
+          
+          {pinSuccess && (
+            <div style={{ background: "#e8f5e9", padding: "10px", borderRadius: "4px", marginBottom: "10px", color: "#2e7d32" }}>
+              ✅ PIN actualizado correctamente
+            </div>
+          )}
+
+          <input
+            type="password"
+            placeholder="PIN Actual (4 dígitos)"
+            value={currentPinInput}
+            onChange={(e) => setCurrentPinInput(e.target.value.slice(0, 4))}
+            maxLength="4"
+            style={inputStyle}
+          />
+          
+          <input
+            type="password"
+            placeholder="Nuevo PIN (4 dígitos)"
+            value={newPin}
+            onChange={(e) => setNewPin(e.target.value.slice(0, 4))}
+            maxLength="4"
+            style={inputStyle}
+          />
+
+          <div style={{ marginTop: "15px" }}>
+            <button
+              onClick={handleChangePin}
+              disabled={loading}
+              style={{ ...buttonStyle, opacity: loading ? 0.6 : 1 }}
+            >
+              {loading ? "Guardando..." : "💾 Guardar PIN"}
+            </button>
+            
+            <button
+              onClick={() => {
+                setShowPinSettings(false);
+                setCurrentPinInput("");
+                setNewPin("");
+                setPinError(null);
+              }}
+              style={{ ...buttonStyle, background: "#757575" }}
+            >
+              Cancelar
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
-      {/* Grid de mesas */}
-      {loading && <p style={{ color: "#DC143C" }}>Cargando mesas...</p>}
+      <div style={tableGrid}>
+        {display.map((table) => {
+          const isSelected = selectedMultiple.some(
+            (t) => t.tableNumber === table.tableNumber,
+          );
+          const isOccupied = !table.available || table.reservationId;
+          
+          // Colores:
+          // Rojo (#f44336) = No activa/Inactiva
+          // Verde (#4CAF50) = Disponible y activa
+          // Amarillo (#FFD700) = Ocupada pero sin reserva
+          // Dorado (#DAA520) = Fusionada/Con reserva
+          let bgColor = "#4CAF50"; // Verde por defecto
+          if (!table.active) {
+            bgColor = "#f44336"; // Rojo - no activa
+          } else if (table.reservationId) {
+            bgColor = "#DAA520"; // Dorado - fusionada/con reserva
+          } else if (isOccupied) {
+            bgColor = "#FFD700"; // Amarillo - ocupada
+          }
 
-      {!loading && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "14px", marginBottom: "24px" }}>
-          {display.map((table) => {
-            const isActive = table.active !== false;
-            const isSelected = selected && selected.tableNumber === table.tableNumber;
-            return (
+          return (
+            <div
+              key={table.tableNumber}
+              onClick={() => handleTableClick(table)}
+              style={{
+                ...tableCard,
+                background: bgColor,
+                border: isSelected ? "4px solid #333" : "1px solid #ddd",
+                color: (bgColor === "#FFD700" || bgColor === "#DAA520") ? "black" : "white",
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <strong>Mesa {table.tableNumber}</strong>
+                {table.reservationId && (
+                  <div style={badgeFusion}>🔗 FUSIONADA</div>
+                )}
+              </div>
               <div
-                key={table.tableNumber}
-                onClick={() => setSelected(isSelected ? null : table)}
                 style={{
-                  background:    isActive ? "#4CAF50" : "#f44336",
-                  color:         "#fff",
-                  borderRadius:  "10px",
-                  padding:       "16px 10px",
-                  textAlign:     "center",
-                  cursor:        "pointer",
-                  border:        isSelected ? "3px solid #FFD700" : "3px solid transparent",
-                  boxShadow:     isSelected ? "0 0 12px rgba(255,215,0,0.6)" : "0 2px 6px rgba(0,0,0,0.15)",
-                  transition:    "all 0.2s",
-                  userSelect:    "none",
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "5px",
+                  marginTop: "10px",
                 }}
               >
-                <div style={{ fontWeight: "bold", fontSize: "16px" }}>Mesa {table.tableNumber}</div>
-                <div style={{ fontSize: "12px", marginTop: "4px" }}>{table.capacity || 4} personas</div>
-                <div style={{ fontSize: "11px", marginTop: "4px", opacity: 0.9 }}>
-                  {isActive ? "Activa" : "Inactiva"}
-                </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleToggle(table); }}
-                  style={{
-                    marginTop:       "10px",
-                    background:      "rgba(255,255,255,0.25)",
-                    border:          "1px solid rgba(255,255,255,0.6)",
-                    color:           "#fff",
-                    padding:         "4px 10px",
-                    borderRadius:    "6px",
-                    cursor:          "pointer",
-                    fontSize:        "11px",
-                    fontWeight:      "bold",
-                    width:           "100%",
-                  }}
-                >
-                  {isActive ? "Desactivar" : "Activar"}
-                </button>
+                {table.reservationId && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleReleaseTable(table);
+                    }}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: "10px",
+                      background: "#ff5722",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "3px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    🔓 Desvincular
+                  </button>
+                )}
               </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Leyenda */}
-      <div style={{ display: "flex", gap: "20px", marginBottom: "24px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={{ width: "20px", height: "20px", background: "#4CAF50", borderRadius: "4px" }}></div>
-          <span style={{ fontSize: "13px" }}>Mesa activa (disponible)</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={{ width: "20px", height: "20px", background: "#f44336", borderRadius: "4px" }}></div>
-          <span style={{ fontSize: "13px" }}>Mesa inactiva / ocupada</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={{ width: "20px", height: "20px", background: "#FFD700", borderRadius: "4px", border: "2px solid #8B0000" }}></div>
-          <span style={{ fontSize: "13px" }}>Seleccionada</span>
-        </div>
+            </div>
+          );
+        })}
       </div>
-
-      {/* Panel de detalle */}
-      {selected && (
-        <div style={{ background: "#fff8f0", border: "2px solid #DC143C", borderRadius: "10px", padding: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-            <h2 style={{ color: "#DC143C", margin: 0 }}>Detalle - Mesa {selected.tableNumber}</h2>
-            <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "#555" }}>x</button>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <div>
-              <label style={labelStyle}>Estado actual</label>
-              <p style={{ margin: "4px 0", fontWeight: "bold", color: selected.active !== false ? "#4CAF50" : "#f44336" }}>
-                {selected.active !== false ? "Activa" : "Inactiva"}
-              </p>
-              <button
-                onClick={() => handleToggle(selected)}
-                style={{ ...btnPrimary, background: selected.active !== false ? "#f44336" : "#4CAF50", marginTop: "8px" }}
-              >
-                {selected.active !== false ? "Marcar como Inactiva" : "Marcar como Activa"}
-              </button>
-            </div>
-
-            <div>
-              <label style={labelStyle}>Capacidad de personas</label>
-              <select
-                value={selected.capacity || 4}
-                onChange={(e) => handleCapacity(selected, e.target.value)}
-                style={{ ...inputStyle, marginTop: "4px" }}
-              >
-                {CAPACITIES.map((c) => (
-                  <option key={c} value={c}>{c} personas</option>
-                ))}
-              </select>
-            </div>
-
-            {selected.id && (
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={labelStyle}>ID en Firestore</label>
-                <code style={{ fontSize: "12px", color: "#555" }}>{selected.id}</code>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-
-// Estilos reutilizables
-const labelStyle   = { display: "block", color: "#8B0000", fontWeight: "bold", marginBottom: "4px", fontSize: "13px" };
-const inputStyle   = { width: "100%", padding: "10px", border: "2px solid #FFD700", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" };
-const btnPrimary   = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" };
-const statBox      = { background: "#fff", border: "2px solid #DC143C", borderRadius: "8px", padding: "16px 24px", textAlign: "center", minWidth: "110px" };
-const alertError   = { background: "#ffe0e0", border: "1px solid #DC143C", padding: "10px", borderRadius: "6px", marginBottom: "12px", color: "#8B0000" };
-const alertSuccess = { background: "#e0ffe0", border: "1px solid #4CAF50", padding: "10px", borderRadius: "6px", marginBottom: "12px", color: "#2e7d32" };
 
 export default AdminTables;

@@ -10,11 +10,28 @@ import {
   GoogleAuthProvider,
   sendPasswordResetEmail,
   confirmPasswordReset,
+  updatePassword,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
+  deleteField,
+} from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 
 class AuthService {
+  // Método auxiliar para generar token de 3 caracteres
+  generateToken() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let token = "";
+    for (let i = 0; i < 3; i++) {
+      token += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return token;
+  }
   // Método para login con email y contraseña
   async loginWithEmail(email, password) {
     try {
@@ -70,22 +87,69 @@ class AuthService {
       const user = userCredential.user;
       console.log("✅ Usuario creado en Auth:", user.uid);
 
-      // 2. Crear documento en Firestore
-      const userData = {
-        email: user.email,
-        name: name.trim(),
-        role: "comensal",
-        status: "active",
-        createdAt: serverTimestamp(),
-      };
+      // 2. Verificar si ya existe documento en Firestore (creado por admin)
+      // Si existe, actualizar; si no, crear nuevo
+      const userDocRef = doc(db, "users", user.uid);
+      const existingDoc = await getDoc(userDocRef);
 
-      console.log("📝 Creando documento en Firestore:", userData);
-      await setDoc(doc(db, "users", user.uid), userData);
-      console.log("✅ Documento creado exitosamente en Firestore");
+      if (existingDoc.exists()) {
+        // El usuario ya existía (creado por admin), actualizar como verificado
+        console.log("📝 Actualizando documento existente en Firestore");
+        await updateDoc(userDocRef, {
+          name: name.trim(),
+          status: "active",
+          emailVerified: true, // El usuario verificó su correo
+          role: existingDoc.data().role || "comensal", // Mantener rol original
+        });
+      } else {
+        // Nuevo usuario, crear documento
+        console.log("📝 Creando nuevo documento en Firestore");
+        const userData = {
+          email: user.email,
+          name: name.trim(),
+          role: "comensal",
+          status: "active",
+          createdAt: serverTimestamp(),
+          emailVerified: true, // Usuario verificado al registrarse personalmente
+        };
+        await setDoc(userDocRef, userData);
+      }
+
+      console.log("✅ Documento guardado exitosamente en Firestore");
+
+      // Enviar email de bienvenida
+      await this.sendWelcomeEmail(user.email, user.displayName || name);
 
       return { success: true, user };
     } catch (error) {
-      console.error("❌ Error en registro:", error.message);
+      console.error("❌ Error en registro:", error.code, error.message);
+
+      // Manejar errores específicos de Firebase
+      if (error.code === "auth/email-already-in-use") {
+        return {
+          success: false,
+          errorCode: error.code,
+          error: "Este email ya está registrado. ¿Quieres iniciar sesión?",
+          suggestion: "login",
+        };
+      }
+      if (error.code === "auth/weak-password") {
+        return {
+          success: false,
+          errorCode: error.code,
+          error: "La contraseña es demasiado débil. Usa al menos 6 caracteres.",
+          suggestion: "password",
+        };
+      }
+      if (error.code === "auth/invalid-email") {
+        return {
+          success: false,
+          errorCode: error.code,
+          error: "El email no es válido.",
+          suggestion: "email",
+        };
+      }
+
       return { success: false, error: error.message };
     }
   }
@@ -150,7 +214,10 @@ class AuthService {
 
       // Verificar si el usuario existe en Firestore
       const userDoc = await getDoc(doc(db, "users", user.uid));
+      let isNewUser = false;
+
       if (!userDoc.exists()) {
+        isNewUser = true;
         // Crear documento del usuario con rol 'comensal' por defecto
         await setDoc(doc(db, "users", user.uid), {
           email: user.email,
@@ -165,7 +232,22 @@ class AuthService {
         await this.sendWelcomeEmail(user.email, user.displayName);
       }
 
-      return { success: true, user };
+      // Verificar si el usuario ya configuró su contraseña
+      const passwordConfigured = userDoc.exists()
+        ? userDoc.data().passwordConfigured
+        : false;
+
+      // Requerir contraseña solo si es nuevo usuario
+      // o si es un usuario existente que aún no ha configurado contraseña
+      const requiresPassword = isNewUser || !passwordConfigured;
+
+      return {
+        success: true,
+        user,
+        isNewUser,
+        requiresPassword,
+        passwordConfigured,
+      };
     } catch (error) {
       console.error("Error en login con Google:", error);
       return { success: false, error: error.message };
@@ -193,6 +275,135 @@ class AuthService {
     } catch (error) {
       console.error("Error enviando email:", error);
       // No fallar el registro si el email no se envía
+    }
+  }
+
+  // Método para solicitar reset de contraseña con token
+  async requestPasswordReset(email) {
+    try {
+      console.log("🔐 Solicitando reset de contraseña para:", email);
+
+      // Generar token
+      const token = this.generateToken();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // Expira en 15 minutos
+
+      console.log("📧 Enviando email con token...");
+
+      // Enviar email con token
+      const response = await fetch(
+        "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/sendPasswordResetEmail",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email,
+            token: token.toUpperCase(),
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        console.error("Error enviando email de reset:", response.statusText);
+        return {
+          success: false,
+          error: "Error al enviar el email de recuperación",
+        };
+      }
+
+      // Guardar token en Firestore en una colección temporal
+      await setDoc(doc(db, "passwordResets", email), {
+        token: token,
+        expiresAt: expiresAt,
+        email: email,
+      });
+
+      console.log("✅ Email de reset enviado exitosamente");
+      return {
+        success: true,
+        message: `Token enviado a ${email}. Expira en 15 minutos.`,
+      };
+    } catch (error) {
+      console.error("❌ Error en reset de contraseña:", error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Método para validar token y resetear contraseña
+  async resetPasswordWithToken(email, token, newPassword) {
+    try {
+      console.log("🔐 Validando token para:", email);
+
+      // La Cloud Function valida el token y cambia la contraseña con Admin SDK.
+      const response = await fetch(
+        "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/resetPasswordWithToken",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email,
+            newPassword: newPassword,
+            token: token.toUpperCase(),
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        console.error("Error reseteando contraseña:", response.statusText);
+        return { success: false, error: "Error al resetear la contraseña" };
+      }
+
+      // El Cloud Function se encarga de eliminar el documento de reset
+      // No necesitamos eliminarlo desde el cliente
+
+      console.log("✅ Contraseña reseteada exitosamente");
+      return { success: true, message: "Contraseña actualizada exitosamente" };
+    } catch (error) {
+      console.error("❌ Error validando token:", error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Método para que usuarios con Google agreguen una contraseña (para poder entrar con email/password)
+  async addPasswordToGoogleUser(password) {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        return { success: false, error: "No hay usuario autenticado" };
+      }
+
+      console.log("🔐 Agregando contraseña al usuario de Google:", user.email);
+
+      // Usar updatePassword de Firebase Auth
+      await updatePassword(user, password);
+      console.log("✅ Contraseña agregada exitosamente");
+
+      // Marcar en Firestore que el usuario ya configuró su contraseña
+      await setDoc(
+        doc(db, "users", user.uid),
+        { passwordConfigured: true },
+        { merge: true },
+      );
+      console.log("✅ Contraseña marcada como configurada en Firestore");
+
+      return { success: true, message: "Contraseña creada exitosamente" };
+    } catch (error) {
+      console.error("❌ Error agregando contraseña:", error.message);
+
+      if (error.code === "auth/weak-password") {
+        return {
+          success: false,
+          error: "La contraseña es demasiado débil. Usa al menos 6 caracteres.",
+        };
+      }
+      if (error.code === "auth/requires-recent-login") {
+        return {
+          success: false,
+          error:
+            "Necesitas iniciar sesión nuevamente para cambiar la contraseña",
+        };
+      }
+
+      return { success: false, error: error.message };
     }
   }
 }

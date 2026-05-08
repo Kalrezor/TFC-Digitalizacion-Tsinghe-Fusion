@@ -1,5 +1,5 @@
 // Controlador: useReservations.js
-// Hook para manejar CRUD de reservas.
+// Hook para manejar CRUD de reservas con actualizaciones en tiempo real.
 
 import { useState, useEffect, useCallback } from "react";
 import ReservationService from "../models/ReservationService";
@@ -23,14 +23,51 @@ const useReservations = (userId = null) => {
     }
   }, [userId]);
 
+  // Setup listeners en tiempo real
+  useEffect(() => {
+    setLoading(true);
+    let unsubscribe = () => {};
+
+    // Usar listener en tiempo real si está disponible
+    if (userId) {
+      // Para usuario específico
+      unsubscribe = ReservationService.subscribeToUserReservations(
+        userId,
+        (result) => {
+          setLoading(false);
+          if (result.success) {
+            setReservations(result.reservations);
+            setError(null);
+          } else {
+            setError(result.error);
+          }
+        },
+      );
+    } else {
+      // Para todas las reservas (admin)
+      unsubscribe = ReservationService.subscribeToAllReservations((result) => {
+        setLoading(false);
+        if (result.success) {
+          setReservations(result.reservations);
+          setError(null);
+        } else {
+          setError(result.error);
+        }
+      });
+    }
+
+    // Cleanup: desuscribir cuando se desmonte o cambie userId
+    return () => {
+      if (unsubscribe && typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, [userId]);
+
   // Crear reserva
   const createReservation = async (reservationData) => {
     const result = await ReservationService.createReservation(reservationData);
-    if (result.success) {
-      loadReservations();
-    } else {
-      setError(result.error);
-    }
+    // No necesitamos llamar a loadReservations, el listener actualizará automáticamente
     return result;
   };
 
@@ -40,28 +77,16 @@ const useReservations = (userId = null) => {
       id,
       reservationData,
     );
-    if (result.success) {
-      loadReservations();
-    } else {
-      setError(result.error);
-    }
+    // No necesitamos llamar a loadReservations, el listener actualizará automáticamente
     return result;
   };
 
-  // Eliminar reserva
+  // Eliminar/cancelar reserva
   const deleteReservation = async (id) => {
-    const result = await ReservationService.deleteReservation(id);
-    if (result.success) {
-      loadReservations();
-    } else {
-      setError(result.error);
-    }
+    const result = await ReservationService.cancelReservation(id);
+    // No necesitamos llamar a loadReservations, el listener actualizará automáticamente
     return result;
   };
-
-  useEffect(() => {
-    loadReservations();
-  }, [loadReservations]);
 
   return {
     reservations,

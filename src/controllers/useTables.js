@@ -1,5 +1,5 @@
 // Controlador: useTables.js
-// Hook para manejar CRUD de mesas.
+// Hook para manejar CRUD de mesas con actualizaciones en tiempo real.
 
 import { useState, useEffect } from 'react';
 import TableService from '../models/TableService';
@@ -9,7 +9,30 @@ const useTables = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Cargar todas las mesas
+  // Setup listener en tiempo real
+  useEffect(() => {
+    setLoading(true);
+    
+    // Usar listener en tiempo real para todas las mesas
+    const unsubscribe = TableService.subscribeToAllTables((result) => {
+      setLoading(false);
+      if (result.success) {
+        setTables(result.tables);
+        setError(null);
+      } else {
+        setError(result.error);
+      }
+    });
+
+    // Cleanup: desuscribir cuando se desmonte
+    return () => {
+      if (unsubscribe && typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, []);
+
+  // Cargar todas las mesas (para casos manuales)
   const loadTables = async () => {
     setLoading(true);
     const result = await TableService.getAllTables();
@@ -36,39 +59,23 @@ const useTables = () => {
   // Crear mesa
   const createTable = async (tableData) => {
     const result = await TableService.createTable(tableData);
-    if (result.success) {
-      loadTables();
-    } else {
-      setError(result.error);
-    }
+    // No necesitamos llamar a loadTables, el listener actualizará automáticamente
     return result;
   };
 
   // Actualizar mesa
   const updateTable = async (id, tableData) => {
     const result = await TableService.updateTable(id, tableData);
-    if (result.success) {
-      loadTables();
-    } else {
-      setError(result.error);
-    }
+    // No necesitamos llamar a loadTables, el listener actualizará automáticamente
     return result;
   };
 
   // Eliminar mesa
   const deleteTable = async (id) => {
     const result = await TableService.deleteTable(id);
-    if (result.success) {
-      loadTables();
-    } else {
-      setError(result.error);
-    }
+    // No necesitamos llamar a loadTables, el listener actualizará automáticamente
     return result;
   };
-
-  useEffect(() => {
-    loadTables();
-  }, []);
 
   return {
     tables,

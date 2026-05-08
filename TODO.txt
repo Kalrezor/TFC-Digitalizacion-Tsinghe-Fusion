@@ -1,0 +1,81 @@
+CALOTO:
+################################################
+1: Vista ADMIN – “GESTIONAR MENÚ”
+Funcionalidad: Nuevo Plato (Alérgenos)
+
+Al ingresar a NUEVO PLATO:
+
+En la sección Alérgenos debe mostrarse:
+✅ La lista completa de alérgenos existentes (solo nombres).
+✅ La opción de crear un nuevo alérgeno, con el mismo comportamiento
+ que Categoría del Plato, se pueden seleccionar varios.
+Al crear un nuevo alérgeno:
+✅ Se debe generar automáticamente su ID en la base de datos.
+✅ El nuevo alérgeno debe quedar disponible para selección inmediata.
+
+
+2: Vista ADMIN – “VER MENÚ”
+
+Debe mostrarse el menú completo creado por los ADMINS desde GESTIONAR MENÚ.
+Esta vista debe:
+
+✅ Ser solo de visualización.
+✅ Mostrarse exactamente igual a como lo ve el comensal.
+✅ No permitir edición ni acciones administrativas.
+✅ La imagen del plato debe ser cargada desde el ordenador, no por URL
+
+
+JUAN:
+###################################################
+
+3: Vista COMENSAL –(Dashboard--> podemos cambiarlo a "MI PERFIL")
+Información del Comensal
+🔹 Campos obligatorios
+
+Nombre
+Apellido
+Correo electrónico
+
+🔹 Campos opcionales
+
+Número de móvil
+Dirección
+Fecha de cumpleaños
+
+🔹 Salud y Restricciones
+
+Alergias e Intolerancias
+(ej.: frutos secos, mariscos, celiaquía, lactosa, etc.)
+Dietas específicas
+(vegano, vegetariano, keto, paleo, kosher, halal, etc.)
+Sensibilidades
+(ej.: rechazo a ingredientes específicos como cilantro, preferencia por agua de baja mineralización)
+
+🔹 Perfil Gastronómico y de Bebidas
+(Información clave para camarero y sommelier)
+
+Preferencias de bebida (vino: región/uva, cócteles, agua con o sin gas)
+Punto de cocción preferido para carnes
+Platos recurrentes (los que pide habitualmente)
+
+4: Vista COMENSAL – “NUEVA RESERVA”
+Validaciones y comportamiento
+
+✅ Verificar que el sistema no bloquee al comensal y permita realizar reservas correctamente.
+✅ Validar que las horas estén sincronizadas para evitar:
+Errores de horario
+Cruce con otras reservas
+✅ Evitar reservas simultáneas en el mismo horario.
+✅ Si el comensal no se presenta en el restaurante dentro de 15 minutos, la reserva debe:
+Anularse automáticamente.
+
+
+#####
+INICIO A LA APP:
+-->CONSOLA : npm start
+ --->"install libs" (probable)
+
+
+guiarse de reservationsView.js para aplicar al resto.
+CRUD EN "todas las reservas" solo para vista de admin
+

@@ -1,15 +1,11 @@
-// Vista: Register.js
-// Componente de registro de nuevos usuarios
-// Incluye validaci�n de formulario y manejo de errores
-
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import AuthService from "../models/AuthService";
-import "../styles/ChineseStyle.css";
+import "../styles/MinimalStyle.css";
 
 const Register = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,203 +16,121 @@ const Register = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Manejar cambios en los inputs
+  useEffect(() => {
+    const emailParam = searchParams.get("email");
+    if (emailParam) {
+      setFormData((prev) => ({
+        ...prev,
+        email: decodeURIComponent(emailParam),
+      }));
+    }
+  }, [searchParams]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Limpiar error al escribir
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (error) setError(null);
   };
 
-  // Validar el formulario
   const validateForm = () => {
-    if (!formData.name.trim()) {
-      setError("El nombre es requerido");
-      return false;
-    }
-    if (formData.name.trim().length < 2) {
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
       setError("El nombre debe tener al menos 2 caracteres");
       return false;
     }
-    if (!formData.email.trim()) {
-      setError("El email es requerido");
-      return false;
-    }
-    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+\$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError("Por favor ingresa un email v�lido");
-      return false;
-    }
-    if (!formData.password) {
-      setError("La contrase�a es requerida");
+      setError("Por favor ingresa un email válido");
       return false;
     }
     if (formData.password.length < 6) {
-      setError("La contrase�a debe tener al menos 6 caracteres");
+      setError("La contraseña debe tener al menos 6 caracteres");
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Las contrase�as no coinciden");
+      setError("Las contraseñas no coinciden");
       return false;
     }
     return true;
   };
 
-  // Manejar env�o del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(false);
-
-    // Validar formulario
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
-
     try {
-      // Llamar al servicio de registro
       const result = await AuthService.registerWithEmail(
         formData.email,
         formData.password,
-        formData.name.trim(),
+        formData.name.trim()
       );
-
-      setLoading(false);
 
       if (result.success) {
         setSuccess(true);
-        setFormData({
-          name: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-        });
-
-        // Mostrar mensaje de �xito y redirigir despu�s de 2 segundos
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
+        setTimeout(() => navigate("/login"), 2000);
       } else {
-        setError(
-          result.error || "Error al registrarse. Por favor intenta de nuevo",
-        );
+        setError(result.error || "Error al registrarse");
       }
     } catch (err) {
+      setError(err.message || "Error inesperado");
+    } finally {
       setLoading(false);
-      setError(err.message || "Error inesperado durante el registro");
     }
   };
 
   return (
-    <div className="register-container">
-      <div className="register-card">
-        <div className="register-header">
-          <h1>?? Registrarse</h1>
-          <p className="register-subtitle">
-            Crea tu cuenta en Tsinghe Cocina Fusión
-          </p>
+    <div className="register-container" style={{
+      minHeight: "calc(100vh - 60px)",
+      backgroundColor: "#faf5ed",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "20px",
+    }}>
+      <div style={{
+        width: "100%",
+        maxWidth: "480px",
+        backgroundColor: "white",
+        border: "1px solid #e0e0e0",
+        borderRadius: "4px",
+        padding: "40px",
+      }}>
+        <div style={{ marginBottom: "28px", textAlign: "center" }}>
+          <h1 style={{ fontSize: "28px", color: "#568d6e", marginBottom: "8px" }}>Crear Cuenta</h1>
+          <p style={{ fontSize: "14px", color: "#666666" }}>Únete a Tsinghe Cocina Fusión</p>
         </div>
 
-        {/* Mensaje de error */}
-        {error && <div className="error-message error-box">? {error}</div>}
+        {success && <div className="success-box">✓ ¡Registro exitoso! Redirigiendo...</div>}
+        {error && <div className="error-box">⚠ {error}</div>}
 
-        {/* Mensaje de �xito */}
-        {success && (
-          <div className="success-message success-box">
-            ? �Registro exitoso! Redirigiendo al login...
-          </div>
-        )}
-
-        {/* Formulario de registro */}
-        <form onSubmit={handleSubmit} className="register-form">
-          {/* Campo Nombre */}
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="name">Nombre Completo</label>
-            <input
-              id="name"
-              type="text"
-              name="name"
-              placeholder="Ej: Juan Garc�a"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
+            <label>Nombre Completo</label>
+            <input type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder="Ej: Juan García" />
           </div>
 
-          {/* Campo Email */}
           <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              placeholder="Ej: tu@email.com"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
+            <label>Email</label>
+            <input type="email" name="email" value={formData.email} onChange={handleInputChange} required placeholder="tu@email.com" />
           </div>
 
-          {/* Campo Contrase�a */}
           <div className="form-group">
-            <label htmlFor="password">Contrase�a</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              placeholder="M�nimo 6 caracteres"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-            />
-            <small className="form-hint">M�nimo 6 caracteres</small>
+            <label>Contraseña</label>
+            <input type="password" name="password" value={formData.password} onChange={handleInputChange} required placeholder="Mínimo 6 caracteres" />
           </div>
 
-          {/* Campo Confirmar Contrase�a */}
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirmar Contrase�a</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              name="confirmPassword"
-              placeholder="Repite tu contrase�a"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              required
-            />
+            <label>Confirmar Contraseña</label>
+            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleInputChange} required />
           </div>
 
-          {/* Bot�n de env�o */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary btn-register-submit"
-          >
-            {loading ? "Creando cuenta..." : "Registrarse"}
+          <button type="submit" disabled={loading} className="btn-primary" style={{ width: "100%", marginTop: "10px" }}>
+            {loading ? "Registrando..." : "Registrarse"}
           </button>
         </form>
 
-        {/* Link al login */}
-        <div className="register-footer">
-          <p>
-            �Ya tienes cuenta?{" "}
-            <button onClick={() => navigate("/login")} className="link-button">
-              Inicia sesi�n aqu�
-            </button>
-          </p>
-        </div>
-
-        {/* Informaci�n adicional */}
-        <div className="register-info">
-          <p className="info-text">
-            Al registrarte, aceptas nuestros t�rminos de servicio y pol�tica de
-            privacidad
-          </p>
+        <div style={{ textAlign: "center", marginTop: "20px", fontSize: "13px" }}>
+          ¿Ya tienes cuenta? <Link to="/login" style={{ color: "#2e8b57", fontWeight: "600", textDecoration: "none" }}>Inicia sesión</Link>
         </div>
       </div>
     </div>
