@@ -11,6 +11,7 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
@@ -92,6 +93,147 @@ class TableService {
       return { success: true };
     } catch (error) {
       console.error("Error eliminando mesa:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Fusionar múltiples mesas para una reserva (SOLO PARA RESERVAS > 4 COMENSALES)
+  async mergeTables(reservationId, tableIds, guestCount) {
+    try {
+      // Validar que haya > 4 comensales
+      if (guestCount <= 4) {
+        return { 
+          success: false, 
+          error: "La fusión de mesas solo es posible para reservas con más de 4 comensales" 
+        };
+      }
+
+      // Validar que al menos haya 2 mesas
+      if (!tableIds || tableIds.length < 2) {
+        return { 
+          success: false, 
+          error: "Debes seleccionar al menos 2 mesas para fusionar" 
+        };
+      }
+
+      const updates = [];
+
+      // Actualizar cada mesa
+      for (const tableId of tableIds) {
+        updates.push(
+          updateDoc(doc(db, "tables", tableId), {
+            reservationId: reservationId,
+            mergedWith: tableIds.filter(id => id !== tableId), // Otras mesas con las que está fusionada
+            available: false,
+            lastModified: new Date().toISOString(),
+          })
+        );
+      }
+
+      await Promise.all(updates);
+      console.log(`✅ ${tableIds.length} mesas fusionadas para reserva ${reservationId}`);
+      return { 
+        success: true, 
+        message: `${tableIds.length} mesas fusionadas exitosamente` 
+      };
+    } catch (error) {
+      console.error("Error fusionando mesas:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Desvincular/desanclar mesas (requiere PIN válido)
+  async unmergeTables(tableIds, validationRequired = true) {
+    try {
+      if (!tableIds || tableIds.length === 0) {
+        return { success: false, error: "No hay mesas que desvincular" };
+      }
+
+      const updates = [];
+
+      for (const tableId of tableIds) {
+        updates.push(
+          updateDoc(doc(db, "tables", tableId), {
+            reservationId: null,
+            mergedWith: [], // Limpiar array de fusiones
+            available: true,
+            lastModified: new Date().toISOString(),
+          })
+        );
+      }
+
+      await Promise.all(updates);
+      console.log(`✅ ${tableIds.length} mesas desvinculadas`);
+      return { 
+        success: true, 
+        message: `${tableIds.length} mesas desvinculadas exitosamente` 
+      };
+    } catch (error) {
+      console.error("Error desvinculando mesas:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Obtener todas las mesas fusionadas con una reserva
+  async getTablesByReservation(reservationId) {
+    try {
+      const querySnapshot = await getDocs(collection(db, "tables"));
+      const tables = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.reservationId === reservationId) {
+          tables.push({ id: doc.id, ...data });
+        }
+      });
+
+      return { success: true, tables, count: tables.length };
+    } catch (error) {
+      console.error("Error obteniendo mesas de reserva:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Inicializar 20 mesas si no existen
+  async initializeTables() {
+    try {
+      const existingTables = await getDocs(collection(db, "tables"));
+      
+      // Si ya hay mesas, no hacer nada
+      if (existingTables.size >= 20) {
+        console.log("✅ Las 20 mesas ya están inicializadas");
+        return { success: true, message: "Mesas ya existen" };
+      }
+
+      const batchSize = existingTables.size;
+      const tablesNeeded = 20 - batchSize;
+      let created = 0;
+
+      for (let i = 1; i <= 20; i++) {
+        const tableId = `mesa-${i}`;
+        const tableDoc = doc(db, "tables", tableId);
+        
+        // Verificar si ya existe
+        const existsDoc = await getDoc(tableDoc);
+        if (!existsDoc.exists()) {
+          await setDoc(tableDoc, {
+            tableNumber: i,
+            capacity: 4,
+            available: true,
+            active: true,
+            reservationId: null,
+            mergedWith: [],
+            createdAt: new Date().toISOString(),
+            lastModified: new Date().toISOString(),
+          });
+          created++;
+        }
+      }
+
+      console.log(`✅ ${created} mesas creadas. Total: 20`);
+      return { success: true, message: `${created} mesas inicializadas` };
+    } catch (error) {
+      console.error("Error inicializando mesas:", error);
       return { success: false, error: error.message };
     }
   }

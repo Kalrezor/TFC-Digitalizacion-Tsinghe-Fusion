@@ -1,5 +1,6 @@
 // Componente: ReservationForm.js
 // Formulario para crear/editar reservas
+// ✨ Detecta automáticamente cuando hay > 4 comensales y sugiere fusión de mesas
 
 import React, { useState, useEffect, useCallback } from "react";
 import ReservationService from "../models/ReservationService";
@@ -32,7 +33,7 @@ const getBestFitTables = (tables, people) => {
   return [...bestFits, ...fallbackFits];
 };
 
-const ReservationForm = ({ userId, userName, userEmail, onReservationCreated }) => {
+const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, userRole }) => {
   const [formData, setFormData] = useState({
     reservationDate: "",
     reservationTime: "",
@@ -44,6 +45,10 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated }) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  
+  // ✨ NUEVO: Estados para detectar fusión necesaria
+  const [mergingInfo, setMergingInfo] = useState(null);
+  const [showMergingWarning, setShowMergingWarning] = useState(false);
 
   const loadAvailableTables = useCallback(async () => {
     try {
@@ -65,6 +70,29 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated }) 
       console.error("Error cargando mesas:", err);
     }
   }, [formData.reservationDate, formData.reservationTime, formData.numberOfPeople]);
+
+  // ✨ NUEVO: Validar si se necesita fusión cuando cambia número de personas
+  useEffect(() => {
+    const checkMerging = async () => {
+      if (formData.reservationDate && formData.reservationTime && formData.numberOfPeople > 4) {
+        const result = await ReservationService.checkIfMergingNeeded(
+          formData.numberOfPeople,
+          formData.reservationDate,
+          formData.reservationTime
+        );
+        
+        if (result.success) {
+          setMergingInfo(result);
+          setShowMergingWarning(result.needsMerging && !result.canMerge);
+        }
+      } else {
+        setMergingInfo(null);
+        setShowMergingWarning(false);
+      }
+    };
+    
+    checkMerging();
+  }, [formData.numberOfPeople, formData.reservationDate, formData.reservationTime]);
 
   // Obtener mesas disponibles cuando cambia fecha/hora
   useEffect(() => {
@@ -108,6 +136,12 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated }) 
       return;
     }
 
+    // ✨ NUEVO: Si > 4 personas y no hay mesas disponibles, mostrar error
+    if (formData.numberOfPeople > 4 && mergingInfo && !mergingInfo.canMerge) {
+      setError(`No hay suficientes mesas disponibles. Se necesitan ${mergingInfo.suggestedTableCount} mesas pero solo hay ${mergingInfo.availableTablesCount}.`);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -121,6 +155,9 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated }) 
         numberOfPeople: formData.numberOfPeople,
         specialRequests: formData.specialRequests,
         status: "pendiente",
+        // ✨ NUEVO: Agregar flag si necesita fusión
+        needsMerging: mergingInfo?.needsMerging || false,
+        suggestedTableCount: mergingInfo?.suggestedTableCount || 1,
       };
 
       const result = await ReservationService.createReservation(reservationData);
@@ -135,6 +172,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated }) 
         });
         setSelectedTable(null);
         setAvailableTables([]);
+        setMergingInfo(null);
 
         // Callback
         if (onReservationCreated) {
@@ -172,6 +210,30 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated }) 
         {success && (
           <div className="success-message success-box">
             ✅ ¡Reserva creada exitosamente!
+          </div>
+        )}
+
+        {/* ✨ NUEVO: Advertencia de fusión cuando > 4 personas */}
+        {mergingInfo?.needsMerging && (
+          <div style={{
+            background: "#fff3cd",
+            border: "1px solid #ffc107",
+            borderRadius: "8px",
+            padding: "12px",
+            marginBottom: "15px",
+            color: "#856404"
+          }}>
+            <strong>⚠️ {mergingInfo.message}</strong>
+            <p style={{ margin: "8px 0 0 0", fontSize: "0.9em" }}>
+              Se necesitarán {mergingInfo.suggestedTableCount} mesa{mergingInfo.suggestedTableCount > 1 ? 's' : ''} para {formData.numberOfPeople} comensales.
+              {mergingInfo.canMerge && " ✅ Hay mesas disponibles."}
+              {!mergingInfo.canMerge && ` ❌ Solo hay ${mergingInfo.availableTablesCount} mesa${mergingInfo.availableTablesCount > 1 ? 's' : ''}.`}
+            </p>
+            {mergingInfo.requiresAdmin && (
+              <p style={{ margin: "8px 0 0 0", fontSize: "0.9em" }}>
+                Un administrador fusionará las mesas en la vista de plano de mesas.
+              </p>
+            )}
           </div>
         )}
 

@@ -129,6 +129,7 @@ const renderContent = (selectedOption, role, userId, userName, userEmail) => {
           userId={userId}
           userName={userName}
           userEmail={userEmail}
+          userRole={role}
           onReservationCreated={() => {
             // Podría hacer algo aquí si quiere
           }}

@@ -85,7 +85,7 @@ const ReservationsView = ({ role, userId }) => {
                       state: {
                         pendingAssignment: {
                           resId: res.id,
-                          people: res.numberOfPeople,
+                          numberOfPeople: res.numberOfPeople,
                           userName: res.userName,
                         },
                       },

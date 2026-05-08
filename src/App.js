@@ -168,7 +168,7 @@ function App() {
               loading={loading}
               role={role}
             >
-              <AdminTables userId={user?.uid} />
+              <AdminTables userId={user?.uid} userRole={role} />
             </AdminRoute>
           }
         />

@@ -352,6 +352,54 @@ class ReservationService {
       return { success: false, error: error.message };
     }
   }
+
+  // ✨ VALIDAR SI UNA RESERVA NECESITA FUSIÓN DE MESAS
+  // Retorna: { needsMerging: boolean, message: string, suggestedTables: number }
+  async checkIfMergingNeeded(numberOfPeople, date, time) {
+    try {
+      const guestCount = Number(numberOfPeople) || 1;
+      
+      // Solo > 4 comensales necesitan fusión
+      if (guestCount <= 4) {
+        return { 
+          success: true,
+          needsMerging: false,
+          message: "No se requiere fusión de mesas",
+          guestCount
+        };
+      }
+
+      // Si > 4, necesita fusión
+      // Calcular cuántas mesas se sugieren (4 personas por mesa aprox)
+      const suggestedTableCount = Math.ceil(guestCount / 4);
+
+      // Verificar disponibilidad
+      const availableResult = await this.getAvailableTables(date, time);
+      if (!availableResult.success) {
+        return { 
+          success: false, 
+          error: "Error verificando disponibilidad de mesas" 
+        };
+      }
+
+      const availableCount = availableResult.tables.length;
+      const canMerge = availableCount >= suggestedTableCount;
+
+      return {
+        success: true,
+        needsMerging: true,
+        message: `Se necesita fusión de ${suggestedTableCount} mesa${suggestedTableCount > 1 ? 's' : ''} para ${guestCount} comensales`,
+        guestCount,
+        suggestedTableCount,
+        availableTablesCount: availableCount,
+        canMerge,
+        requiresAdmin: true, // Solo admins pueden fusionar
+      };
+    } catch (error) {
+      console.error("Error verificando necesidad de fusión:", error);
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 const reservationService = new ReservationService();

@@ -28,13 +28,18 @@ service cloud.firestore {
     // USERS
     // Crear: solo el propio usuario al registrarse o un admin
     // Leer:  el propio usuario o un admin
-    // Editar: el propio usuario o un admin
+    // Editar: el propio usuario o un admin (con validación de PIN si lo cambia)
     // Borrar: solo admin
     // ════════════════════════════════════════════════════════════════════
     match /users/{uid} {
       allow create: if isOwner(uid) || isAdmin();
       allow read:   if isOwner(uid) || isAdmin();
-      allow update: if isOwner(uid) || isAdmin();
+      allow update: if (isOwner(uid) || isAdmin()) &&
+                       // Si se actualiza adminPin, debe ser string de 4 dígitos
+                       (!request.resource.data.keys().hasAny(['adminPin']) ||
+                        request.resource.data.adminPin is string &&
+                        request.resource.data.adminPin.size() == 4 &&
+                        request.resource.data.adminPin.matches('[0-9]{4}'));
       allow delete: if isAdmin();
     }
 
@@ -66,12 +71,25 @@ service cloud.firestore {
     // TABLES
     // Leer: cualquier usuario logueado (para ver disponibilidad)
     // Escribir: solo admin
+    // Fusión: solo admins, máximo 4+ comensales, con PIN de 4 dígitos
     // ════════════════════════════════════════════════════════════════════
     match /tables/{tableId} {
       allow read:   if isLoggedIn();
-      allow create,
-            update,
-            delete: if isAdmin();
+      
+      allow create: if isAdmin() && 
+                       request.resource.data.capacity is number &&
+                       request.resource.data.capacity > 0 &&
+                       request.resource.data.tableNumber is number;
+      
+      allow update: if isAdmin() &&
+                       // Validar cambios de fusión
+                       (!request.resource.data.keys().hasAny(['mergedWith', 'fusedWith']) ||
+                        request.resource.data.get('mergedWith', []) is list) &&
+                       // Validar que los campos básicos sean válidos
+                       (request.resource.data.capacity is number &&
+                        request.resource.data.tableNumber is number);
+      
+      allow delete: if isAdmin();
     }
 
     // ════════════════════════════════════════════════════════════════════
