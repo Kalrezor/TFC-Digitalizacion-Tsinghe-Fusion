@@ -11,7 +11,10 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
+
+const LIST_USERS_URL =
+  "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/listUsersAdmin";
 
 class UserService {
   // Obtener todos los usuarios
@@ -22,9 +25,44 @@ class UserService {
       querySnapshot.forEach((doc) => {
         users.push({ id: doc.id, ...doc.data() });
       });
-      return { success: true, users };
+
+      if (users.length > 0) {
+        return { success: true, users };
+      }
+
+      return this.getAllUsersFromAuth();
     } catch (error) {
       console.error("Error obteniendo usuarios:", error);
+      return this.getAllUsersFromAuth();
+    }
+  }
+
+  async getAllUsersFromAuth() {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        return { success: false, error: "Usuario no autenticado" };
+      }
+
+      const token = await currentUser.getIdToken();
+      const response = await fetch(LIST_USERS_URL, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || "Error obteniendo usuarios de Firebase Auth",
+        };
+      }
+
+      return { success: true, users: data.users || [] };
+    } catch (error) {
+      console.error("Error obteniendo usuarios de Auth:", error);
       return { success: false, error: error.message };
     }
   }

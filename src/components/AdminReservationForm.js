@@ -31,6 +31,9 @@ const AdminReservationForm = ({ onReservationCreated }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
+  const getUserDisplayName = (user) =>
+    user?.name || user?.displayName || user?.email?.split("@")[0] || "Usuario";
+
   // Cargar usuarios al montar
   useEffect(() => {
     loadUsers();
@@ -43,9 +46,11 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     } else {
       const term = searchTerm.toLowerCase();
       const filtered = users.filter(
-        (user) =>
-          user.name.toLowerCase().includes(term) ||
-          user.email.toLowerCase().includes(term),
+        (user) => {
+          const displayName = getUserDisplayName(user).toLowerCase();
+          const email = (user.email || "").toLowerCase();
+          return displayName.includes(term) || email.includes(term);
+        },
       );
       setFilteredUsers(filtered);
     }
@@ -63,7 +68,12 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     try {
       const result = await UserService.getAllUsers();
       if (result.success) {
-        setUsers(result.users);
+        const normalizedUsers = result.users
+          .filter((user) => user.email)
+          .sort((a, b) =>
+            getUserDisplayName(a).localeCompare(getUserDisplayName(b)),
+          );
+        setUsers(normalizedUsers);
       }
     } catch (err) {
       console.error("Error cargando usuarios:", err);
@@ -249,7 +259,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     try {
       const reservationData = {
         userId: selectedUser.id,
-        userName: selectedUser.name,
+        userName: getUserDisplayName(selectedUser),
         userEmail: selectedUser.email,
         tableId: selectedTable,
         reservationDate: formData.reservationDate,
@@ -339,7 +349,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                           setSearchTerm("");
                         }}
                       >
-                        <div className="user-name">{user.name}</div>
+                        <div className="user-name">{getUserDisplayName(user)}</div>
                         <div className="user-email">{user.email}</div>
                         {/* Mostrar badge si emailVerified es false o undefined (usuario no verificado) */}
                         {!user.emailVerified && (
@@ -382,7 +392,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
               <>
                 <div className="selected-user">
                   <div>
-                    <strong>{selectedUser.name}</strong>
+                    <strong>{getUserDisplayName(selectedUser)}</strong>
                     <div style={{ fontSize: "12px", color: "#666" }}>
                       {selectedUser.email}
                     </div>

@@ -19,34 +19,18 @@ const AdminTables = ({ userId, userRole }) => {
   const [pinSuccess, setPinSuccess] = useState(false);
   const [isAdmin, setIsAdmin] = useState(userRole === "admin"); // Iniciar como true si es admin
   const [loading, setLoading] = useState(false);
+  const [tablesLoading, setTablesLoading] = useState(true);
 
-  // 0. INICIALIZAR MESAS (primera carga)
-  useEffect(() => {
-    const initializeMesas = async () => {
-      const result = await tableService.initializeTables();
-      console.log("Resultado inicialización:", result);
-    };
-    initializeMesas();
-  }, []);
 
-  // 1. CARGA DE MESAS
+  // 1. CARGA DE MESAS REALES DESDE FIRESTORE
   useEffect(() => {
     const unsubscribe = tableService.subscribeToAllTables((result) => {
+      setTablesLoading(false);
       if (result.success) {
-        const fullTables = [];
-        for (let i = 1; i <= 20; i++) {
-          const found = result.tables.find((t) => t.tableNumber === i);
-          fullTables.push(
-            found || {
-              id: null,
-              tableNumber: i,
-              capacity: 4,
-              active: true,
-              available: true,
-            },
-          );
-        }
-        setDisplay(fullTables);
+        const sortedTables = [...result.tables].sort(
+          (a, b) => (a.tableNumber || 0) - (b.tableNumber || 0),
+        );
+        setDisplay(sortedTables);
       }
     });
     return () => unsubscribe();
@@ -196,6 +180,80 @@ const AdminTables = ({ userId, userRole }) => {
     }
   };
 
+  const handleReleaseBusyTable = async (table) => {
+    if (!isAdmin) {
+      alert("⚠️ Solo administradores pueden liberar mesas.");
+      return;
+    }
+
+    const confirmPass = prompt("⚠️ Mesa ocupada. Ingresa PIN de 4 dígitos:");
+    if (!confirmPass) return;
+
+    if (confirmPass.trim() !== dbPin) {
+      return alert("❌ PIN incorrecto.");
+    }
+
+    try {
+      setLoading(true);
+      const result = await tableService.updateTable(table.id, {
+        active: true,
+        available: true,
+        reservationId: null,
+        mergedWith: [],
+        fusionCode: null,
+        lastModified: new Date().toISOString(),
+      });
+
+      if (!result.success) {
+        alert(`❌ Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error liberando mesa:", error);
+      alert("Error al liberar mesa: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangeTableStatus = async (table, status) => {
+    if (!isAdmin) {
+      alert("⚠️ Solo administradores pueden cambiar el estado de mesas.");
+      return;
+    }
+
+    if (!table.id) {
+      alert("Esta mesa no tiene ID en Firestore.");
+      return;
+    }
+
+    if (table.reservationId || (!table.available && table.active !== false)) {
+      alert("Esta mesa está ocupada o fusionada. Libérala con PIN antes de modificarla.");
+      return;
+    }
+
+    const updates =
+      status === "disabled"
+        ? { active: false, available: false }
+        : { active: true, available: true };
+
+    try {
+      setLoading(true);
+      const result = await tableService.updateTable(table.id, {
+        ...updates,
+        lastModified: new Date().toISOString(),
+      });
+
+      if (!result.success) {
+        alert(`❌ Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error cambiando estado de mesa:", error);
+      alert("Error al cambiar estado de mesa: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // CAMBIAR PIN (SINCRONIZAR CON FIRESTORE)
   const handleChangePin = async () => {
     setPinError(null);
@@ -264,6 +322,13 @@ const AdminTables = ({ userId, userRole }) => {
     marginTop: "5px",
     fontWeight: "bold",
   };
+  const fusionCodeStyle = {
+    fontSize: "42px",
+    fontWeight: "900",
+    lineHeight: "1",
+    margin: "12px 0 6px",
+    letterSpacing: "0",
+  };
   const fusionBanner = {
     background: "#fffde7",
     padding: "15px",
@@ -313,7 +378,15 @@ const AdminTables = ({ userId, userRole }) => {
     );
   }
 
-  if (display.length === 0) return <div>Cargando...</div>;
+  if (tablesLoading) return <div>Cargando...</div>;
+
+  if (display.length === 0) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        No hay mesas registradas en Firestore.
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
@@ -426,41 +499,40 @@ const AdminTables = ({ userId, userRole }) => {
 
       <div style={tableGrid}>
         {display.map((table) => {
+          const tableLabel = table.tableNumber || table.number || table.id;
           const isSelected = selectedMultiple.some(
             (t) => t.tableNumber === table.tableNumber,
           );
-          const isOccupied = !table.available || table.reservationId;
-          
-          // Colores:
-          // Rojo (#f44336) = No activa/Inactiva
-          // Verde (#4CAF50) = Disponible y activa
-          // Amarillo (#FFD700) = Ocupada pero sin reserva
-          // Dorado (#DAA520) = Fusionada/Con reserva
-          let bgColor = "#4CAF50"; // Verde por defecto
-          if (!table.active) {
-            bgColor = "#f44336"; // Rojo - no activa
-          } else if (table.reservationId) {
-            bgColor = "#DAA520"; // Dorado - fusionada/con reserva
-          } else if (isOccupied) {
-            bgColor = "#FFD700"; // Amarillo - ocupada
+          const isDisabled = table.active === false;
+          const isReserved = !!table.reservationId;
+          const isBusy = !isDisabled && (!table.available || isReserved);
+          const canChangeStatus = !isBusy && !isReserved && !!table.id;
+          const fusionCode = table.fusionCode;
+
+          let bgColor = "#4CAF50";
+          if (isDisabled) {
+            bgColor = "#f44336";
+          } else if (isBusy) {
+            bgColor = "#DAA520";
           }
 
           return (
             <div
-              key={table.tableNumber}
+              key={table.id || tableLabel}
               onClick={() => handleTableClick(table)}
               style={{
                 ...tableCard,
                 background: bgColor,
                 border: isSelected ? "4px solid #333" : "1px solid #ddd",
-                color: (bgColor === "#FFD700" || bgColor === "#DAA520") ? "black" : "white",
+                color: bgColor === "#DAA520" ? "black" : "white",
               }}
             >
               <div style={{ flex: 1 }}>
-                <strong>Mesa {table.tableNumber}</strong>
-                {table.reservationId && (
-                  <div style={badgeFusion}>🔗 FUSIONADA</div>
-                )}
+                <strong>Mesa {tableLabel}</strong>
+                {fusionCode && <div style={fusionCodeStyle}>{fusionCode}</div>}
+                {isReserved && <div style={badgeFusion}>{fusionCode ? "FUSIONADA" : "RESERVADA"}</div>}
+                {isBusy && !isReserved && <div style={badgeFusion}>OCUPADA</div>}
+                {isDisabled && <div style={badgeFusion}>DESACTIVADA</div>}
               </div>
               <div
                 style={{
@@ -468,9 +540,53 @@ const AdminTables = ({ userId, userRole }) => {
                   justifyContent: "center",
                   gap: "5px",
                   marginTop: "10px",
+                  flexWrap: "wrap",
                 }}
               >
-                {table.reservationId && (
+                {!isBusy && (
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChangeTableStatus(table, "available");
+                      }}
+                      disabled={loading || !canChangeStatus || !isDisabled}
+                      style={{
+                        padding: "4px 8px",
+                        fontSize: "10px",
+                        background: "#2e7d32",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "3px",
+                        cursor: loading || !canChangeStatus || !isDisabled ? "not-allowed" : "pointer",
+                        opacity: loading || !canChangeStatus || !isDisabled ? 0.55 : 1,
+                      }}
+                    >
+                      Disponible
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChangeTableStatus(table, "disabled");
+                      }}
+                      disabled={loading || !canChangeStatus || isDisabled}
+                      style={{
+                        padding: "4px 8px",
+                        fontSize: "10px",
+                        background: "#c62828",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "3px",
+                        cursor: loading || !canChangeStatus || isDisabled ? "not-allowed" : "pointer",
+                        opacity: loading || !canChangeStatus || isDisabled ? 0.55 : 1,
+                      }}
+                    >
+                      Desactivar
+                    </button>
+                  </>
+                )}
+
+                {isReserved && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -483,10 +599,32 @@ const AdminTables = ({ userId, userRole }) => {
                       color: "white",
                       border: "none",
                       borderRadius: "3px",
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                   >
-                    🔓 Desvincular
+                    Desvincular
+                  </button>
+                )}
+
+                {isBusy && !isReserved && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleReleaseBusyTable(table);
+                    }}
+                    disabled={loading}
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: "10px",
+                      background: "#ff5722",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "3px",
+                      cursor: loading ? "not-allowed" : "pointer",
+                      opacity: loading ? 0.6 : 1,
+                    }}
+                  >
+                    Liberar
                   </button>
                 )}
               </div>

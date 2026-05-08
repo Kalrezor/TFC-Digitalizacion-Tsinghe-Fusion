@@ -63,7 +63,7 @@ const WelcomePanel = ({ role, userName }) => (
           {
             emoji: "🪑",
             label: "Mesas",
-            desc: "20 mesas con estado en tiempo real",
+            desc: "Mesas reales con estado en tiempo real",
           },
           { emoji: "🏷️", label: "Ofertas", desc: "Promociones y descuentos" },
           {
@@ -140,7 +140,7 @@ const renderContent = (selectedOption, role, userId, userName, userEmail) => {
     case "admin-menu":
       return <AdminMenu />;
     case "admin-mesas":
-      return <AdminTables />;
+      return <AdminTables userId={userId} userRole={role} />;
     case "admin-ofertas":
       return <AdminOffers />;
     case "admin-reservas":

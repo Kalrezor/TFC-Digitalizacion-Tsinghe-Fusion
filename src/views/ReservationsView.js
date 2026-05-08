@@ -40,7 +40,33 @@ const ReservationsView = ({ role, userId }) => {
 
       <div style={{ display: "grid", gap: "15px", marginTop: "20px" }}>
         {reservations.map((res) => {
-          const tableAssigned = tables.find((t) => t.id === res.tableId);
+          const reservationTableIds = Array.isArray(res.tableIds)
+            ? res.tableIds
+            : [];
+          const assignedTables = tables
+            .filter(
+              (table) =>
+                reservationTableIds.includes(table.id) ||
+                table.reservationId === res.id ||
+                table.id === res.tableId,
+            )
+            .sort(
+              (a, b) =>
+                Number(a.tableNumber || a.number || 0) -
+                Number(b.tableNumber || b.number || 0),
+            );
+          const fusionCode =
+            res.fusionCode ||
+            assignedTables.find((table) => table.fusionCode)?.fusionCode;
+          const tableNumbers = assignedTables.map(
+            (table) => table.tableNumber || table.number || table.id,
+          );
+          const tableDisplay =
+            tableNumbers.length > 1
+              ? `${fusionCode ? `${fusionCode}: ` : ""}Mesas ${tableNumbers.join(", ")}`
+              : tableNumbers.length === 1
+                ? `Mesa ${tableNumbers[0]}`
+                : "Pendiente";
 
           return (
             <div key={res.id} style={resCard}>
@@ -49,7 +75,9 @@ const ReservationsView = ({ role, userId }) => {
                   👤 {res.userName || "Cliente"}
                 </h4>
                 <p>
-                  📅 <b>Fecha:</b> {res.reservationDate} - {res.reservationTime}
+                  📅 <b>Fecha:</b> {res.reservationDate}
+                  <p></p> 
+                  ⌚ <b>Hora</b> {res.reservationTime}
                 </p>
 
                 {editingId === res.id ? (
@@ -71,9 +99,7 @@ const ReservationsView = ({ role, userId }) => {
 
                 <p>
                   🪑 <b>Mesa:</b>{" "}
-                  {tableAssigned
-                    ? `Mesa ${tableAssigned.tableNumber}`
-                    : "⚠️ Pendiente"}
+                  {tableDisplay}
                 </p>
               </div>
 

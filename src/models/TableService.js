@@ -11,7 +11,6 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
-  setDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
@@ -97,44 +96,79 @@ class TableService {
     }
   }
 
-  // Fusionar múltiples mesas para una reserva (SOLO PARA RESERVAS > 4 COMENSALES)
+
+  getNextFusionCode(tables) {
+    const usedNumbers = new Set();
+
+    tables.forEach((table) => {
+      if (table.reservationId && typeof table.fusionCode === "string") {
+        const match = table.fusionCode.match(/^F(\d+)$/);
+        if (match) {
+          usedNumbers.add(Number(match[1]));
+        }
+      }
+    });
+
+    let nextNumber = 1;
+    while (usedNumbers.has(nextNumber)) {
+      nextNumber++;
+    }
+
+    return `F${nextNumber}`;
+  }
+  // Fusionar multiples mesas para una reserva (SOLO PARA RESERVAS > 4 COMENSALES)
   async mergeTables(reservationId, tableIds, guestCount) {
     try {
-      // Validar que haya > 4 comensales
       if (guestCount <= 4) {
-        return { 
-          success: false, 
-          error: "La fusión de mesas solo es posible para reservas con más de 4 comensales" 
+        return {
+          success: false,
+          error: "La fusion de mesas solo es posible para reservas con mas de 4 comensales",
         };
       }
 
-      // Validar que al menos haya 2 mesas
       if (!tableIds || tableIds.length < 2) {
-        return { 
-          success: false, 
-          error: "Debes seleccionar al menos 2 mesas para fusionar" 
+        return {
+          success: false,
+          error: "Debes seleccionar al menos 2 mesas para fusionar",
         };
       }
 
+      const tablesSnapshot = await getDocs(collection(db, "tables"));
+      const existingTables = [];
+      tablesSnapshot.forEach((tableDoc) => {
+        existingTables.push({ id: tableDoc.id, ...tableDoc.data() });
+      });
+
+      const fusionCode = this.getNextFusionCode(existingTables);
       const updates = [];
 
-      // Actualizar cada mesa
       for (const tableId of tableIds) {
         updates.push(
           updateDoc(doc(db, "tables", tableId), {
-            reservationId: reservationId,
-            mergedWith: tableIds.filter(id => id !== tableId), // Otras mesas con las que está fusionada
+            reservationId,
+            mergedWith: tableIds.filter((id) => id !== tableId),
+            fusionCode,
             available: false,
             lastModified: new Date().toISOString(),
-          })
+          }),
         );
       }
 
+      updates.push(
+        updateDoc(doc(db, "reservations", reservationId), {
+          tableId: tableIds[0],
+          tableIds,
+          fusionCode,
+          updatedAt: new Date().toISOString(),
+        }),
+      );
+
       await Promise.all(updates);
-      console.log(`✅ ${tableIds.length} mesas fusionadas para reserva ${reservationId}`);
-      return { 
-        success: true, 
-        message: `${tableIds.length} mesas fusionadas exitosamente` 
+      console.log(`Mesas fusionadas para reserva ${reservationId}: ${fusionCode}`);
+      return {
+        success: true,
+        message: `${tableIds.length} mesas fusionadas exitosamente (${fusionCode})`,
+        fusionCode,
       };
     } catch (error) {
       console.error("Error fusionando mesas:", error);
@@ -142,7 +176,7 @@ class TableService {
     }
   }
 
-  // Desvincular/desanclar mesas (requiere PIN válido)
+  // Desvincular/desanclar mesas (requiere PIN valido)
   async unmergeTables(tableIds, validationRequired = true) {
     try {
       if (!tableIds || tableIds.length === 0) {
@@ -150,23 +184,41 @@ class TableService {
       }
 
       const updates = [];
+      let reservationId = null;
+
+      const firstTable = await getDoc(doc(db, "tables", tableIds[0]));
+      if (firstTable.exists()) {
+        reservationId = firstTable.data().reservationId || null;
+      }
 
       for (const tableId of tableIds) {
         updates.push(
           updateDoc(doc(db, "tables", tableId), {
             reservationId: null,
-            mergedWith: [], // Limpiar array de fusiones
+            mergedWith: [],
+            fusionCode: null,
             available: true,
             lastModified: new Date().toISOString(),
-          })
+          }),
+        );
+      }
+
+      if (reservationId) {
+        updates.push(
+          updateDoc(doc(db, "reservations", reservationId), {
+            tableId: null,
+            tableIds: [],
+            fusionCode: null,
+            updatedAt: new Date().toISOString(),
+          }),
         );
       }
 
       await Promise.all(updates);
-      console.log(`✅ ${tableIds.length} mesas desvinculadas`);
-      return { 
-        success: true, 
-        message: `${tableIds.length} mesas desvinculadas exitosamente` 
+      console.log(`${tableIds.length} mesas desvinculadas`);
+      return {
+        success: true,
+        message: `${tableIds.length} mesas desvinculadas exitosamente`,
       };
     } catch (error) {
       console.error("Error desvinculando mesas:", error);
@@ -194,48 +246,9 @@ class TableService {
     }
   }
 
-  // Inicializar 20 mesas si no existen
+  // Mantener Firestore como fuente de verdad: no crear mesas por defecto.
   async initializeTables() {
-    try {
-      const existingTables = await getDocs(collection(db, "tables"));
-      
-      // Si ya hay mesas, no hacer nada
-      if (existingTables.size >= 20) {
-        console.log("✅ Las 20 mesas ya están inicializadas");
-        return { success: true, message: "Mesas ya existen" };
-      }
-
-      const batchSize = existingTables.size;
-      const tablesNeeded = 20 - batchSize;
-      let created = 0;
-
-      for (let i = 1; i <= 20; i++) {
-        const tableId = `mesa-${i}`;
-        const tableDoc = doc(db, "tables", tableId);
-        
-        // Verificar si ya existe
-        const existsDoc = await getDoc(tableDoc);
-        if (!existsDoc.exists()) {
-          await setDoc(tableDoc, {
-            tableNumber: i,
-            capacity: 4,
-            available: true,
-            active: true,
-            reservationId: null,
-            mergedWith: [],
-            createdAt: new Date().toISOString(),
-            lastModified: new Date().toISOString(),
-          });
-          created++;
-        }
-      }
-
-      console.log(`✅ ${created} mesas creadas. Total: 20`);
-      return { success: true, message: `${created} mesas inicializadas` };
-    } catch (error) {
-      console.error("Error inicializando mesas:", error);
-      return { success: false, error: error.message };
-    }
+    return { success: true, message: "Inicializacion automatica desactivada" };
   }
 
   // Escuchar cambios en tiempo real de todas las mesas
