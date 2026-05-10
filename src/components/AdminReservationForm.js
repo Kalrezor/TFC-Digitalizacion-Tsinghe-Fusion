@@ -2,9 +2,9 @@
 // Formulario para que el admin cree reservas en nombre de otros usuarios
 // Con búsqueda en tiempo real y opción de crear usuario
 
-import React, { useState, useEffect } from "react";
-import ReservationService from "../models/ReservationService";
-import UserService from "../models/UserService";
+import React, { useState, useEffect, useCallback } from "react";
+import ReservationService from "../services/ReservationService";
+import UserService from "../services/UserService";
 import "../styles/ChineseStyle.css";
 
 const AdminReservationForm = ({ onReservationCreated }) => {
@@ -31,40 +31,13 @@ const AdminReservationForm = ({ onReservationCreated }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const getUserDisplayName = (user) =>
-    user?.name || user?.displayName || user?.email?.split("@")[0] || "Usuario";
-
-  // Cargar usuarios al montar
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  // Filtrar usuarios por búsqueda en tiempo real
-  useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredUsers(users);
-    } else {
-      const term = searchTerm.toLowerCase();
-      const filtered = users.filter(
-        (user) => {
-          const displayName = getUserDisplayName(user).toLowerCase();
-          const email = (user.email || "").toLowerCase();
-          return displayName.includes(term) || email.includes(term);
-        },
-      );
-      setFilteredUsers(filtered);
-    }
-  }, [searchTerm, users]);
-
-  // Cargar mesas disponibles cuando cambia fecha/hora
-  useEffect(() => {
-    if (formData.reservationDate && formData.reservationTime) {
-      loadAvailableTables();
-    }
-  }, [formData.reservationDate, formData.reservationTime]);
+  const getUserDisplayName = useCallback((user) =>
+    user?.name || user?.displayName || user?.email?.split("@")[0] || "Usuario",
+  [],
+  );
 
   // Cargar lista de usuarios
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       const result = await UserService.getAllUsers();
       if (result.success) {
@@ -78,10 +51,10 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     } catch (err) {
       console.error("Error cargando usuarios:", err);
     }
-  };
+  }, [getUserDisplayName]);
 
   // Cargar mesas disponibles
-  const loadAvailableTables = async () => {
+  const loadAvailableTables = useCallback(async () => {
     try {
       const result = await ReservationService.getAvailableTables(
         formData.reservationDate,
@@ -100,7 +73,36 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     } catch (err) {
       console.error("Error cargando mesas:", err);
     }
-  };
+  }, [formData.reservationDate, formData.reservationTime, formData.numberOfPeople]);
+
+  // Cargar usuarios al montar
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+  // Filtrar usuarios por búsqueda en tiempo real
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredUsers(users);
+    } else {
+      const term = searchTerm.toLowerCase();
+      const filtered = users.filter(
+        (user) => {
+          const displayName = getUserDisplayName(user).toLowerCase();
+          const email = (user.email || "").toLowerCase();
+          return displayName.includes(term) || email.includes(term);
+        },
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [searchTerm, users, getUserDisplayName]);
+
+  // Cargar mesas disponibles cuando cambia fecha/hora
+  useEffect(() => {
+    if (formData.reservationDate && formData.reservationTime) {
+      loadAvailableTables();
+    }
+  }, [formData.reservationDate, formData.reservationTime, loadAvailableTables]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -109,18 +111,6 @@ const AdminReservationForm = ({ onReservationCreated }) => {
       [name]: name === "numberOfPeople" ? parseInt(value) : value,
     }));
     setError(null);
-  };
-
-  const handleUserChange = (e) => {
-    const userId = e.target.value;
-    const user = users.find((u) => u.id === userId);
-    setSelectedUser(user);
-    setFormData((prev) => ({
-      ...prev,
-      userEmail: user?.email || "",
-    }));
-    setShowNewUserForm(false);
-    setSearchTerm("");
   };
 
   // Crear nuevo usuario
@@ -194,32 +184,6 @@ const AdminReservationForm = ({ onReservationCreated }) => {
       setError(err.message || "Error inesperado");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Enviar email de verificación
-  const sendVerificationEmail = async (email, name) => {
-    try {
-      const response = await fetch(
-        "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/sendVerificationEmail",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: email,
-            name: name,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        console.error(
-          "Error enviando email de verificación:",
-          response.statusText,
-        );
-      }
-    } catch (error) {
-      console.error("Error enviando email:", error);
     }
   };
 

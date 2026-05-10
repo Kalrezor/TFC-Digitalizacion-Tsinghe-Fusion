@@ -3,7 +3,7 @@
 // ✨ Detecta automáticamente cuando hay > 4 comensales y sugiere fusión de mesas
 
 import React, { useState, useEffect, useCallback } from "react";
-import ReservationService from "../models/ReservationService";
+import ReservationService from "../services/ReservationService";
 import "../styles/ChineseStyle.css";
 
 const getBestFitTables = (tables, people) => {
@@ -48,7 +48,6 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
   
   // ✨ NUEVO: Estados para detectar fusión necesaria
   const [mergingInfo, setMergingInfo] = useState(null);
-  const [showMergingWarning, setShowMergingWarning] = useState(false);
 
   const loadAvailableTables = useCallback(async () => {
     try {
@@ -83,11 +82,9 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
         
         if (result.success) {
           setMergingInfo(result);
-          setShowMergingWarning(result.needsMerging && !result.canMerge);
         }
       } else {
         setMergingInfo(null);
-        setShowMergingWarning(false);
       }
     };
     

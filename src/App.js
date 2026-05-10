@@ -6,25 +6,25 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import useAuth from "./controllers/useAuth";
+import useAuth from "./hooks/useAuth";
 import NavigationBar from "./components/NavigationBar";
 
 // Vistas públicas
-import Home from "./views/Home";
-import Menu from "./views/Menu";
-import Login from "./views/Login";
-import Register from "./views/Register";
-import ForgotPassword from "./views/ForgotPassword";
-import ConfirmReservation from "./views/ConfirmReservation";
+import Home from "./pages/Home";
+import Menu from "./pages/Menu";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ConfirmReservation from "./pages/ConfirmReservation";
 
 // Vistas de usuario autenticado
-import Dashboard from "./views/Dashboard";
-import ReservationsView from "./views/ReservationsView";
+import Dashboard from "./pages/Dashboard";
+import ReservationsView from "./pages/ReservationsView";
 
 // Vistas solo admin
-import AdminMenu from "./views/AdminMenu";
-import AdminTables from "./views/AdminTables";
-import AdminOffers from "./views/AdminOffers";
+import AdminMenu from "./pages/AdminMenu";
+import AdminTables from "./pages/AdminTables";
+import AdminOffers from "./pages/AdminOffers";
 
 import "./styles/MinimalStyle.css";
 

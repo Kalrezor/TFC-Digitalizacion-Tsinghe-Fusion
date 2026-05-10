@@ -6,24 +6,13 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/MinimalStyle.css";
 
-const NAV_LINK = {
-  color: "#E8E8E8",
-  textDecoration: "none",
-  fontSize: "14px",
-  padding: "6px 4px",
-  transition: "color 0.2s",
-  whiteSpace: "nowrap",
-};
-
 const NavigationBar = ({ isAuthenticated, user, role, logout }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
     setShowUserMenu(false);
-    setShowMobileMenu(false);
     navigate("/");
   };
 
@@ -69,9 +58,6 @@ const NavigationBar = ({ isAuthenticated, user, role, logout }) => {
           alignItems: "center",
           flex: 1,
           justifyContent: "center",
-          "@media (min-width: 768px)": {
-            display: "flex"
-          }
         }} className="hidden-mobile">
           {!isAuthenticated && (
             <>
