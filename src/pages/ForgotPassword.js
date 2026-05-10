@@ -14,6 +14,7 @@ const ForgotPassword = () => {
   const isGoogleSetup = searchParams.get("setup") === "google";
 
   const [email, setEmail] = useState(initialEmail);
+  const [phone, setPhone] = useState("");
   const [token, setToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -80,6 +81,18 @@ const ForgotPassword = () => {
       return;
     }
 
+    if (isGoogleSetup) {
+      if (!phone.trim()) {
+        setError("El número de teléfono es obligatorio");
+        return;
+      }
+      const phoneRegex = /^\+?[0-9\s\-\(\)]{7,15}$/;
+      if (!phoneRegex.test(phone.trim())) {
+        setError("Por favor ingresa un número de teléfono válido");
+        return;
+      }
+    }
+
     if (!newPassword) {
       setError("Ingresa una nueva contraseña");
       return;
@@ -104,7 +117,7 @@ const ForgotPassword = () => {
 
     try {
       const result = isGoogleSetup
-        ? await AuthService.addPasswordToGoogleUser(newPassword)
+        ? await AuthService.completeProfile(phone.trim(), newPassword)
         : await AuthService.resetPasswordWithToken(email, token, newPassword);
 
       if (result.success) {
@@ -146,7 +159,7 @@ const ForgotPassword = () => {
             color: "#568d6e",
             marginBottom: "8px",
           }}>
-            {isGoogleSetup ? "Crear Contraseña" : "Recuperar Contraseña"}
+            {isGoogleSetup ? "Completar Registro" : "Recuperar Contraseña"}
           </h1>
           <p style={{
             fontSize: "13px",
@@ -154,7 +167,7 @@ const ForgotPassword = () => {
             margin: 0,
           }}>
             {isGoogleSetup
-              ? "Crea una contraseña para tu cuenta"
+              ? "Proporciona tu número de teléfono y crea una contraseña"
               : step === 1
               ? "Ingresa tu email para recibir un token"
               : "Ingresa el token y tu nueva contraseña"}
@@ -209,6 +222,19 @@ const ForgotPassword = () => {
                 required
               />
             </div>
+
+            {isGoogleSetup && (
+              <div className="form-group">
+                <label>Número de Teléfono *</label>
+                <input
+                  type="tel"
+                  placeholder="Ej: +34 600 123 456"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+              </div>
+            )}
 
             {!isGoogleSetup && (
               <div className="form-group">
@@ -291,6 +317,7 @@ const ForgotPassword = () => {
                 onClick={() => {
                   setStep(1);
                   setToken("");
+                  setPhone("");
                   setNewPassword("");
                   setConfirmPassword("");
                   setError(null);

@@ -2,21 +2,16 @@
 // Componente para mostrar el menú del restaurante
 // Visible sin login, con funcionalidad de búsqueda y filtrado por categoría
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import useMenu from "../hooks/useMenu";
 import "../styles/ChineseStyle.css";
 
 const Menu = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [platos, setPlatos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [alergenos, setAlergenos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user, role } = useAuth();
+  const { platos, categorias, alergenos, loading, error } = useMenu();
   const [selectedCategory, setSelectedCategory] = useState('');
   const [excludedAlergenos, setExcludedAlergenos] = useState([]);
 
@@ -45,83 +40,6 @@ const Menu = () => {
     setSelectedCategory('');
     setExcludedAlergenos([]);
   };
-
-  const fetchCollection = async (collectionNames) => {
-    for (const collectionName of collectionNames) {
-      const snap = await getDocs(collection(db, collectionName));
-      if (snap.size > 0) {
-        return { docs: snap.docs, collectionName };
-      }
-    }
-    return { docs: [], collectionName: collectionNames[0] };
-  };
-
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Cargar platos de la colección 'plate'
-        const platosResult = await fetchCollection(['plate', 'plates']);
-        const platosData = platosResult.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setPlatos(platosData);
-
-        // Cargar categorías de la colección 'category'
-        const categoriasResult = await fetchCollection(['category', 'categories']);
-        const categoriasData = categoriasResult.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            nombre: data.nombre || data.name || doc.id,
-            imagen: data.imagen || data.icono || '',
-            ...data
-          };
-        });
-        setCategorias(categoriasData);
-
-        // Cargar alergenos de la colección 'allergen'
-        const alergenosResult = await fetchCollection(['allergen', 'allergens']);
-        const alergenosData = alergenosResult.docs.map(doc => {
-          const data = doc.data();
-          const nombre = data.nombre || data.name || doc.id;
-          let imagen = data.imagen || data.icono || '';
-
-          // Asignar emoji por defecto si no hay imagen
-          if (!imagen) {
-            const emojiMap = {
-              'Gluten': '🌾',
-              'Lácteos': '🥛',
-              'Huevos': '🥚',
-              'Frutos secos': '🥜',
-              'Mariscos': '🦐',
-              'Soja': '🫘'
-            };
-            imagen = emojiMap[nombre] || '⚠️';
-          }
-
-          return {
-            id: data.id != null ? data.id : doc.id,
-            nombre: nombre,
-            imagen: imagen,
-            ...data
-          };
-        });
-        setAlergenos(alergenosData);
-
-      } catch (error) {
-        console.error('Error al cargar datos:', error);
-        setError(error.message || 'Error desconocido al cargar datos');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    cargarDatos();
-  }, []);
 
   const getCategoriaNombre = (categoriaId) => {
     const categoria = categorias.find(c => c.id === categoriaId);
@@ -251,7 +169,18 @@ const Menu = () => {
       {/* Botón para reservar */}
       <div style={{ textAlign: 'center', marginTop: '40px' }}>
         <button
-          onClick={() => navigate(user ? '/dashboard' : '/login')}
+          onClick={() => {
+            const reservePath = '/dashboard?section=nueva-reserva';
+            if (user) {
+              if (role === 'admin') {
+                navigate('/reservations');
+              } else {
+                navigate(reservePath);
+              }
+            } else {
+              navigate(`/login?next=${encodeURIComponent(reservePath)}`);
+            }
+          }}
           style={{
             padding: '15px 30px',
             background: '#DC143C',
@@ -262,7 +191,7 @@ const Menu = () => {
             cursor: 'pointer'
           }}
         >
-          {user ? 'Ir al Dashboard' : 'Iniciar Sesión para Reservar'}
+          {user ? (role === 'admin' ? 'Ver Reservas' : 'Ir a Nueva Reserva') : 'Iniciar Sesión para Reservar'}
         </button>
       </div>
     </div>

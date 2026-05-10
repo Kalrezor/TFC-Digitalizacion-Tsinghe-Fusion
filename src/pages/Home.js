@@ -9,7 +9,7 @@ import "../styles/MinimalStyle.css";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, role, logout } = useAuth();
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#e8dccf" }}>
@@ -57,7 +57,18 @@ const Home = () => {
               Ver Menú
             </button>
             <button
-              onClick={() => user ? navigate("/reservations") : navigate("/login")}
+              onClick={() => {
+                const reservePath = "/dashboard?section=nueva-reserva";
+                if (user) {
+                  if (role === "admin") {
+                    navigate("/reservations");
+                  } else {
+                    navigate(reservePath);
+                  }
+                } else {
+                  navigate(`/login?next=${encodeURIComponent(reservePath)}`);
+                }
+              }}
               className="btn btn-secondary"
               style={{
                 minWidth: "160px",
@@ -66,6 +77,18 @@ const Home = () => {
             >
               Reservar Mesa
             </button>
+            {!user && (
+              <button
+                onClick={() => navigate(`/login?next=${encodeURIComponent("/dashboard?section=nueva-reserva")}`)}
+                className="btn btn-secondary"
+                style={{
+                  minWidth: "160px",
+                  fontSize: "14px",
+                }}
+              >
+                Iniciar Sesión
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -176,7 +199,18 @@ const Home = () => {
                 Asegura tu mesa en el momento que prefieras
               </p>
               <button
-                onClick={() => user ? navigate("/reservations") : navigate("/login")}
+                onClick={() => {
+                  const reservePath = "/dashboard?section=nueva-reserva";
+                  if (user) {
+                    if (role === "admin") {
+                      navigate("/reservations");
+                    } else {
+                      navigate(reservePath);
+                    }
+                  } else {
+                    navigate(`/login?next=${encodeURIComponent(reservePath)}`);
+                  }
+                }}
                 className="btn btn-secondary"
                 style={{ fontSize: "12px", padding: "8px 16px" }}
               >

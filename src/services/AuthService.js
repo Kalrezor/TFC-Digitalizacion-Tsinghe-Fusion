@@ -66,13 +66,18 @@ class AuthService {
   }
 
   // Método para registro con email y contraseña
-  async registerWithEmail(email, password, name) {
+  async registerWithEmail(email, password, name, phone) {
     try {
       console.log("🔐 Iniciando registro con email:", email);
 
       // Validar que name no esté vacío
       if (!name || name.trim() === "") {
         throw new Error("El nombre es requerido para el registro");
+      }
+
+      // Validar teléfono
+      if (!phone || phone.trim() === "") {
+        throw new Error("El número de teléfono es requerido para el registro");
       }
 
       // 1. Crear usuario en Firebase Auth
@@ -94,6 +99,7 @@ class AuthService {
         console.log("📝 Actualizando documento existente en Firestore");
         await updateDoc(userDocRef, {
           name: name.trim(),
+          phone: phone.trim(),
           status: "active",
           emailVerified: true, // El usuario verificó su correo
           role: existingDoc.data().role || "comensal", // Mantener rol original
@@ -104,6 +110,7 @@ class AuthService {
         const userData = {
           email: user.email,
           name: name.trim(),
+          phone: phone.trim(),
           role: "comensal",
           status: "active",
           createdAt: serverTimestamp(),
@@ -191,13 +198,44 @@ class AuthService {
     }
   }
 
-  // Nuevo: Método para actualizar el rol del usuario (solo para admin)
-  async updateUserRole(uid, newRole) {
+  // Nuevo: Método para obtener documento del usuario
+  async getUserDoc(uid) {
     try {
-      await setDoc(doc(db, "users", uid), { role: newRole }, { merge: true });
+      const userDoc = await getDoc(doc(db, "users", uid));
+      if (userDoc.exists()) {
+        return userDoc.data();
+      }
+      return null;
+    } catch (error) {
+      console.error("Error obteniendo documento del usuario:", error);
+      return null;
+    }
+  }
+
+  // Nuevo: Método para completar perfil (teléfono y contraseña opcional)
+  async completeProfile(phone, password = null) {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        return { success: false, error: "Usuario no autenticado" };
+      }
+
+      const userDocRef = doc(db, "users", currentUser.uid);
+      const updateData = {
+        phone: phone.trim(),
+        profileCompleted: true,
+      };
+
+      if (password) {
+        await updatePassword(currentUser, password);
+        updateData.passwordConfigured = true;
+      }
+
+      await updateDoc(userDocRef, updateData);
+
       return { success: true };
     } catch (error) {
-      console.error("Error actualizando rol:", error);
+      console.error("Error completando perfil:", error);
       return { success: false, error: error.message };
     }
   }

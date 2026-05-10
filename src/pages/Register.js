@@ -11,6 +11,7 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    phone: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -50,6 +51,15 @@ const Register = () => {
       setError("Las contraseñas no coinciden");
       return false;
     }
+    if (!formData.phone.trim()) {
+      setError("El número de teléfono es obligatorio");
+      return false;
+    }
+    const phoneRegex = /^\+?[0-9\s\-\(\)]{7,15}$/;
+    if (!phoneRegex.test(formData.phone.trim())) {
+      setError("Por favor ingresa un número de teléfono válido");
+      return false;
+    }
     return true;
   };
 
@@ -62,7 +72,8 @@ const Register = () => {
       const result = await AuthService.registerWithEmail(
         formData.email,
         formData.password,
-        formData.name.trim()
+        formData.name.trim(),
+        formData.phone.trim()
       );
 
       if (result.success) {
@@ -122,6 +133,11 @@ const Register = () => {
           <div className="form-group">
             <label>Confirmar Contraseña</label>
             <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleInputChange} required />
+          </div>
+
+          <div className="form-group">
+            <label>Número de Teléfono</label>
+            <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Ej: +34 600 123 456" />
           </div>
 
           <button type="submit" disabled={loading} className="btn-primary" style={{ width: "100%", marginTop: "10px" }}>

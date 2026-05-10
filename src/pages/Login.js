@@ -3,12 +3,14 @@
 // Diseño responsivo y minimalista
 
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import AuthService from "../services/AuthService";
 import "../styles/MinimalStyle.css";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = searchParams.get("next");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,6 +28,7 @@ const Login = () => {
       console.log("Login exitoso");
       setEmail("");
       setPassword("");
+      navigate(nextPath ? nextPath : "/dashboard", { replace: true });
     } else {
       setError(result.error || "Error al iniciar sesión");
     }
@@ -50,8 +53,8 @@ const Login = () => {
             { replace: true },
           );
         } else {
-          console.log("Usuario ya tiene contraseña configurada");
-          navigate("/dashboard", { replace: true });
+          console.log("Usuario ya tiene perfil completo");
+          navigate(nextPath ? nextPath : "/dashboard", { replace: true });
         }
       } else {
         setError(result.error || "Error al iniciar sesión con Google");

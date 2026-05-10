@@ -5,12 +5,13 @@
 // Comensal: gestiona sus reservas.
 
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import ReservationForm from "../components/ReservationForm";
+import ReservationFormComensal from "../components/ReservationFormComensal";
 import AdminReservationForm from "../components/AdminReservationForm";
 import useDashboard from "../hooks/useDashboard";
-import ReservationsView from "./ReservationsView";
+import MyReservationsView from "./MyReservationsView";
+import AdminReservationsView from "./AdminReservationsView";
 import AdminMenu from "./AdminMenu";
 import AdminTables from "./AdminTables";
 import AdminOffers from "./AdminOffers";
@@ -113,28 +114,10 @@ const renderContent = (selectedOption, role, userId, userName, userEmail) => {
 
     // Comensal
     case "reservas":
-      return (
-        <ReservationsView
-          role={role}
-          userId={userId}
-          userEmail={userEmail}
-          userName={userName}
-          showCreateForm={false}
-        />
-      );
+      return <MyReservationsView userId={userId} />;
 
     case "nueva-reserva":
-      return (
-        <ReservationForm
-          userId={userId}
-          userName={userName}
-          userEmail={userEmail}
-          userRole={role}
-          onReservationCreated={() => {
-            // Podría hacer algo aquí si quiere
-          }}
-        />
-      );
+      return <ReservationFormComensal />;
 
     // Admin
     case "admin-menu":
@@ -144,15 +127,7 @@ const renderContent = (selectedOption, role, userId, userName, userEmail) => {
     case "admin-ofertas":
       return <AdminOffers />;
     case "admin-reservas":
-      return (
-        <ReservationsView
-          role={role}
-          userId={userId}
-          userEmail={userEmail}
-          userName={userName}
-          showCreateForm={false}
-        />
-      );
+      return <AdminReservationsView />;
     case "admin-crear-reserva":
       return (
         <AdminReservationForm
@@ -184,8 +159,22 @@ const ICONS = {
 void ICONS;
 
 const Dashboard = ({ role, userId, userName, userEmail, logout }) => {
-  const { selectedOption, selectOption } = useDashboard(role);
+  const { selectedOption, availableOptions, selectOption } = useDashboard(role);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const section = params.get("section");
+    if (section === "nueva-reserva") {
+      const isAvailable = availableOptions.some((opt) => opt.id === "nueva-reserva");
+      if (isAvailable) {
+        selectOption("nueva-reserva");
+        params.delete("section");
+        navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
+      }
+    }
+  }, [location.pathname, location.search, availableOptions, selectOption, navigate]);
 
   // Proteger acceso si el usuario tiene cambio de contrasena pendiente (Google)
   useEffect(() => {

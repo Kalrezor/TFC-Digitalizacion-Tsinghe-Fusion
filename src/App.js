@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 
 import useAuth from "./hooks/useAuth";
@@ -19,7 +20,8 @@ import ConfirmReservation from "./pages/ConfirmReservation";
 
 // Vistas de usuario autenticado
 import Dashboard from "./pages/Dashboard";
-import ReservationsView from "./pages/ReservationsView";
+import MyReservationsView from "./pages/MyReservationsView";
+import AdminReservationsView from "./pages/AdminReservationsView";
 
 // Vistas solo admin
 import AdminMenu from "./pages/AdminMenu";
@@ -45,6 +47,28 @@ const LoadingScreen = () => (
     </div>
   </div>
 );
+
+const LoginRoute = ({ isAuthenticated, loading, needsGooglePasswordSetup }) => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const nextPath = searchParams.get("next");
+  const email = searchParams.get("email") || "";
+
+  if (loading) return <LoadingScreen />;
+  if (isAuthenticated) {
+    if (needsGooglePasswordSetup) {
+      return (
+        <Navigate
+          to={`/forgot-password?email=${encodeURIComponent(email)}&setup=google`}
+          replace
+        />
+      );
+    }
+    return <Navigate to={nextPath || "/dashboard"} replace />;
+  }
+
+  return <Login />;
+};
 
 // ── Componentes de Ruta Protegida ───────────────────────────────────────────
 const ProtectedRoute = ({ children, isAuthenticated, loading }) => {
@@ -91,18 +115,11 @@ function App() {
         <Route
           path="/login"
           element={
-            isAuthenticated ? (
-              needsGooglePasswordSetup ? (
-                <Navigate
-                  to={`/forgot-password?email=${encodeURIComponent(user.email)}&setup=google`}
-                  replace
-                />
-              ) : (
-                <Navigate to="/dashboard" replace />
-              )
-            ) : (
-              <Login />
-            )
+            <LoginRoute
+              isAuthenticated={isAuthenticated}
+              loading={loading}
+              needsGooglePasswordSetup={needsGooglePasswordSetup}
+            />
           }
         />
 
@@ -136,12 +153,11 @@ function App() {
           path="/reservations"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-              <ReservationsView
-                role={role}
-                userId={user?.uid}
-                userEmail={userEmail}
-                userName={userName}
-              />
+              {role === "admin" ? (
+                <AdminReservationsView />
+              ) : (
+                <MyReservationsView userId={user?.uid} />
+              )}
             </ProtectedRoute>
           }
         />

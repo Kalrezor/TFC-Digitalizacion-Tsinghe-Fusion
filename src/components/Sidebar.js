@@ -19,11 +19,11 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
           { id: "admin-mesas", label: "Gestionar Mesas", icon: "Mesas" },
           { id: "admin-ofertas", label: "Ofertas", icon: "Oferta" },
           { id: "admin-reservas", label: "Todas las Reservas", icon: "Lista" },
-          { id: "admin-crear-reserva", label: "Crear Reserva", icon: "Crear" },
         ]
       : [
           { id: "inicio", label: "Dashboard", icon: "Panel" },
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
+          { id: "preview-menu", label: "Ver Menú", icon: "Menu" },
           { id: "reservas", label: "Mis Reservas", icon: "Lista" },
           { id: "nueva-reserva", label: "Nueva Reserva", icon: "Crear" },
         ];
