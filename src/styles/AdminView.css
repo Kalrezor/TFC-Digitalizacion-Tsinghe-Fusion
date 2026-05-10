@@ -1,0 +1,486 @@
+/* ADMIN VIEW STYLES */
+
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f6f1;
+}
+
+.admin-sidebar {
+  width: 260px;
+  background: linear-gradient(135deg, #8b2323 0%, #a82a2a 100%);
+  color: white;
+  padding: 2rem 0;
+  box-shadow: 2px 0 15px rgba(139, 35, 35, 0.15);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.admin-header {
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.admin-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.admin-user {
+  font-size: 0.85rem;
+  margin: 0.5rem 0 0 0;
+  opacity: 0.8;
+  word-break: break-word;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  flex: 1;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.nav-item.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+}
+
+.logout-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  margin: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 0, 0, 0.2);
+  border-color: rgba(255, 0, 0, 0.4);
+}
+
+.logout-icon {
+  font-size: 1.1rem;
+}
+
+.admin-content {
+  margin-left: 260px;
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-content {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(139, 35, 35, 0.08);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-title {
+  font-size: 1.8rem;
+  color: #333;
+  margin: 0 0 2rem 0;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* DASHBOARD */
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f0e8 100%);
+  border: 2px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(139, 35, 35, 0.1);
+  border-color: #8b2323;
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  color: #8b2323;
+  margin: 0.5rem 0 0 0;
+  font-weight: 700;
+}
+
+.recent-section {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f0e8 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #e5e5e5;
+}
+
+.recent-title {
+  font-size: 1.2rem;
+  color: #333;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid #8b2323;
+}
+
+.recent-info {
+  flex: 1;
+}
+
+.recent-name {
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.recent-detail {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0.25rem 0 0 0;
+}
+
+.badge {
+  background: #8b2323;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* TABLE */
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background-color: #f5f0e8;
+}
+
+.data-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e5e5e5;
+  letter-spacing: 0.5px;
+}
+
+.data-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e5e5;
+  color: #666;
+}
+
+.data-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-pendiente {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-confirmada {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-cancelada {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.action-btn {
+  background: white;
+  border: 2px solid #8b2323;
+  color: #8b2323;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background-color: #8b2323;
+  color: white;
+}
+
+.delete-btn {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+  color: white;
+}
+
+/* USUARIOS */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.user-card {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f0e8 100%);
+  border: 2px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.user-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(139, 35, 35, 0.1);
+  border-color: #8b2323;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #8b2323, #a82a2a);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 auto 1rem;
+}
+
+.user-email {
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.75rem 0;
+  word-break: break-word;
+}
+
+.user-role {
+  margin: 0.75rem 0;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-admin {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.role-comensal {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.user-date {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0.75rem 0 0 0;
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.loading-text {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+}
+
+.admin-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-size: 1.2rem;
+  color: #999;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .admin-header {
+    padding: 0;
+    border: none;
+    margin: 0;
+  }
+
+  .admin-nav {
+    flex-direction: row;
+    gap: 0.25rem;
+    padding: 0;
+    flex: none;
+  }
+
+  .nav-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .logout-btn {
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .admin-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .tab-content {
+    padding: 1rem;
+  }
+
+  .tab-title {
+    font-size: 1.3rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .data-table {
+    font-size: 0.85rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.6rem;
+  }
+}
