@@ -31,10 +31,17 @@ const MyReservationsView = ({ userId }) => {
             borderRadius: "16px",
           }}
         >
-          Aún no tienes reservas. Puedes crear una nueva desde la opción "Nueva Reserva".
+          Aún no tienes reservas. Puedes crear una nueva desde la sección "Reservas".
         </div>
       ) : (
-        <div style={{ display: "grid", gap: "18px" }}>
+        <div
+          style={{
+            display: "grid",
+            gap: "22px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            alignItems: "stretch",
+          }}
+        >
           {reservations
             .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
             .map((reservation) => {
@@ -85,9 +92,13 @@ const MyReservationsView = ({ userId }) => {
 
 const cardStyle = {
   background: "#fff",
-  borderRadius: "18px",
-  padding: "20px",
-  boxShadow: "0 12px 24px rgba(0,0,0,0.05)",
+  borderRadius: "20px",
+  padding: "24px",
+  boxShadow: "0 16px 28px rgba(0,0,0,0.08)",
+  minHeight: "220px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
 };
 
 const titleRowStyle = {

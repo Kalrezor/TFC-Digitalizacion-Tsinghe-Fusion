@@ -7,13 +7,12 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import ReservationFormComensal from "../components/ReservationFormComensal";
 import AdminReservationForm from "../components/AdminReservationForm";
 import useDashboard from "../hooks/useDashboard";
-import MyReservationsView from "./MyReservationsView";
+import Reservations from "./Reservations";
 import AdminReservationsView from "./AdminReservationsView";
 import AdminMenu from "./AdminMenu";
-import AdminTables from "./AdminTables";
+import TablesManagementView from "../components/TableManagement/TablesManagementView";
 import AdminOffers from "./AdminOffers";
 import Home from "./Home";
 import Menu from "./Menu";
@@ -114,16 +113,13 @@ const renderContent = (selectedOption, role, userId, userName, userEmail) => {
 
     // Comensal
     case "reservas":
-      return <MyReservationsView userId={userId} />;
-
-    case "nueva-reserva":
-      return <ReservationFormComensal />;
+      return <Reservations userId={userId} />;
 
     // Admin
     case "admin-menu":
       return <AdminMenu />;
     case "admin-mesas":
-      return <AdminTables userId={userId} userRole={role} />;
+      return <TablesManagementView />;
     case "admin-ofertas":
       return <AdminOffers />;
     case "admin-reservas":
@@ -166,13 +162,10 @@ const Dashboard = ({ role, userId, userName, userEmail, logout }) => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const section = params.get("section");
-    if (section === "nueva-reserva") {
-      const isAvailable = availableOptions.some((opt) => opt.id === "nueva-reserva");
-      if (isAvailable) {
-        selectOption("nueva-reserva");
-        params.delete("section");
-        navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
-      }
+    if (section && availableOptions.some((opt) => opt.id === section)) {
+      selectOption(section);
+      params.delete("section");
+      navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
     }
   }, [location.pathname, location.search, availableOptions, selectOption, navigate]);
 

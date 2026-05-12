@@ -47,7 +47,13 @@ const Home = () => {
             alignItems: "center",
           }}>
             <button
-              onClick={() => navigate("/menu")}
+              onClick={() => {
+                if (user) {
+                  navigate("/dashboard?section=preview-menu");
+                } else {
+                  navigate("/menu");
+                }
+              }}
               className="btn btn-primary"
               style={{
                 minWidth: "160px",
@@ -58,10 +64,10 @@ const Home = () => {
             </button>
             <button
               onClick={() => {
-                const reservePath = "/dashboard?section=nueva-reserva";
+                const reservePath = "/dashboard?section=reservas";
                 if (user) {
                   if (role === "admin") {
-                    navigate("/reservations");
+                    navigate("/dashboard?section=admin-reservas");
                   } else {
                     navigate(reservePath);
                   }
@@ -79,7 +85,7 @@ const Home = () => {
             </button>
             {!user && (
               <button
-                onClick={() => navigate(`/login?next=${encodeURIComponent("/dashboard?section=nueva-reserva")}`)}
+                onClick={() => navigate(`/login?next=${encodeURIComponent("/dashboard?section=reservas")}`)}
                 className="btn btn-secondary"
                 style={{
                   minWidth: "160px",
@@ -181,13 +187,19 @@ const Home = () => {
               <p style={{ fontSize: "13px", color: "#666666", marginBottom: "16px" }}>
                 Descubre toda nuestra oferta culinaria
               </p>
-              <Link
-                to="/menu"
+              <button
+                onClick={() => {
+                  if (user) {
+                    navigate("/dashboard?section=preview-menu");
+                  } else {
+                    navigate("/menu");
+                  }
+                }}
                 className="btn btn-secondary"
                 style={{ fontSize: "12px", padding: "8px 16px" }}
               >
                 Ver Menú
-              </Link>
+              </button>
             </div>
 
             {/* Option 2 */}
@@ -200,10 +212,10 @@ const Home = () => {
               </p>
               <button
                 onClick={() => {
-                  const reservePath = "/dashboard?section=nueva-reserva";
+                  const reservePath = "/dashboard?section=reservas";
                   if (user) {
                     if (role === "admin") {
-                      navigate("/reservations");
+                      navigate("/dashboard?section=admin-reservas");
                     } else {
                       navigate(reservePath);
                     }

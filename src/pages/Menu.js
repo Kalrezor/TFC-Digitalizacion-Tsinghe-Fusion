@@ -170,10 +170,10 @@ const Menu = () => {
       <div style={{ textAlign: 'center', marginTop: '40px' }}>
         <button
           onClick={() => {
-            const reservePath = '/dashboard?section=nueva-reserva';
+            const reservePath = '/dashboard?section=reservas';
             if (user) {
               if (role === 'admin') {
-                navigate('/reservations');
+                navigate('/dashboard?section=admin-reservas');
               } else {
                 navigate(reservePath);
               }
@@ -191,7 +191,7 @@ const Menu = () => {
             cursor: 'pointer'
           }}
         >
-          {user ? (role === 'admin' ? 'Ver Reservas' : 'Ir a Nueva Reserva') : 'Iniciar Sesión para Reservar'}
+          {user ? (role === 'admin' ? 'Ver Reservas' : 'Reservar Ahora') : 'Iniciar Sesión para Reservar'}
         </button>
       </div>
     </div>
