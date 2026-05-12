@@ -85,7 +85,8 @@ const useTables = () => {
     updateTable,
     deleteTable,
     loadTables,
-    loadAvailableTables
+    loadAvailableTables,
+    refetch: loadTables
   };
 };
 

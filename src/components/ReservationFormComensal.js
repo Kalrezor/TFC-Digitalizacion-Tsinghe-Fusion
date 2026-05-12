@@ -106,7 +106,7 @@ const ReservationFormComensal = () => {
   const maxDateString = maxDate.toISOString().split("T")[0];
 
   return (
-    <div style={{ padding: "24px", maxWidth: "720px", margin: "0 auto" }}>
+    <div style={{ padding: "24px", width: "100%", maxWidth: "900px", margin: "0 auto" }}>
       <h2 style={{ color: "#DC143C", marginBottom: "14px" }}>
         🍽️ Crear Reserva
       </h2>

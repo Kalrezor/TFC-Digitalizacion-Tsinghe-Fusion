@@ -24,8 +24,7 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
           { id: "inicio", label: "Dashboard", icon: "Panel" },
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
           { id: "preview-menu", label: "Ver Menú", icon: "Menu" },
-          { id: "reservas", label: "Mis Reservas", icon: "Lista" },
-          { id: "nueva-reserva", label: "Nueva Reserva", icon: "Crear" },
+          { id: "reservas", label: "Reservas", icon: "Lista" },
         ];
 
   const handleLogout = async () => {

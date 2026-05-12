@@ -520,7 +520,6 @@ class ReservationTableService {
         updates.push(
           updateDoc(doc(db, "tables", tableId), {
             reservationId: null,
-            available: true,
           }),
         );
       });
@@ -529,7 +528,6 @@ class ReservationTableService {
         updates.push(
           updateDoc(doc(db, "tables", tableId), {
             reservationId,
-            available: false,
           }),
         );
       });
@@ -573,7 +571,6 @@ class ReservationTableService {
         updates.push(
           updateDoc(doc(db, "tables", tableId), {
             reservationId: null,
-            available: true,
           }),
         );
       });

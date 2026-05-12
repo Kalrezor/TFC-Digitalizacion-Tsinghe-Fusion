@@ -680,28 +680,71 @@ const AdminReservationsView = () => {
                 {availableTables.length === 0 ? (
                   <div style={emptyRowStyle}>No hay mesas disponibles para esta fecha/hora.</div>
                 ) : (
-                  <div style={tableGridStyle}>
-                    {availableTables.map((table) => (
-                      <label key={table.id} style={tableCardStyle}>
-                        <input
-                          type="checkbox"
-                          checked={selectedTableIds.includes(table.id)}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            setSelectedTableIds((prev) =>
-                              checked
-                                ? [...new Set([...prev, table.id])]
-                                : prev.filter((id) => id !== table.id),
-                            );
-                          }}
-                        />
-                        <div>
-                          <strong>Mesa {table.number || table.tableNumber || table.id}</strong>
-                        </div>
-                        <div>Capacidad: {table.capacity || "-"}</div>
-                      </label>
-                    ))}
-                  </div>
+                  <>
+                    {/* Sugerencia automática */}
+                    {formState.peopleCount && availableTables.length > 0 && (
+                      <div style={{ ...infoSectionStyle, backgroundColor: "#fef3c7", borderLeft: "4px solid #f59e0b" }}>
+                        <strong>💡 Sugerencia:</strong> {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"} — 
+                        {availableTables.filter(t => t.capacity >= formState.peopleCount).length > 0
+                          ? ` Selecciona una mesa con capacidad ≥ ${formState.peopleCount} o fusiona varias.`
+                          : " No hay mesa individual que cubra. Considera fusionar varias."}
+                      </div>
+                    )}
+                    
+                    <div style={tableGridStyle}>
+                      {availableTables
+                        .sort((a, b) => {
+                          // Ordenar: primero las recomendadas (capacity >= peopleCount), luego otras
+                          const aRecommended = a.capacity >= formState.peopleCount;
+                          const bRecommended = b.capacity >= formState.peopleCount;
+                          if (aRecommended !== bRecommended) {
+                            return bRecommended ? 1 : -1;
+                          }
+                          return (a.number || a.tableNumber || 0) - (b.number || b.tableNumber || 0);
+                        })
+                        .map((table) => {
+                          const isRecommended = table.capacity >= formState.peopleCount;
+                          return (
+                            <label 
+                              key={table.id} 
+                              style={{
+                                ...tableCardStyle,
+                                borderColor: isRecommended ? "#10b981" : "#d1d5db",
+                                borderWidth: "2px",
+                                backgroundColor: isRecommended ? "#ecfdf5" : "white",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedTableIds.includes(table.id)}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setSelectedTableIds((prev) =>
+                                    checked
+                                      ? [...new Set([...prev, table.id])]
+                                      : prev.filter((id) => id !== table.id),
+                                  );
+                                }}
+                              />
+                              <div>
+                                <strong style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                  Mesa {table.number || table.tableNumber || table.id}
+                                  {isRecommended && <span style={{ fontSize: 14, color: "#10b981" }}>✓ Recomendada</span>}
+                                </strong>
+                              </div>
+                              <div style={{ fontSize: 13, color: "#6b7280" }}>
+                                Capacidad: <strong>{table.capacity || "-"}</strong> pax
+                              </div>
+                              {isRecommended && (
+                                <div style={{ fontSize: 12, color: "#10b981", marginTop: 6 }}>
+                                  ✓ Cubre {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"}
+                                </div>
+                              )}
+                            </label>
+                          );
+                        })}
+                    </div>
+                  </>
                 )}
               </div>
               <div style={buttonRowStyle}>
