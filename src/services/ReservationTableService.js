@@ -173,6 +173,106 @@ class ReservationTableService {
     return { success: true, reservations };
   }
 
+  async getReservationsByDateRange(fromDate, toDate, includeCanceled = false) {
+    if (!fromDate || !toDate) {
+      return { success: false, error: "Fechas de inicio y fin requeridas" };
+    }
+
+    try {
+      const filters = [
+        where("reservationDate", ">=", fromDate),
+        where("reservationDate", "<=", toDate),
+      ];
+      if (!includeCanceled) {
+        filters.push(where("status", "!=", RESERVATION_STATUS.CANCELED));
+      }
+
+      const querySnapshot = await getDocs(
+        query(collection(db, "reservations"), ...filters),
+      );
+
+      const reservations = [];
+      querySnapshot.forEach((doc) => {
+        reservations.push({
+          id: doc.id,
+          ...normalizeReservation(doc.data()),
+        });
+      });
+
+      return { success: true, reservations };
+    } catch (error) {
+      console.error("Error obteniendo reservas por rango de fechas:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getAllReservations(includeCanceled = false) {
+    try {
+      const filters = [];
+      if (!includeCanceled) {
+        filters.push(where("status", "!=", RESERVATION_STATUS.CANCELED));
+      }
+
+      const querySnapshot = await getDocs(
+        filters.length > 0
+          ? query(collection(db, "reservations"), ...filters)
+          : collection(db, "reservations"),
+      );
+
+      const reservations = [];
+      querySnapshot.forEach((doc) => {
+        reservations.push({
+          id: doc.id,
+          ...normalizeReservation(doc.data()),
+        });
+      });
+
+      return { success: true, reservations };
+    } catch (error) {
+      console.error("Error obteniendo todas las reservas:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async getReservationsByTable(tableId, date = null, includeCanceled = false) {
+    if (!tableId) {
+      return { success: false, error: "ID de mesa requerido" };
+    }
+
+    try {
+      const filters = [];
+      if (date) {
+        filters.push(where("reservationDate", "==", date));
+      }
+      if (!includeCanceled) {
+        filters.push(where("status", "!=", RESERVATION_STATUS.CANCELED));
+      }
+
+      const querySnapshot = await getDocs(
+        query(collection(db, "reservations"), ...filters),
+      );
+
+      const reservations = [];
+      querySnapshot.forEach((doc) => {
+        const reservation = normalizeReservation(doc.data());
+        const tableIds = Array.isArray(reservation.tableIds)
+          ? reservation.tableIds
+          : reservation.tableId
+          ? [reservation.tableId]
+          : [];
+
+        if (tableIds.includes(tableId)) {
+          reservations.push({ id: doc.id, ...reservation });
+        }
+      });
+
+      return { success: true, reservations };
+    } catch (error) {
+      console.error("Error obteniendo reservas por mesa:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
   async createReservationFromComensal(user, date, time, peopleCount, specialRequests) {
     if (!user) {
       return { success: false, error: "Usuario no autenticado" };
@@ -587,6 +687,118 @@ class ReservationTableService {
       return { success: true };
     } catch (error) {
       console.error("Error desasignando mesas de reserva:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async releaseTableFromReservation(reservationId, tableId) {
+    if (!reservationId) {
+      return { success: false, error: "ID de reserva requerido" };
+    }
+    if (!tableId) {
+      return { success: false, error: "ID de mesa requerido" };
+    }
+
+    const reservationDoc = await getDoc(doc(db, "reservations", reservationId));
+    if (!reservationDoc.exists()) {
+      return { success: false, error: "Reserva no encontrada" };
+    }
+
+    const reservation = normalizeReservation(reservationDoc.data());
+    const previousTableIds = Array.isArray(reservation.tableIds)
+      ? reservation.tableIds
+      : reservation.tableId
+      ? [reservation.tableId]
+      : [];
+
+    if (!previousTableIds.includes(tableId)) {
+      return { success: false, error: "La mesa no está asignada a esta reserva" };
+    }
+
+    const remainingTableIds = previousTableIds.filter((id) => id !== tableId);
+
+    try {
+      const updates = [];
+      updates.push(
+        updateDoc(doc(db, "tables", tableId), {
+          reservationId: null,
+        }),
+      );
+
+      updates.push(
+        updateDoc(doc(db, "reservations", reservationId), {
+          tableIds: remainingTableIds,
+          tableId: remainingTableIds.length === 1 ? remainingTableIds[0] : null,
+          updatedAt: serverTimestamp(),
+        }),
+      );
+
+      await Promise.all(updates);
+      return { success: true };
+    } catch (error) {
+      console.error("Error liberando mesa de reserva:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  async createManualOccupancyReservation({ date, shift, tableIds = [], createdBy = "admin" }) {
+    if (!date) {
+      return { success: false, error: "Fecha requerida" };
+    }
+    if (!shift) {
+      return { success: false, error: "Turno requerido" };
+    }
+    if (!Array.isArray(tableIds) || tableIds.length === 0) {
+      return { success: false, error: "Debe indicar al menos una mesa" };
+    }
+
+    const time = shift === RESERVATION_SHIFTS.CENA ? "20:00" : "12:00";
+    const reservedResult = await this.getReservedTableIds(date, time);
+    if (!reservedResult.success) {
+      return reservedResult;
+    }
+
+    const conflictingTable = tableIds.find((tableId) =>
+      reservedResult.reservedTableIds.includes(tableId),
+    );
+    if (conflictingTable) {
+      return {
+        success: false,
+        error: `La mesa ${conflictingTable} no está disponible para ese turno`,
+      };
+    }
+
+    try {
+      const payload = buildReservationPayload({
+        userId: null,
+        userEmail: "",
+        userName: "Ocupación Manual",
+        userPhone: "",
+        date,
+        time,
+        shift,
+        peopleCount: 0,
+        specialRequests: "Ocupación manual de mesa",
+        status: RESERVATION_STATUS.CONFIRMED,
+        createdBy,
+      });
+
+      payload.tableIds = tableIds;
+      payload.tableId = tableIds.length === 1 ? tableIds[0] : null;
+      payload.updatedAt = serverTimestamp();
+
+      const docRef = await addDoc(collection(db, "reservations"), payload);
+
+      const updates = tableIds.map((tableId) =>
+        updateDoc(doc(db, "tables", tableId), {
+          reservationId: docRef.id,
+        }),
+      );
+
+      await Promise.all(updates);
+      return { success: true, reservationId: docRef.id };
+    } catch (error) {
+      console.error("Error creando ocupación manual de mesa:", error);
       return { success: false, error: error.message };
     }
   }

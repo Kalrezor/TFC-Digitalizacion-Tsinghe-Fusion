@@ -1,199 +1,195 @@
 // Vista: Menu.js
-// Componente para mostrar el menú del restaurante
-// Visible sin login, con funcionalidad de búsqueda y filtrado por categoría
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import useMenu from "../hooks/useMenu";
+import useAuth from "../controllers/useAuth";
+import menuService from "../models/MenuService";
 import "../styles/ChineseStyle.css";
 
-const Menu = () => {
+const Menu = ({ role: propsRole }) => {
   const navigate = useNavigate();
-  const { user, role } = useAuth();
-  const { platos, categorias, alergenos, loading, error } = useMenu();
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [excludedAlergenos, setExcludedAlergenos] = useState([]);
+  const { role: authRole } = useAuth();
+  
+  const [plates, setPlates] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [allAllergens, setAllAllergens] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [editMode, setEditMode] = useState(false);
 
-  const filteredPlatos = platos.filter(plato => {
-    if (selectedCategory && plato.idCategoria !== selectedCategory) {
-      return false;
+  const currentRole = propsRole || authRole;
+  const isAdmin = currentRole === "admin";
+
+  useEffect(() => {
+    loadData();
+  }, [isAdmin, editMode]);
+
+  const loadData = async () => {
+    setLoading(true);
+    const [resAllergens, resCats, resPlates] = await Promise.all([
+      menuService.getAllAllergens(),
+      menuService.getAllCategories(),
+      menuService.getAllPlates()
+    ]);
+
+    if (resAllergens.success) setAllAllergens(resAllergens.data);
+    if (resCats.success) {
+      const sortedCats = resCats.data.sort((a, b) => (a.orden || 0) - (b.orden || 0));
+      setCategories(sortedCats);
     }
-
-    if (excludedAlergenos.length > 0) {
-      const platoAlergenos = Array.isArray(plato.alergenos) ? plato.alergenos : [];
-      return !excludedAlergenos.some(alergenoId => platoAlergenos.includes(alergenoId));
+    if (resPlates.success) {
+      const visiblePlates = editMode 
+        ? resPlates.data 
+        : resPlates.data.filter(p => p.disponible !== false);
+      setPlates(visiblePlates);
     }
-
-    return true;
-  });
-
-  const toggleExcludedAlergeno = (alergenoId) => {
-    setExcludedAlergenos(prev =>
-      prev.includes(alergenoId)
-        ? prev.filter(id => id !== alergenoId)
-        : [...prev, alergenoId]
-    );
+    setLoading(false);
   };
 
-  const resetFilters = () => {
-    setSelectedCategory('');
-    setExcludedAlergenos([]);
+  const handleDragStart = (e, index) => {
+    if (!editMode) return;
+    e.dataTransfer.setData("index", index);
   };
 
-  const getCategoriaNombre = (categoriaId) => {
-    const categoria = categorias.find(c => c.id === categoriaId);
-    return categoria ? categoria.nombre : 'Sin categoría';
-  };
+  const handleDrop = async (e, targetIndex) => {
+    if (!editMode) return;
+    const sourceIndex = e.dataTransfer.getData("index");
+    if (sourceIndex === targetIndex) return;
 
-  const getCategoriaImagen = (categoriaId) => {
-    const categoria = categorias.find(c => c.id === categoriaId);
-    return categoria ? categoria.imagen : null;
-  };
+    const newCategories = [...categories];
+    const [removed] = newCategories.splice(sourceIndex, 1);
+    newCategories.splice(targetIndex, 0, removed);
+    setCategories(newCategories);
 
-  const renderIcon = (imagen, label) => {
-    if (!imagen) return null;
-
-    const isUrl = typeof imagen === 'string' && (
-      imagen.startsWith('http') ||
-      imagen.startsWith('https') ||
-      imagen.startsWith('data:') ||
-      imagen.startsWith('/') ||
-      /\/.+\.[a-zA-Z]{2,5}(\?.*)?$/.test(imagen)
-    );
-
-    return isUrl ? (
-      <img src={imagen} alt={label} style={{ width: '20px', height: '20px' }} />
-    ) : (
-      <span>{imagen}</span>
-    );
-  };
-
-  const getAlergenosNombres = (alergenosIds) => {
-    return alergenos
-      .filter(a => alergenosIds?.includes(a.id))
-      .map(a => a.nombre)
-      .join(', ');
-  };
-
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '50px' }}>Cargando menú...</div>;
-  }
-
-  if (error) {
-    return <div style={{ textAlign: 'center', padding: '50px', color: 'red' }}>Error: {error}</div>;
-  }
-
-  // Agrupar platos por categoría
-  const platosPorCategoria = filteredPlatos.reduce((acc, plato) => {
-    const categoriaId = plato.idCategoria || 'sin-categoria';
-    if (!acc[categoriaId]) {
-      acc[categoriaId] = [];
+    for (let i = 0; i < newCategories.length; i++) {
+      await menuService.updateCategory(newCategories[i].id, { orden: i }, true);
     }
-    acc[categoriaId].push(plato);
-    return acc;
-  }, {});
+  };
+
+  const toggleAvailability = async (plate) => {
+    if (!editMode) return;
+    const newStatus = plate.disponible === false;
+    const result = await menuService.updatePlate(plate.id, { disponible: newStatus }, true);
+    if (result.success) {
+      setPlates(prev => prev.map(p => p.id === plate.id ? { ...p, disponible: newStatus } : p));
+    }
+  };
+
+  if (loading) return <div className="loading-container"><div className="loading-spinner"></div></div>;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ textAlign: 'center', color: '#DC143C', marginBottom: '30px' }}>Nuestra Carta</h1>
-
-      {/* Filtros */}
-      <div style={{ marginBottom: '20px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
-        <div>
-          <label style={{ marginRight: '10px' }}>Categoría:</label>
-          <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} style={{ padding: '5px' }}>
-            <option value="">Todas</option>
-            {categorias.map(categoria => (
-              <option key={categoria.id} value={categoria.id}>{categoria.nombre}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label style={{ marginRight: '10px' }}>Excluir alérgenos:</label>
-          {alergenos.map(alergeno => (
-            <button
-              key={alergeno.id}
-              onClick={() => toggleExcludedAlergeno(alergeno.id)}
-              style={{
-                margin: '0 5px',
-                padding: '5px 10px',
-                background: excludedAlergenos.includes(alergeno.id) ? '#DC143C' : '#f0f0f0',
-                color: excludedAlergenos.includes(alergeno.id) ? 'white' : 'black',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
-              }}
-            >
-              {renderIcon(alergeno.imagen, alergeno.nombre)} {alergeno.nombre}
-            </button>
-          ))}
-        </div>
-
-        <button onClick={resetFilters} style={{ padding: '5px 10px', background: '#568d6e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-          Reset Filtros
-        </button>
-      </div>
-
-      {/* Menú por categorías */}
-      {Object.keys(platosPorCategoria).length === 0 ? (
-        <p style={{ textAlign: 'center' }}>No hay platos disponibles.</p>
-      ) : (
-        Object.entries(platosPorCategoria).map(([categoriaId, platosCategoria]) => (
-          <div key={categoriaId} style={{ marginBottom: '40px' }}>
-            <h2 style={{ color: '#DC143C', borderBottom: '2px solid #DC143C', paddingBottom: '10px' }}>
-              {getCategoriaImagen(categoriaId) && renderIcon(getCategoriaImagen(categoriaId), getCategoriaNombre(categoriaId))} {getCategoriaNombre(categoriaId)}
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-              {platosCategoria.map(plato => (
-                <div key={plato.id} style={{ border: '1px solid #ddd', borderRadius: '10px', padding: '15px', background: '#fff' }}>
-                  {plato.imagen && (
-                    <img src={plato.imagen} alt={plato.nombre} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '5px', marginBottom: '10px' }} />
-                  )}
-                  <h3 style={{ color: '#DC143C' }}>{plato.nombre}</h3>
-                  <p>{plato.descripcion}</p>
-                  <p style={{ fontWeight: 'bold' }}>€{plato.precio?.toFixed(2)}</p>
-                  {plato.alergenos && plato.alergenos.length > 0 && (
-                    <div>
-                      <strong>Alérgenos:</strong> {getAlergenosNombres(plato.alergenos)}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+    <div className="menu-container">
+      {isAdmin && (
+        <div className="admin-edit-toolbar">
+          <div className="toolbar-info">
+            <span className="admin-badge">MODO ADMINISTRADOR</span>
+            <p>{editMode ? "Arrastra categorías o clica platos" : "Modo lectura"}</p>
           </div>
-        ))
+          <button className={`btn-toggle-edit ${editMode ? 'active' : ''}`} onClick={() => setEditMode(!editMode)}>
+            {editMode ? "GUARDAR Y CERRAR" : "GESTIONAR CARTA"}
+          </button>
+        </div>
       )}
 
-      {/* Botón para reservar */}
-      <div style={{ textAlign: 'center', marginTop: '40px' }}>
-        <button
-          onClick={() => {
-            const reservePath = '/dashboard?section=reservas';
-            if (user) {
-              if (role === 'admin') {
-                navigate('/dashboard?section=admin-reservas');
-              } else {
-                navigate(reservePath);
-              }
-            } else {
-              navigate(`/login?next=${encodeURIComponent(reservePath)}`);
-            }
-          }}
-          style={{
-            padding: '15px 30px',
-            background: '#DC143C',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            fontSize: '18px',
-            cursor: 'pointer'
-          }}
-        >
-          {user ? (role === 'admin' ? 'Ver Reservas' : 'Reservar Ahora') : 'Iniciar Sesión para Reservar'}
-        </button>
+      <div className="menu-header">
+        <div className="header-content">
+          <h1>Nuestra Carta</h1>
+        </div>
       </div>
+
+      <div className="menu-search-section">
+        <input 
+          type="text" 
+          placeholder="Buscar plato..." 
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input-wide"
+        />
+      </div>
+
+      <div className="category-anchors-grid">
+        {categories.map(cat => (
+          <a key={cat.id} href={`#cat-${cat.id}`} className="anchor-btn">
+            {cat.nombre.toUpperCase()}
+          </a>
+        ))}
+      </div>
+
+      <div className="menu-sections">
+        {categories.map((cat, index) => {
+          const categoryPlates = plates.filter(p => 
+            p.idCategoria === cat.id && p.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          if (categoryPlates.length === 0 && !editMode) return null;
+
+          return (
+            <section key={cat.id} id={`cat-${cat.id}`} className="category-section"
+              draggable={editMode} onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, index)}
+            >
+              <div className={`category-header-row ${editMode ? 'draggable-cursor' : ''}`}>
+                <h2 className="category-title-text">
+                  {editMode && <span className="drag-handle">≡</span>}
+                  {cat.nombre}
+                </h2>
+                <div className="category-line-right"></div>
+              </div>
+              <div className="plates-grid">
+                {categoryPlates.map(plate => (
+                  <div key={plate.id} className={`plate-card-public ${plate.disponible === false ? 'plate-off' : ''}`}
+                    onClick={() => toggleAvailability(plate)}
+                  >
+                    <div className="plate-card-img">
+                      <img src={plate.imagen} alt="" />
+                      {plate.disponible === false && <div className="overlay-sold-out">AGOTADO</div>}
+                    </div>
+                    <div className="plate-card-info">
+                      <div className="plate-header">
+                        <h3 className="item-name">{plate.nombre}</h3>
+                        <span className="plate-price">{parseFloat(plate.precio).toFixed(2)} €</span>
+                      </div>
+                      <p className="item-description">{plate.descripcion}</p>
+                      <div className="plate-allergens-icons-row">
+                        {plate.alergenos?.map(aleId => (
+                          <img key={aleId} src={allAllergens[aleId]?.imagen} title={allAllergens[aleId]?.nombre} alt="" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+
+      {/* --- LEYENDA DE ALÉRGENOS --- */}
+      <div className="allergen-info-card footer-allergens">
+        <div className="allergen-notice">
+          <h3>Información de Alérgenos</h3>
+          <p>Cualquier duda consulte a nuestro personal o llame al restaurante.</p>
+        </div>
+        <div className="allergen-legend-grid">
+          {Object.values(allAllergens).map(ale => (
+            <div key={ale.id} className="allergen-legend-item">
+              <img src={ale.imagen} alt={ale.nombre} />
+              <span>{ale.nombre}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* --- BOTÓN DE RESERVA MEJORADO --- */}
+      <section className="menu-cta-container">
+        <button 
+          onClick={() => navigate("/dashboard", { state: { selectedTab: "nueva-reserva" } })} 
+          className="cta-main-button"
+        >
+          <span className="cta-icon">{isAdmin ? "" : ""}</span>
+          <span className="cta-text">
+            {isAdmin ? "VOLVER AL PANEL DE CONTROL" : (authRole ? "REALIZAR UNA RESERVA" : "INICIA SESIÓN PARA RESERVAR")}
+          </span>
+        </button>
+      </section>
     </div>
   );
 };

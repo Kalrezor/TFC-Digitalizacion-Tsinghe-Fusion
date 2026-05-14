@@ -1,682 +1,334 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { db, storage } from '../firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import '../styles/AdminMenuView.css';
+// Vista: AdminMenu.js
+// Vista de administración del menú para usuarios con rol de administrador.
+// CRUD completo de platos vinculado a Firebase con selectores personalizados.
+
+import React, { useState, useEffect, useRef } from "react";
+import menuService from "../models/MenuService";
+import "../styles/ChineseStyle.css";
+
+const EMPTY_FORM = {
+  nombre: "",
+  descripcion: "",
+  precio: "",
+  idCategoria: "",
+  alergenos: [],
+  imagen: "",
+  disponible: true, 
+};
 
 const AdminMenu = () => {
-  const [platos, setPlatos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
-  const [alergenos, setAlergenos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingPlato, setEditingPlato] = useState(null);
-  const [formData, setFormData] = useState({
-    nombre: '',
-    idCategoria: '',
-    descripcion: '',
-    precio: '',
-    alergenos: [],
-    imagen: null,
-    imagenPreview: null
-  });
-  const [uploading, setUploading] = useState(false);
-  const [loadError, setLoadError] = useState(null);
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('');
-  const [excludedAlergenos, setExcludedAlergenos] = useState([]);
+  const [plates, setPlates]           = useState([]);
+  const [categories, setCategories]   = useState([]);
+  const [allAllergens, setAllAllergens] = useState({});
+  const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState(null);
+  const [success, setSuccess]         = useState(null);
+  const [searchTerm, setSearchTerm]   = useState("");
+  const [filterCat, setFilterCat]     = useState("all");
+  const [showForm, setShowForm]       = useState(false);
+  const [editingId, setEditingId]     = useState(null);
+  const [formData, setFormData]       = useState(EMPTY_FORM);
+  const [imagePreview, setImagePreview] = useState(null);
 
-  const { currentUser, loading: authLoading } = useAuth();
-
-  const filteredPlatos = platos.filter(plato => {
-    if (selectedCategoryFilter && plato.idCategoria !== selectedCategoryFilter) {
-      return false;
-    }
-
-    if (excludedAlergenos.length > 0) {
-      const platoAlergenos = Array.isArray(plato.alergenos) ? plato.alergenos : [];
-      return !excludedAlergenos.some(alergenoId => platoAlergenos.includes(alergenoId));
-    }
-
-    return true;
-  });
-
-  const toggleExcludedAlergeno = (alergenoId) => {
-    setExcludedAlergenos(prev =>
-      prev.includes(alergenoId)
-        ? prev.filter(id => id !== alergenoId)
-        : [...prev, alergenoId]
-    );
-  };
-
-  const resetFilters = () => {
-    setSelectedCategoryFilter('');
-    setExcludedAlergenos([]);
-  };
-
-  const fetchCollection = useCallback(async (collectionNames) => {
-    for (const collectionName of collectionNames) {
-      const snap = await getDocs(collection(db, collectionName));
-      if (snap.size > 0) {
-        return { docs: snap.docs, collectionName };
-      }
-    }
-    return { docs: [], collectionName: collectionNames[0] };
-  }, []);
-
-  const cargarDatos = useCallback(async () => {
-    try {
-      setLoading(true);
-      setLoadError(null);
-
-      // Cargar platos de la colección 'plate'
-      const platosResult = await fetchCollection(['plate', 'plates']);
-      const platosData = platosResult.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setPlatos(platosData);
-      console.log(`Platos cargados desde colección '${platosResult.collectionName}':`, platosData.length);
-
-      // Cargar categorías de la colección 'category'
-      const categoriasResult = await fetchCollection(['category', 'categories']);
-      const categoriasData = categoriasResult.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          nombre: data.nombre || data.name || doc.id,
-          imagen: data.imagen || data.icono || '',
-          ...data
-        };
-      });
-      setCategorias(categoriasData);
-      console.log(`Categorías cargadas desde colección '${categoriasResult.collectionName}':`, categoriasData.length, categoriasData);
-
-      // Cargar alergenos de la colección 'allergen'
-      const alergenosResult = await fetchCollection(['allergen', 'allergens']);
-      const alergenosData = alergenosResult.docs.map(doc => {
-        const data = doc.data();
-        const nombre = data.nombre || data.name || doc.id;
-        let imagen = data.imagen || data.icono || '';
-
-        // Asignar emoji por defecto si no hay imagen
-        if (!imagen) {
-          const emojiMap = {
-            'Gluten': '🌾',
-            'Lácteos': '🥛',
-            'Huevos': '🥚',
-            'Frutos secos': '🥜',
-            'Mariscos': '🦐',
-            'Soja': '🫘'
-          };
-          imagen = emojiMap[nombre] || '⚠️';
-        }
-
-        return {
-          id: data.id != null ? data.id : doc.id,
-          nombre: nombre,
-          imagen: imagen,
-          ...data
-        };
-      });
-      setAlergenos(alergenosData);
-      console.log(`Alérgenos cargados desde colección '${alergenosResult.collectionName}':`, alergenosData.length, alergenosData);
-
-      console.log('🔍 Verificando datos existentes...');
-      console.log('📊 Categorías:', categoriasData.length, '📊 Alérgenos:', alergenosData.length);
-
-      // Mostrar datos existentes en consola
-      if (categoriasData.length > 0) {
-        console.log('📋 Categorías existentes:', categoriasData.map(c => `${c.nombre} (${c.id})`));
-      }
-      if (alergenosData.length > 0) {
-        console.log('🥜 Alérgenos existentes:', alergenosData.map(a => `${a.nombre} (${a.id})`));
-      }
-
-      // Crear datos de ejemplo si no existen (más agresivo)
-      if (categoriasData.length === 0 || alergenosData.length === 0) {
-        console.log('⚠️ No hay categorías o alergenos, creando datos de ejemplo...');
-        await crearDatosEjemplo();
-        await cargarDatos();
-        return;
-      } else {
-        console.log('✅ Ya existen datos en ambas colecciones');
-      }
-
-    } catch (error) {
-      console.error('Error al cargar datos:', error);
-      setLoadError(error.message || 'Error desconocido al cargar datos');
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchCollection]);
+  // Refs y Estados para los Selectores (Formulario y Filtro Tabla)
+  const [isOpenCat, setIsOpenCat] = useState(false);
+  const [isOpenFilter, setIsOpenFilter] = useState(false);
+  const catRef = useRef(null);
+  const filterRef = useRef(null);
 
   useEffect(() => {
-    if (!authLoading && currentUser) {
-      cargarDatos();
-    } else if (!authLoading && !currentUser) {
+    const handleClickOutside = (event) => {
+      if (catRef.current && !catRef.current.contains(event.target)) setIsOpenCat(false);
+      if (filterRef.current && !filterRef.current.contains(event.target)) setIsOpenFilter(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // --- CARGA DE DATOS ---
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const [resAllergens, resCats, resPlates] = await Promise.all([
+        menuService.getAllAllergens(),
+        menuService.getAllCategories(),
+        menuService.getAllPlates()
+      ]);
+      if (resAllergens.success) setAllAllergens(resAllergens.data);
+      if (resCats.success) setCategories(resCats.data);
+      if (resPlates.success) setPlates(resPlates.data);
       setLoading(false);
-      setLoadError('Debes iniciar sesión para cargar datos.');
+    };
+    fetchData();
+  }, []);
+
+  const loadPlatesOnly = async () => {
+    const result = await menuService.getAllPlates();
+    if (result.success) setPlates(result.data);
+  };
+
+  // --- MANEJADORES ---
+  const openNew = () => {
+    setFormData(EMPTY_FORM);
+    setEditingId(null);
+    setShowForm(true);
+    setImagePreview(null);
+    setError(null);
+    setSuccess(null);
+  };
+
+  const openEdit = (plate) => {
+    setFormData({
+      ...plate,
+      alergenos: Array.isArray(plate.alergenos) ? plate.alergenos : [],
+      disponible: plate.disponible !== undefined ? plate.disponible : true,
+    });
+    setEditingId(plate.id);
+    setShowForm(true);
+    setImagePreview(plate.imagen);
+    setError(null);
+    setSuccess(null);
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (name === "precio") {
+      const val = value.replace(",", ".");
+      if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) setFormData(prev => ({ ...prev, [name]: val }));
+      return;
     }
-  }, [authLoading, currentUser, cargarDatos]);
-
-
-  const crearDatosEjemplo = async () => {
-    try {
-      console.log('🚀 Iniciando creación de datos de ejemplo...');
-
-      // Crear categorías de ejemplo en colección 'category'
-      const categoriasEjemplo = [
-        { nombre: 'Entrantes', imagen: '🍽️' },
-        { nombre: 'Principales', imagen: '🍖' },
-        { nombre: 'Postres', imagen: '🍰' },
-        { nombre: 'Bebidas', imagen: '🥤' }
-      ];
-
-      console.log('📝 Creando categorías...');
-      for (const categoria of categoriasEjemplo) {
-        const docRef = await addDoc(collection(db, 'category'), categoria);
-        console.log('✅ Categoría creada:', categoria.nombre, 'ID:', docRef.id);
-      }
-
-      // Crear alergenos de ejemplo en colección 'allergen'
-      const alergenosEjemplo = [
-        { nombre: 'Gluten', imagen: '🌾' },
-        { nombre: 'Lácteos', imagen: '🥛' },
-        { nombre: 'Huevos', imagen: '🥚' },
-        { nombre: 'Frutos secos', imagen: '🥜' },
-        { nombre: 'Mariscos', imagen: '🦐' },
-        { nombre: 'Soja', imagen: '🫘' }
-      ];
-
-      console.log('🥜 Creando alergenos...');
-      for (const alergeno of alergenosEjemplo) {
-        const docRef = await addDoc(collection(db, 'allergen'), alergeno);
-        console.log('✅ Alergeno creado:', alergeno.nombre, 'ID:', docRef.id);
-      }
-
-      console.log('🎉 Datos de ejemplo creados correctamente');
-      alert('✅ Datos de ejemplo creados correctamente. Haz clic en "🔍 Verificar Datos" para confirmar.');
-
-      // No recargar automáticamente, dejar que el usuario verifique manualmente
-      // await cargarDatos();
-
-    } catch (error) {
-      console.error('❌ Error al crear datos de ejemplo:', error);
-      alert('Error al crear datos de ejemplo: ' + error.message);
-    }
+    const val = type === "checkbox" ? checked : value;
+    setFormData(prev => ({ ...prev, [name]: val }));
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'precio' ? parseFloat(value) || '' : value
-    }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData(prev => ({
-        ...prev,
-        imagen: file,
-        imagenPreview: URL.createObjectURL(file)
-      }));
-    }
-  };
-
-  const handleCategoriaChange = (categoriaId) => {
-    setFormData(prev => ({
-      ...prev,
-      idCategoria: categoriaId
-    }));
-  };
-
-  const handleAlergenoToggle = (alergenoId) => {
-    setFormData(prev => ({
-      ...prev,
-      alergenos: prev.alergenos.includes(alergenoId)
-        ? prev.alergenos.filter(id => id !== alergenoId)
-        : [...prev.alergenos, alergenoId]
-    }));
-  };
-
-  const uploadImage = async (file) => {
-    if (!file) return null;
-
-    const storageRef = ref(storage, `plate/${Date.now()}_${file.name}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    return downloadURL;
-  };
-
-  const deleteImage = async (imageUrl) => {
-    if (!imageUrl) return;
-
-    try {
-      const imageRef = ref(storage, imageUrl);
-      await deleteObject(imageRef);
-    } catch (error) {
-      console.error('Error al eliminar imagen:', error);
-    }
+  const handleAlergenoToggle = (id) => {
+    setFormData(prev => {
+      const exists = prev.alergenos.includes(id);
+      return { ...prev, alergenos: exists ? prev.alergenos.filter(a => a !== id) : [...prev.alergenos, id] };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.nombre || !formData.idCategoria || !formData.descripcion || !formData.precio) {
-      alert('Por favor completa todos los campos obligatorios');
+    if (!formData.nombre.trim() || !formData.precio || !formData.idCategoria) {
+      setError("Nombre, categoría y precio son obligatorios.");
       return;
     }
-
-    if (formData.precio <= 0) {
-      alert('El precio debe ser mayor a 0');
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      let imageUrl = editingPlato?.imagen || null;
-
-      // Si hay una nueva imagen, subirla
-      if (formData.imagen) {
-        // Eliminar imagen anterior si existe
-        if (editingPlato?.imagen) {
-          await deleteImage(editingPlato.imagen);
-        }
-        imageUrl = await uploadImage(formData.imagen);
-      }
-
-      const platoData = {
-        nombre: formData.nombre,
-        idCategoria: formData.idCategoria,
-        descripcion: formData.descripcion,
-        precio: parseFloat(formData.precio),
-        alergenos: formData.alergenos,
-        imagen: imageUrl,
-        updatedAt: new Date().toISOString()
-      };
-
-      if (editingPlato) {
-        // Actualizar plato existente en colección 'plate'
-        await updateDoc(doc(db, 'plate', editingPlato.id), platoData);
-        setPlatos(platos.map(p => p.id === editingPlato.id ? { ...p, ...platoData } : p));
-      } else {
-        // Crear nuevo plato en colección 'plate'
-        platoData.createdAt = new Date().toISOString();
-        const docRef = await addDoc(collection(db, 'plate'), platoData);
-        setPlatos([...platos, { id: docRef.id, ...platoData }]);
-      }
-
-      // Resetear formulario
-      resetForm();
-      alert(editingPlato ? 'Plato actualizado correctamente' : 'Plato creado correctamente');
-
-    } catch (error) {
-      console.error('Error al guardar plato:', error);
-      alert('Error al guardar el plato');
-    } finally {
-      setUploading(false);
-    }
+    setLoading(true);
+    const payload = { ...formData, precio: parseFloat(formData.precio) };
+    const result = editingId 
+      ? await menuService.updatePlate(editingId, payload, true)
+      : await menuService.createPlate(payload, true);
+    setLoading(false);
+    if (result.success) {
+      setSuccess("¡Guardado correctamente!");
+      setShowForm(false);
+      loadPlatesOnly();
+    } else setError(result.error);
   };
 
-  const resetForm = () => {
-    setFormData({
-      nombre: '',
-      idCategoria: '',
-      descripcion: '',
-      precio: '',
-      alergenos: [],
-      imagen: null,
-      imagenPreview: null
-    });
-    setEditingPlato(null);
-    setShowForm(false);
-  };
+  const filtered = plates.filter(p => {
+    const matchSearch = p.nombre?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCat = filterCat === "all" || p.idCategoria === filterCat;
+    return matchSearch && matchCat;
+  });
 
-  const editarPlato = (plato) => {
-    setEditingPlato(plato);
-    setFormData({
-      nombre: plato.nombre || '',
-      idCategoria: plato.idCategoria || '',
-      descripcion: plato.descripcion || '',
-      precio: plato.precio || '',
-      alergenos: plato.alergenos || [],
-      imagen: null,
-      imagenPreview: plato.imagen || null
-    });
-    setShowForm(true);
-  };
-
-  const eliminarPlato = async (plato) => {
-    if (!window.confirm(`¿Estás seguro de que deseas eliminar "${plato.nombre}"?`)) {
-      return;
-    }
-
-    try {
-      // Eliminar imagen del storage
-      if (plato.imagen) {
-        await deleteImage(plato.imagen);
-      }
-
-      // Eliminar documento de la colección 'plate'
-      await deleteDoc(doc(db, 'plate', plato.id));
-
-      setPlatos(platos.filter(p => p.id !== plato.id));
-      alert('Plato eliminado correctamente');
-
-    } catch (error) {
-      console.error('Error al eliminar plato:', error);
-      alert('Error al eliminar el plato');
-    }
-  };
-
-  const getCategoriaNombre = (categoriaId) => {
-    const categoria = categorias.find(c => c.id === categoriaId);
-    return categoria ? categoria.nombre : 'Sin categoría';
-  };
-
-  const getCategoriaImagen = (categoriaId) => {
-    const categoria = categorias.find(c => c.id === categoriaId);
-    return categoria ? categoria.imagen : null;
-  };
-
-  const renderIcon = (imagen, label) => {
-    if (!imagen) return null;
-
-    const isUrl = typeof imagen === 'string' && (
-      imagen.startsWith('http') ||
-      imagen.startsWith('https') ||
-      imagen.startsWith('data:') ||
-      imagen.startsWith('/') ||
-      /\/.+\.[a-zA-Z]{2,5}(\?.*)?$/.test(imagen)
-    );
-
-    return isUrl ? (
-      <img src={imagen} alt={label} className="icon-image" />
-    ) : (
-      <span className="icon-emoji">{imagen}</span>
-    );
-  };
-
-  const getAlergenosNombres = (alergenosIds) => {
-    return alergenos
-      .filter(a => alergenosIds?.includes(a.id))
-      .map(a => a.nombre)
-      .join(', ');
-  };
-
-  if (loading) {
-    return <div className="menu-loading">Cargando menú...</div>;
-  }
+  const selectedCatName = categories.find(c => c.id === formData.idCategoria)?.nombre || "";
+  const filterCatName = filterCat === "all" ? "TODAS LAS CATEGORÍAS" : categories.find(c => c.id === filterCat)?.nombre || "";
 
   return (
-    <div className="menu-container">
-      <div className="menu-header">
-        <h2>Gestión de Carta</h2>
-        <div className="header-actions">
-          <button
-            className="new-plato-btn"
-            onClick={() => setShowForm(!showForm)}
-          >
-            {showForm ? '❌ Cancelar' : '➕ Nuevo Plato'}
-          </button>
-        </div>
+    <div style={{ padding: "20px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1 style={{ color: "#DC143C", margin: 0 }}>Administración de Menú</h1>
+        <button onClick={openNew} disabled={loading} style={btnPrimary}>+ Nuevo Plato</button>
       </div>
 
-      {loadError && (
-        <div className="data-error">Error al cargar datos: {loadError}</div>
-      )}
+      {error && <div style={alertError}>{error}</div>}
+      {success && <div style={alertSuccess}>{success}</div>}
 
-      {/* FORMULARIO */}
       {showForm && (
-        <div className="form-container">
-          <form onSubmit={handleSubmit} className="plato-form">
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="nombre">Nombre del Plato *</label>
-                <input
-                  type="text"
-                  id="nombre"
-                  name="nombre"
-                  value={formData.nombre}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  placeholder="Ej: Paella Valenciana"
-                  required
-                />
+        <div style={{ background: "#fff8f0", border: "2px solid #DC143C", borderRadius: "10px", padding: "24px", marginBottom: "24px" }}>
+          <form onSubmit={handleSubmit}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div>
+                <label style={labelStyle}>Nombre del Plato *</label>
+                <input name="nombre" value={formData.nombre} onChange={handleChange} required style={inputStyle} />
               </div>
 
-              <div className="form-group">
-                <label>Categoría *</label>
-                <div className="category-options">
-                  {categorias.map(categoria => (
-                    <button
-                      type="button"
-                      key={categoria.id}
-                      className={`category-option ${formData.idCategoria === categoria.id ? 'selected' : ''}`}
-                      onClick={() => handleCategoriaChange(categoria.id)}
-                      aria-pressed={formData.idCategoria === categoria.id}
-                    >
-                      <span className="category-icon">
-                        {renderIcon(categoria.imagen, categoria.nombre)}
-                      </span>
-                      <span>{categoria.nombre || categoria.name || categoria.id}</span>
-                    </button>
-                  ))}
+              <div>
+                <label style={labelStyle}>Descripción</label>
+                <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows={2} style={inputStyle} />
+              </div>
+
+              <div style={{ position: "relative", display: "inline-block", minWidth: "280px" }} ref={catRef}>
+                <label style={labelStyle}>Categoría *</label>
+                <div onClick={() => setIsOpenCat(!isOpenCat)} style={customSelectTrigger}>
+                  <span style={{ fontWeight: formData.idCategoria ? "bold" : "normal" }}>{selectedCatName.toUpperCase()}</span>
+                  <span>{isOpenCat ? "▲" : "▼"}</span>
                 </div>
-              </div>
-
-              <div className="form-group full-width">
-                <label htmlFor="descripcion">Descripción *</label>
-                <textarea
-                  id="descripcion"
-                  name="descripcion"
-                  value={formData.descripcion}
-                  onChange={handleInputChange}
-                  className="form-textarea"
-                  placeholder="Describe los ingredientes y características del plato..."
-                  rows="4"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="precio">Precio (€) *</label>
-                <input
-                  type="number"
-                  id="precio"
-                  name="precio"
-                  value={formData.precio}
-                  onChange={handleInputChange}
-                  className="form-input"
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
-                  required
-                />
-              </div>
-
-              <div className="form-group full-width">
-                <label>Alérgenos</label>
-                <div className="alergenos-checkbox-group">
-                  {alergenos.map(alergeno => (
-                    <label
-                      key={alergeno.id}
-                      className={`alergeno-checkbox ${formData.alergenos.includes(alergeno.id) ? 'checked' : ''}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.alergenos.includes(alergeno.id)}
-                        onChange={() => handleAlergenoToggle(alergeno.id)}
-                      />
-                      <span className="alergeno-icon">
-                        {renderIcon(alergeno.imagen, alergeno.nombre)}
-                      </span>
-                      <span>{alergeno.nombre || alergeno.name || alergeno.id}</span>
-                    </label>
-                  ))}
-                </div>
-                {formData.alergenos.length > 0 && (
-                  <div className="selected-alergenos">
-                    <small>Seleccionados: {getAlergenosNombres(formData.alergenos)}</small>
+                {isOpenCat && (
+                  <div style={megaSelectDropdown}>
+                    <div style={megaSelectGrid}>
+                      {categories.map((cat) => (
+                        <div key={cat.id} onClick={() => { setFormData(p => ({ ...p, idCategoria: cat.id })); setIsOpenCat(false); }}
+                          style={{ ...megaSelectItem, backgroundColor: formData.idCategoria === cat.id ? "#DC143C" : "transparent", color: formData.idCategoria === cat.id ? "#fff" : "#333" }}>
+                          {cat.nombre.toUpperCase()}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
 
-              <div className="form-group full-width">
-                <label htmlFor="imagen">Imagen del Plato</label>
-                <input
-                  type="file"
-                  id="imagen"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="file-input"
-                />
-                {(formData.imagenPreview || editingPlato?.imagen) && (
-                  <div className="image-preview">
-                    <img
-                      src={formData.imagenPreview || editingPlato.imagen}
-                      alt="Vista previa"
-                      className="preview-image"
-                    />
+              <div>
+                <label style={labelStyle}>Alérgenos</label>
+                <div style={allergenRecuadroStyle}>
+                  {Object.values(allAllergens).map(ale => (
+                    <div key={ale.id} onClick={() => handleAlergenoToggle(ale.id)}
+                      style={{ ...allergenItem, border: formData.alergenos.includes(ale.id) ? "2px solid #DC143C" : "1px solid #eee", background: formData.alergenos.includes(ale.id) ? "#fff1f1" : "transparent" }}>
+                      <img src={ale.imagen} alt="" style={{ width: "30px", height: "30px" }} />
+                      <span style={{ fontSize: "9px" }}>{ale.nombre}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "end" }}>
+                <div>
+                  <label style={labelStyle}>Precio (€) *</label>
+                  <input name="precio" type="text" value={formData.precio} onChange={handleChange} placeholder="0.00" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Imagen del Plato</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <input type="file" id="img-upload" accept="image/*" style={{ display: "none" }} onChange={(e) => {
+                       const file = e.target.files[0];
+                       if (file) {
+                         const reader = new FileReader();
+                         reader.onloadend = () => { setImagePreview(reader.result); setFormData(p => ({...p, imagen: reader.result})); };
+                         reader.readAsDataURL(file);
+                       }
+                    }} />
+                    <label htmlFor="img-upload" style={{ ...btnEdit, padding: "12px 20px", flex: 1, textAlign: "center" }}>Subir Imagen</label>
+                    {imagePreview && <img src={imagePreview} alt="Preview" style={{ width: "45px", height: "45px", borderRadius: "6px", objectFit: "cover", border: "1px solid #FFD700" }} />}
                   </div>
-                )}
+                </div>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#fff", padding: "10px", borderRadius: "6px", border: "1px solid #FFD700", width: "fit-content" }}>
+                <label style={{ ...labelStyle, marginBottom: 0 }}>-+Disponible?</label>
+                <input name="disponible" type="checkbox" checked={formData.disponible} onChange={handleChange} style={{ width: "18px", height: "18px", cursor: "pointer" }} />
+                <span style={{ fontWeight: "bold", color: formData.disponible ? "#2e7d32" : "#DC143C", fontSize: "13px" }}>
+                    {formData.disponible ? "SÍ" : "NO"}
+                </span>
               </div>
             </div>
-
-            <div className="form-actions">
-              <button type="button" className="cancel-btn" onClick={resetForm}>
-                Cancelar
-              </button>
-              <button type="submit" className="submit-btn" disabled={uploading}>
-                {uploading ? 'Guardando...' : (editingPlato ? 'Actualizar Plato' : 'Crear Plato')}
-              </button>
+            <div style={{ marginTop: "25px", display: "flex", gap: "12px" }}>
+              <button type="submit" style={btnPrimary}>Guardar Plato</button>
+              <button type="button" onClick={() => setShowForm(false)} style={btnSecondary}>Cancelar</button>
             </div>
           </form>
         </div>
       )}
 
-      {/* LISTA DE PLATOS */}
-      <div className="platos-grid">
-        {filteredPlatos.length > 0 ? (
-          filteredPlatos.map(plato => (
-            <div key={plato.id} className="plato-card">
-              <div className="plato-image">
-                {plato.imagen ? (
-                  <img src={plato.imagen} alt={plato.nombre} />
-                ) : (
-                  <div className="no-image">Sin imagen</div>
-                )}
-              </div>
+      {/* Filtros fuera del formulario */}
+      <div style={{ display: "flex", gap: "15px", marginBottom: "20px", alignItems: "flex-end" }}>
+        <div style={{ flex: 1, maxWidth: "300px" }}>
+          <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar plato..." style={inputStyle} />
+        </div>
 
-              <div className="plato-info">
-                <h3 className="plato-nombre">{plato.nombre}</h3>
-
-                <div className="plato-categoria">
-                  {getCategoriaImagen(plato.idCategoria) && (
-                    <img
-                      src={getCategoriaImagen(plato.idCategoria)}
-                      alt={getCategoriaNombre(plato.idCategoria)}
-                      className="categoria-mini-icon"
-                    />
-                  )}
-                  <span>{getCategoriaNombre(plato.idCategoria)}</span>
+        <div style={{ position: "relative", display: "inline-block", minWidth: "280px" }} ref={filterRef}>
+          <label style={labelStyle}>Filtrar por Categoría:</label>
+          <div onClick={() => setIsOpenFilter(!isOpenFilter)} style={customSelectTrigger}>
+            <span style={{ fontWeight: filterCat === "all" ? "normal" : "bold" }}>{filterCatName.toUpperCase()}</span>
+            <span>{isOpenFilter ? "▲" : "▼"}</span>
+          </div>
+          {isOpenFilter && (
+            <div style={megaSelectDropdown}>
+              <div style={megaSelectGrid}>
+                <div onClick={() => { setFilterCat("all"); setIsOpenFilter(false); }}
+                  style={{ ...megaSelectItem, backgroundColor: filterCat === "all" ? "#DC143C" : "transparent", color: filterCat === "all" ? "#fff" : "#333" }}>
+                  TODAS
                 </div>
-
-                <p className="plato-descripcion">{plato.descripcion}</p>
-
-                <div className="plato-precio">
-                  <span className="precio">€{plato.precio?.toFixed(2)}</span>
-                </div>
-
-                {plato.alergenos && plato.alergenos.length > 0 && (
-                  <div className="plato-alergenos">
-                    <small>Alérgenos: {getAlergenosNombres(plato.alergenos)}</small>
+                {categories.map((cat) => (
+                  <div key={cat.id} onClick={() => { setFilterCat(cat.id); setIsOpenFilter(false); }}
+                    style={{ ...megaSelectItem, backgroundColor: filterCat === cat.id ? "#DC143C" : "transparent", color: filterCat === cat.id ? "#fff" : "#333" }}>
+                    {cat.nombre.toUpperCase()}
                   </div>
-                )}
-              </div>
-
-              <div className="plato-actions">
-                <button
-                  className="edit-btn"
-                  onClick={() => editarPlato(plato)}
-                  title="Editar plato"
-                >
-                  ✏️
-                </button>
-                <button
-                  className="delete-btn"
-                  onClick={() => eliminarPlato(plato)}
-                  title="Eliminar plato"
-                >
-                  🗑️
-                </button>
+                ))}
               </div>
             </div>
-          ))
-        ) : (
-          <div className="empty-state">
-            <div className="empty-icon">🍽️</div>
-            <p className="empty-title">No hay platos que coincidan con los filtros</p>
-            <p className="empty-text">Limpia los filtros o prueba con otra categoría.</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      <div className="bottom-filter-panel">
-        <div className="bottom-filter-title">
-          <h3>Filtrar carta</h3>
-          <button type="button" className="clear-filters-btn" onClick={resetFilters}>
-            Limpiar filtros
-          </button>
-        </div>
-
-        <div className="bottom-filter-group">
-          <span className="filter-label">Filtrar por categoría:</span>
-          <div className="filter-chip-row">
-            <button
-              type="button"
-              className={`filter-chip ${selectedCategoryFilter === '' ? 'active' : ''}`}
-              onClick={() => setSelectedCategoryFilter('')}
-            >
-              Todas
-            </button>
-            {categorias.map(categoria => (
-              <button
-                key={categoria.id}
-                type="button"
-                className={`filter-chip ${selectedCategoryFilter === categoria.id ? 'active' : ''}`}
-                onClick={() => setSelectedCategoryFilter(categoria.id)}
-              >
-                {renderIcon(categoria.imagen, categoria.nombre)}
-                {categoria.nombre || categoria.name || categoria.id}
-              </button>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff" }}>
+          <thead>
+            <tr style={{ background: "#DC143C", color: "#fff" }}>
+              <th style={th}>Imagen</th>
+              <th style={th}>Nombre</th>
+              <th style={th}>Categoría</th>
+              <th style={th}>Precio</th>
+              <th style={th}>Estado</th>
+              <th style={th}>Alérgenos</th>
+              <th style={th}>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(p => (
+              <tr key={p.id} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={td}><img src={p.imagen} alt="" style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "4px" }} /></td>
+                <td style={td}><strong>{p.nombre}</strong></td>
+                <td style={td}>{p.idCategoria}</td>
+                <td style={td}>{parseFloat(p.precio || 0).toFixed(2)} €</td>
+                <td style={td}>
+                    <span style={{ 
+                        color: p.disponible ? "#2e7d32" : "#DC143C", 
+                        fontWeight: "bold", 
+                        fontSize: "11px",
+                        background: p.disponible ? "#e8f5e9" : "#ffebee",
+                        padding: "4px 8px",
+                        borderRadius: "12px"
+                    }}>
+                        {p.disponible ? "DISPONIBLE" : "NO DISPONIBLE"}
+                    </span>
+                </td>
+                <td style={td}>
+                  <div style={{ display: "flex", gap: "4px" }}>
+                    {p.alergenos?.map(id => <img key={id} src={allAllergens[id]?.imagen} title={allAllergens[id]?.nombre} style={{ width: "20px" }} alt="" />)}
+                  </div>
+                </td>
+                <td style={td}>
+                  <button onClick={() => openEdit(p)} style={btnEditSmaller}>Editar</button>
+                  <button onClick={() => {if(window.confirm("¿Eliminar?")) menuService.deletePlate(p.id, true).then(loadPlatesOnly)}} style={{...btnDelete, marginLeft: "5px"}}>Eliminar</button>
+                </td>
+              </tr>
             ))}
-          </div>
-        </div>
-
-        <div className="bottom-filter-group">
-          <span className="filter-label">Excluir alérgenos:</span>
-          <div className="filter-chip-row">
-            {alergenos.map(alergeno => (
-              <button
-                key={alergeno.id}
-                type="button"
-                className={`filter-chip ${excludedAlergenos.includes(alergeno.id) ? 'active' : ''}`}
-                onClick={() => toggleExcludedAlergeno(alergeno.id)}
-              >
-                {renderIcon(alergeno.imagen, alergeno.nombre)}
-                {alergeno.nombre || alergeno.name || alergeno.id}
-              </button>
-            ))}
-          </div>
-        </div>
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
+
+// --- ESTILOS ---
+const labelStyle = { display: "block", color: "#8B0000", fontWeight: "bold", marginBottom: "4px", fontSize: "12px" };
+const inputStyle = { width: "100%", padding: "10px", border: "2px solid #FFD700", borderRadius: "6px", background: "#fff", boxSizing: "border-box" };
+const customSelectTrigger = { ...inputStyle, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "41px" };
+const megaSelectDropdown = { position: "absolute", top: "100%", left: 0, minWidth: "450px", zIndex: 100, background: "#fff", border: "2px solid #FFD700", borderRadius: "6px", marginTop: "4px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", padding: "10px" };
+const megaSelectGrid = { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" };
+const megaSelectItem = { padding: "8px", fontSize: "10px", borderRadius: "4px", cursor: "pointer", textAlign: "center", fontWeight: "bold", border: "1px solid #eee" };
+const allergenRecuadroStyle = { display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "10px", background: "#fff", padding: "15px", borderRadius: "8px", border: "2px solid #FFD700" };
+const allergenItem = { display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", padding: "5px", borderRadius: "6px" };
+const btnPrimary = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" };
+const btnSecondary = { backgroundColor: "#888", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer" };
+const btnEdit = { background: "#FFD700", color: "#1a1a1a", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "14px", display: "inline-block" };
+const btnEditSmaller = { ...btnEdit, padding: "6px 12px", fontSize: "12px" };
+const btnDelete = { background: "#DC143C", color: "#fff", border: "none", padding: "6px 12px", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "12px" };
+const th = { padding: "12px", textAlign: "left" };
+const td = { padding: "12px", verticalAlign: "middle" };
+const alertError = { background: "#ffe0e0", color: "#8B0000", padding: "10px", marginBottom: "10px", borderRadius: "6px" };
+const alertSuccess = { background: "#e0ffe0", color: "#2e7d32", padding: "10px", marginBottom: "10px", borderRadius: "6px" };
 
 export default AdminMenu;

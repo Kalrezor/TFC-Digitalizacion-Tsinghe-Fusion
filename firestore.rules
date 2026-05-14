@@ -69,12 +69,12 @@ service cloud.firestore {
 
     // ════════════════════════════════════════════════════════════════════
     // TABLES
-    // Leer: cualquier usuario logueado (para ver disponibilidad)
+    // Leer: publico (para mostrar números de mesa en reservas)
     // Escribir: solo admin
     // Fusión: solo admins, máximo 4+ comensales, con PIN de 4 dígitos
     // ════════════════════════════════════════════════════════════════════
     match /tables/{tableId} {
-      allow read:   if isLoggedIn();
+      allow read:   if true;
       
       allow create: if isAdmin() && 
                        request.resource.data.capacity is number &&
