@@ -59,38 +59,34 @@ const NavigationBar = ({ isAuthenticated, user, role, logout }) => {
           flex: 1,
           justifyContent: "center",
         }} className="hidden-mobile">
-          {!isAuthenticated && (
-            <>
-              <Link
-                to="/"
-                style={{
-                  color: "#2d2d2d",
-                  textDecoration: "none",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  transition: "color 250ms ease",
-                }}
-                onMouseEnter={(e) => (e.target.style.color = "#6db888")}
-                onMouseLeave={(e) => (e.target.style.color = "#2d2d2d")}
-              >
-                Inicio
-              </Link>
-              <Link
-                to="/menu"
-                style={{
-                  color: "#2d2d2d",
-                  textDecoration: "none",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  transition: "color 250ms ease",
-                }}
-                onMouseEnter={(e) => (e.target.style.color = "#6db888")}
-                onMouseLeave={(e) => (e.target.style.color = "#2d2d2d")}
-              >
-                Menú
-              </Link>
-            </>
-          )}
+          <Link
+            to="/"
+            style={{
+              color: "#2d2d2d",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: "500",
+              transition: "color 250ms ease",
+            }}
+            onMouseEnter={(e) => (e.target.style.color = "#6db888")}
+            onMouseLeave={(e) => (e.target.style.color = "#2d2d2d")}
+          >
+            Inicio
+          </Link>
+          <Link
+            to="/menu"
+            style={{
+              color: "#2d2d2d",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: "500",
+              transition: "color 250ms ease",
+            }}
+            onMouseEnter={(e) => (e.target.style.color = "#6db888")}
+            onMouseLeave={(e) => (e.target.style.color = "#2d2d2d")}
+          >
+            Menú
+          </Link>
         </div>
 
         {/* Seccion Derecha */}
@@ -155,26 +151,6 @@ const NavigationBar = ({ isAuthenticated, user, role, logout }) => {
                   >
                     Mi Panel
                   </Link>
-                  {role === "admin" && (
-                    <Link
-                      to="/admin/menu"
-                      onClick={() => setShowUserMenu(false)}
-                      style={{
-                        display: "block",
-                        padding: "12px 16px",
-                        color: "#2e8b57",
-                        textDecoration: "none",
-                        borderBottom: "1px solid #e0e0e0",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        transition: "background-color 250ms ease",
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5ede3")}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                    >
-                      Admin
-                    </Link>
-                  )}
                   <button
                     onClick={handleLogout}
                     style={{

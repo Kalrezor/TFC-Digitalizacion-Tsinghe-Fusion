@@ -1,10 +1,12 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import UserService from "../services/UserService";
+import TableService from "../services/TableService";
 import ReservationTableService, {
   RESERVATION_SHIFTS,
   RESERVATION_TIMES,
   RESERVATION_STATUS,
+  getShiftFromTime,
 } from "../services/ReservationTableService";
 
 const today = new Date().toISOString().split("T")[0];
@@ -19,8 +21,12 @@ const defaultFormState = {
 const AdminReservationsView = () => {
   const { userEmail: adminEmail } = useAuth();
   const [selectedDate, setSelectedDate] = useState(today);
+  const [selectedEndDate, setSelectedEndDate] = useState(today);
+  const [filterMode, setFilterMode] = useState("turno");
   const [selectedShift, setSelectedShift] = useState(RESERVATION_SHIFTS.COMIDA);
   const [statusFilter, setStatusFilter] = useState("");
+  const [tablesById, setTablesById] = useState({});
+  const [searchClientTerm, setSearchClientTerm] = useState("");
 
   const [reservations, setReservations] = useState([]);
   const [loadingReservations, setLoadingReservations] = useState(false);
@@ -49,6 +55,7 @@ const AdminReservationsView = () => {
     ...reservation,
     date: reservation.date || reservation.reservationDate || "",
     time: reservation.time || reservation.reservationTime || "",
+    shift: reservation.shift || getShiftFromTime(reservation.time || reservation.reservationTime || ""),
     peopleCount: reservation.peopleCount || reservation.numberOfPeople || 1,
     tableIds: Array.isArray(reservation.tableIds)
       ? reservation.tableIds
@@ -56,6 +63,22 @@ const AdminReservationsView = () => {
       ? [reservation.tableId]
       : [],
   });
+
+  const normalizeReservationWithTables = (reservation) => {
+    const normalized = normalizeReservation(reservation);
+    const tableNumbers = normalized.tableIds
+      .map((tableId) => {
+        const mapped = tablesById[tableId];
+        console.log(`Para tableId ${tableId}, mapped: ${mapped}`);
+        return mapped || tableId;
+      })
+      .filter(Boolean);
+    console.log(`tableNumbers para reserva ${reservation.id}:`, tableNumbers);
+    return {
+      ...normalized,
+      tableNumbers,
+    };
+  };
 
   const filteredUsers = useMemo(() => {
     const term = searchPhone.trim().toLowerCase();
@@ -85,11 +108,32 @@ const AdminReservationsView = () => {
     setLoadingReservations(true);
     setReservationError(null);
 
-    const result = await ReservationTableService.getReservationsByDateAndShift(
-      selectedDate,
-      selectedShift,
-      true,
-    );
+    let result;
+    if (filterMode === "turno") {
+      result = await ReservationTableService.getReservationsByDateAndShift(
+        selectedDate,
+        selectedShift,
+        true,
+      );
+    } else if (filterMode === "dia") {
+      result = await ReservationTableService.getReservationsByDate(
+        selectedDate,
+        true,
+      );
+    } else if (filterMode === "rango") {
+      const fromDate = selectedDate <= selectedEndDate ? selectedDate : selectedEndDate;
+      const toDate = selectedDate <= selectedEndDate ? selectedEndDate : selectedDate;
+      result = await ReservationTableService.getReservationsByDateRange(
+        fromDate,
+        toDate,
+        true,
+      );
+    } else if (filterMode === "cliente") {
+      // Obtener todas las reservas y filtrar por nombre/teléfono
+      result = await ReservationTableService.getAllReservations(true);
+    } else {
+      result = { success: false, error: "Modo de filtro inválido" };
+    }
 
     if (!result.success) {
       setReservationError(result.error || "No se pudieron cargar las reservas.");
@@ -101,6 +145,14 @@ const AdminReservationsView = () => {
     let loaded = result.reservations || [];
     if (statusFilter) {
       loaded = loaded.filter((reservation) => reservation.status === statusFilter);
+    }
+    if (filterMode === "cliente" && searchClientTerm.trim()) {
+      const term = searchClientTerm.trim().toLowerCase();
+      loaded = loaded.filter((reservation) => {
+        const userName = String(reservation.userName || "").toLowerCase();
+        const userPhone = String(reservation.userPhone || "").toLowerCase();
+        return userName.includes(term) || userPhone.includes(term);
+      });
     }
 
     const sorted = [...loaded].sort((a, b) => {
@@ -118,7 +170,10 @@ const AdminReservationsView = () => {
   useEffect(() => {
     loadReservations();
     resetForm();
-  }, [selectedDate, selectedShift, statusFilter]);
+    if (filterMode !== "cliente") {
+      setSearchClientTerm("");
+    }
+  }, [selectedDate, selectedEndDate, filterMode, selectedShift, statusFilter, searchClientTerm]);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -127,7 +182,23 @@ const AdminReservationsView = () => {
         setUsers(result.users || []);
       }
     };
+    const loadTables = async () => {
+      const result = await TableService.getAllTables();
+      console.log("Resultado de getAllTables:", result);
+      if (result.success) {
+        const map = {};
+        (result.tables || []).forEach((table) => {
+          map[table.id] = table.tableNumber || table.number || table.id;
+          console.log(`Mapeando mesa ${table.id} a ${map[table.id]}`);
+        });
+        console.log("tablesById:", map);
+        setTablesById(map);
+      } else {
+        console.error("Error cargando mesas:", result.error);
+      }
+    };
     loadUsers();
+    loadTables();
   }, []);
 
   useEffect(() => {
@@ -355,25 +426,65 @@ const AdminReservationsView = () => {
           <div style={panelHeaderStyle}>Filtros</div>
           <div style={filtersGridStyle}>
             <label style={fieldLabelStyle}>
-              Fecha
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                style={inputStyle}
-              />
-            </label>
-            <label style={fieldLabelStyle}>
-              Turno
+              Filtrar por
               <select
-                value={selectedShift}
-                onChange={(e) => setSelectedShift(e.target.value)}
+                value={filterMode}
+                onChange={(e) => setFilterMode(e.target.value)}
                 style={inputStyle}
               >
-                <option value={RESERVATION_SHIFTS.COMIDA}>Comida</option>
-                <option value={RESERVATION_SHIFTS.CENA}>Cena</option>
+                <option value="turno">Turno</option>
+                <option value="dia">Día</option>
+                <option value="rango">Rango de fechas</option>
+                <option value="cliente">Nombre/Teléfono del cliente</option>
               </select>
             </label>
+            {filterMode !== "cliente" ? (
+              <label style={fieldLabelStyle}>
+                Fecha inicio
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  style={inputStyle}
+                />
+              </label>
+            ) : null}
+            {filterMode === "rango" ? (
+              <label style={fieldLabelStyle}>
+                Fecha fin
+                <input
+                  type="date"
+                  value={selectedEndDate}
+                  onChange={(e) => setSelectedEndDate(e.target.value)}
+                  style={inputStyle}
+                />
+              </label>
+            ) : null}
+            {filterMode === "turno" ? (
+              <label style={fieldLabelStyle}>
+                Turno
+                <select
+                  value={selectedShift}
+                  onChange={(e) => setSelectedShift(e.target.value)}
+                  style={inputStyle}
+                >
+                  <option value={RESERVATION_SHIFTS.COMIDA}>Comida</option>
+                  <option value={RESERVATION_SHIFTS.CENA}>Cena</option>
+                </select>
+              </label>
+            ) : null}
+            {filterMode === "cliente" ? (
+              <label style={fieldLabelStyle}>
+                Buscar por nombre o teléfono
+                <input
+                  type="text"
+                  value={searchClientTerm}
+                  onChange={(e) => setSearchClientTerm(e.target.value)}
+                  placeholder="Ej. Juan García / +34 600 123 456"
+                  style={inputStyle}
+                />
+              </label>
+            ) : null}
             <label style={fieldLabelStyle}>
               Estado
               <select
@@ -407,6 +518,7 @@ const AdminReservationsView = () => {
                     <th>Teléfono</th>
                     <th>Fecha</th>
                     <th>Hora</th>
+                    <th>Turno</th>
                     <th>Personas</th>
                     <th>Estado</th>
                     <th>Mesas</th>
@@ -415,13 +527,14 @@ const AdminReservationsView = () => {
                 </thead>
                 <tbody>
                   {reservations.map((reservation) => {
-                    const normalized = normalizeReservation(reservation);
+                    const normalized = normalizeReservationWithTables(reservation);
                     return (
                       <tr key={reservation.id}>
                         <td>{normalized.userName || "Cliente"}</td>
                         <td>{normalized.userPhone || "--"}</td>
                         <td>{normalized.date}</td>
                         <td>{normalized.time}</td>
+                        <td>{normalized.shift === RESERVATION_SHIFTS.CENA ? "Cena" : normalized.shift === RESERVATION_SHIFTS.COMIDA ? "Comida" : "—"}</td>
                         <td>{normalized.peopleCount}</td>
                         <td>
                           <select
@@ -436,7 +549,7 @@ const AdminReservationsView = () => {
                             ))}
                           </select>
                         </td>
-                        <td>{normalized.tableIds.length > 0 ? normalized.tableIds.join(", ") : "Sin mesas"}</td>
+                        <td>{normalized.tableNumbers.length > 0 ? normalized.tableNumbers.join(", ") : "Sin mesas"}</td>
                         <td>
                           <button
                             type="button"
@@ -451,7 +564,7 @@ const AdminReservationsView = () => {
                   })}
                   {reservations.length === 0 && (
                     <tr>
-                      <td colSpan="8" style={emptyRowStyle}>
+                      <td colSpan="9" style={emptyRowStyle}>
                         No hay reservas para este filtro.
                       </td>
                     </tr>

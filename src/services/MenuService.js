@@ -1,6 +1,6 @@
 // Modelo: MenuService.js
-// Servicio para gestionar men�s en Firestore.
-// Incluye CRUD completo para men�s con operaciones admin-only para escritura.
+// Servicio para gestionar menús en Firestore.
+// Incluye CRUD completo para menús con operaciones admin-only para escritura.
 
 import {
   collection,
@@ -14,7 +14,7 @@ import {
 import { db } from "../firebase";
 
 class MenuService {
-  // Obtener todos los men�s (lectura p�blica)
+  // Obtener todos los menús (lectura pública)
   async getAllMenus() {
     try {
       const querySnapshot = await getDocs(collection(db, "menus"));
@@ -24,12 +24,12 @@ class MenuService {
       });
       return { success: true, menus };
     } catch (error) {
-      console.error("Error obteniendo men�s:", error);
+      console.error("Error obteniendo menús:", error);
       return { success: false, error: error.message };
     }
   }
 
-  // Obtener men�s activos (lectura p�blica)
+  // Obtener menús activos (lectura pública)
   async getActiveMenus() {
     try {
       const querySnapshot = await getDocs(collection(db, "menus"));
@@ -42,27 +42,27 @@ class MenuService {
       });
       return { success: true, menus };
     } catch (error) {
-      console.error("Error obteniendo men�s activos:", error);
+      console.error("Error obteniendo menús activos:", error);
       return { success: false, error: error.message };
     }
   }
 
-  // Obtener un men� por ID (lectura p�blica)
+  // Obtener un menú por ID (lectura pública)
   async getMenuById(id) {
     try {
       const docSnap = await getDoc(doc(db, "menus", id));
       if (docSnap.exists()) {
         return { success: true, menu: { id: docSnap.id, ...docSnap.data() } };
       } else {
-        return { success: false, error: "Men� no encontrado" };
+        return { success: false, error: "Menú no encontrado" };
       }
     } catch (error) {
-      console.error("Error obteniendo men�:", error);
+      console.error("Error obteniendo menú:", error);
       return { success: false, error: error.message };
     }
   }
 
-  // Obtener men�s por categor�a (lectura p�blica)
+  // Obtener menús por categoría (lectura pública)
   async getMenusByCategory(category) {
     try {
       const querySnapshot = await getDocs(collection(db, "menus"));
@@ -75,16 +75,16 @@ class MenuService {
       });
       return { success: true, menus };
     } catch (error) {
-      console.error("Error obteniendo men�s por categor�a:", error);
+      console.error("Error obteniendo menús por categoría:", error);
       return { success: false, error: error.message };
     }
   }
 
-  // Crear un nuevo men� (admin-only)
+  // Crear un nuevo menú (admin-only)
   async createMenu(menuData, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden crear men�s" };
+        return { success: false, error: "Solo administradores pueden crear menús" };
       }
       const docRef = await addDoc(collection(db, "menus"), {
         ...menuData,
@@ -92,16 +92,16 @@ class MenuService {
       });
       return { success: true, id: docRef.id };
     } catch (error) {
-      console.error("Error creando men�:", error);
+      console.error("Error creando menú:", error);
       return { success: false, error: error.message };
     }
   }
 
-  // Actualizar un men� (admin-only)
+  // Actualizar un menú (admin-only)
   async updateMenu(id, menuData, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden actualizar men�s" };
+        return { success: false, error: "Solo administradores pueden actualizar menús" };
       }
       await updateDoc(doc(db, "menus", id), {
         ...menuData,
@@ -109,26 +109,26 @@ class MenuService {
       });
       return { success: true };
     } catch (error) {
-      console.error("Error actualizando men�:", error);
+      console.error("Error actualizando menú:", error);
       return { success: false, error: error.message };
     }
   }
 
-  // Eliminar un men� (admin-only)
+  // Eliminar un menú (admin-only)
   async deleteMenu(id, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden eliminar men�s" };
+        return { success: false, error: "Solo administradores pueden eliminar menús" };
       }
       await deleteDoc(doc(db, "menus", id));
       return { success: true };
     } catch (error) {
-      console.error("Error eliminando men�:", error);
+      console.error("Error eliminando menú:", error);
       return { success: false, error: error.message };
     }
   }
 
-  // Actualizar disponibilidad de men� (admin-only)
+  // Actualizar disponibilidad de menú (admin-only)
   async toggleMenuAvailability(id, available, isAdmin = false) {
     try {
       if (!isAdmin) {

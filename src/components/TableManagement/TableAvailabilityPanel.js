@@ -3,8 +3,16 @@ import useTablesByDateAndShift from "../../hooks/useTablesByDateAndShift";
 import ReservationTableService from "../../services/ReservationTableService";
 
 const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
-  const { active: activeTables = [], reserved: reservedTables = [], inactive: inactiveTables = [], loading, error } = useTablesByDateAndShift(selectedDate, selectedShift);
+  const { active: activeTables = [], reserved: reservedTables = [], inactive: inactiveTables = [], loading, error, refetch } = useTablesByDateAndShift(selectedDate, selectedShift);
   const [reservationDetails, setReservationDetails] = useState({});
+  const [actionLoading, setActionLoading] = useState({});
+  const [actionMessage, setActionMessage] = useState("");
+  const [actionError, setActionError] = useState("");
+
+  const clearActionFeedback = () => {
+    setActionMessage("");
+    setActionError("");
+  };
 
   // Cargar detalles de reservas para mesas ocupadas
   useEffect(() => {
@@ -13,20 +21,74 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
         const details = {};
         for (const table of reservedTables) {
           try {
-            const reservations = await ReservationTableService.getReservationsByTable(table.id);
-            if (reservations && reservations.length > 0) {
-              details[table.id] = reservations[0]; // Tomar la primera reserva
+            const result = await ReservationTableService.getReservationsByTable(table.id, selectedDate);
+            if (result.success && result.reservations && result.reservations.length > 0) {
+              details[table.id] = result.reservations[0]; // Tomar la primera reserva
             }
           } catch (err) {
             console.error("Error cargando reserva para mesa:", err);
           }
         }
         setReservationDetails(details);
+      } else {
+        setReservationDetails({});
       }
     };
 
     loadReservationDetails();
   }, [reservedTables, selectedDate, selectedShift]);
+
+  const handleOccupyTable = async (table) => {
+    clearActionFeedback();
+    setActionLoading((prev) => ({ ...prev, [table.id]: true }));
+
+    try {
+      const result = await ReservationTableService.createManualOccupancyReservation({
+        date: selectedDate,
+        shift: selectedShift,
+        tableIds: [table.id],
+        createdBy: "admin",
+      });
+
+      if (result.success) {
+        setActionMessage(`Mesa ${table.tableNumber ?? table.number} ocupada correctamente.`);
+        await refetch();
+      } else {
+        setActionError(result.error || "No se pudo ocupar la mesa.");
+      }
+    } catch (err) {
+      console.error("Error ocupando mesa:", err);
+      setActionError(err.message || "Error al ocupar la mesa.");
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [table.id]: false }));
+    }
+  };
+
+  const handleReleaseTable = async (table) => {
+    clearActionFeedback();
+    setActionLoading((prev) => ({ ...prev, [table.id]: true }));
+
+    try {
+      const reservation = reservationDetails[table.id];
+      if (!reservation || !reservation.id) {
+        setActionError("No se encontró la reserva asociada a esta mesa.");
+        return;
+      }
+
+      const result = await ReservationTableService.releaseTableFromReservation(reservation.id, table.id);
+      if (result.success) {
+        setActionMessage(`Mesa ${table.tableNumber ?? table.number} liberada correctamente.`);
+        await refetch();
+      } else {
+        setActionError(result.error || "No se pudo liberar la mesa.");
+      }
+    } catch (err) {
+      console.error("Error liberando mesa:", err);
+      setActionError(err.message || "Error al liberar la mesa.");
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [table.id]: false }));
+    }
+  };
 
   if (loading) {
     return (
@@ -48,14 +110,16 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
     if (!reservation) return null;
     return {
       time: reservation.time || "N/A",
-      customerName: reservation.customerName || "No especificado",
-      numberOfPeople: reservation.numberOfPeople || 0,
+      customerName: reservation.userName || reservation.customerName || "No especificado",
+      numberOfPeople: reservation.peopleCount || reservation.numberOfPeople || 0,
     };
   };
 
   return (
     <div style={styles.container}>
       <h3 style={styles.title}>Disponibilidad de Mesas</h3>
+      {actionMessage && <div style={styles.successBanner}>{actionMessage}</div>}
+      {actionError && <div style={styles.errorBanner}>{actionError}</div>}
 
       <div style={styles.grid}>
         {/* LIBRES */}
@@ -75,6 +139,15 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
                     <span style={{ ...styles.badge, backgroundColor: "#d1fae5", color: "#065f46" }}>
                       Disponible
                     </span>
+                  </div>
+                  <div style={styles.actions}>
+                    <button
+                      style={styles.occupyButton}
+                      disabled={Boolean(actionLoading[table.id])}
+                      onClick={() => handleOccupyTable(table)}
+                    >
+                      {actionLoading[table.id] ? "Procesando..." : "Marcar ocupada"}
+                    </button>
                   </div>
                 </div>
               ))
@@ -117,6 +190,15 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
                         </p>
                       </div>
                     )}
+                    <div style={styles.actions}>
+                      <button
+                        style={styles.releaseButton}
+                        disabled={Boolean(actionLoading[table.id])}
+                        onClick={() => handleReleaseTable(table)}
+                      >
+                        {actionLoading[table.id] ? "Procesando..." : "Liberar mesa"}
+                      </button>
+                    </div>
                   </div>
                 );
               })
@@ -237,6 +319,45 @@ const styles = {
   resDetail: {
     margin: "4px 0",
     padding: 0,
+  },
+  actions: {
+    padding: "10px 12px 16px",
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+  occupyButton: {
+    backgroundColor: "#10b981",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    padding: "8px 12px",
+    cursor: "pointer",
+    fontWeight: "600",
+  },
+  releaseButton: {
+    backgroundColor: "#ef4444",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    padding: "8px 12px",
+    cursor: "pointer",
+    fontWeight: "600",
+  },
+  successBanner: {
+    marginBottom: "16px",
+    padding: "12px 16px",
+    backgroundColor: "#d1fae5",
+    color: "#065f46",
+    borderRadius: "6px",
+    border: "1px solid #10b981",
+  },
+  errorBanner: {
+    marginBottom: "16px",
+    padding: "12px 16px",
+    backgroundColor: "#fee2e2",
+    color: "#7f1d1d",
+    borderRadius: "6px",
+    border: "1px solid #fca5a5",
   },
   noData: {
     textAlign: "center",
