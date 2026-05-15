@@ -1,4 +1,3 @@
-// Vista: Menu.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../controllers/useAuth";
@@ -15,6 +14,9 @@ const Menu = ({ role: propsRole }) => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [editMode, setEditMode] = useState(false);
+  
+  // Estado para el filtro de alérgenos (exclusión)
+  const [selectedAllergens, setSelectedAllergens] = useState([]);
 
   const currentRole = propsRole || authRole;
   const isAdmin = currentRole === "admin";
@@ -32,10 +34,12 @@ const Menu = ({ role: propsRole }) => {
     ]);
 
     if (resAllergens.success) setAllAllergens(resAllergens.data);
+    
     if (resCats.success) {
       const sortedCats = resCats.data.sort((a, b) => (a.orden || 0) - (b.orden || 0));
       setCategories(sortedCats);
     }
+    
     if (resPlates.success) {
       const visiblePlates = editMode 
         ? resPlates.data 
@@ -43,6 +47,12 @@ const Menu = ({ role: propsRole }) => {
       setPlates(visiblePlates);
     }
     setLoading(false);
+  };
+
+  const handleAllergenToggle = (id) => {
+    setSelectedAllergens(prev => 
+      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+    );
   };
 
   const handleDragStart = (e, index) => {
@@ -53,11 +63,12 @@ const Menu = ({ role: propsRole }) => {
   const handleDrop = async (e, targetIndex) => {
     if (!editMode) return;
     const sourceIndex = e.dataTransfer.getData("index");
-    if (sourceIndex === targetIndex) return;
+    if (sourceIndex == targetIndex) return;
 
     const newCategories = [...categories];
     const [removed] = newCategories.splice(sourceIndex, 1);
     newCategories.splice(targetIndex, 0, removed);
+    
     setCategories(newCategories);
 
     for (let i = 0; i < newCategories.length; i++) {
@@ -79,13 +90,12 @@ const Menu = ({ role: propsRole }) => {
   return (
     <div className="menu-container">
       {isAdmin && (
-        <div className="admin-edit-toolbar">
-          <div className="toolbar-info">
-            <span className="admin-badge">MODO ADMINISTRADOR</span>
-            <p>{editMode ? "Arrastra categorías o clica platos" : "Modo lectura"}</p>
-          </div>
-          <button className={`btn-toggle-edit ${editMode ? 'active' : ''}`} onClick={() => setEditMode(!editMode)}>
-            {editMode ? "GUARDAR Y CERRAR" : "GESTIONAR CARTA"}
+        <div className="admin-edit-toolbar-compact">
+          <button 
+            className={`btn-toggle-edit ${editMode ? 'active' : ''}`} 
+            onClick={() => setEditMode(!editMode)}
+          >
+            {editMode ? "SALIR Y GUARDAR" : "GESTIONAR ESTRUCTURA"}
           </button>
         </div>
       )}
@@ -106,36 +116,64 @@ const Menu = ({ role: propsRole }) => {
         />
       </div>
 
-      <div className="category-anchors-grid">
-        {categories.map(cat => (
-          <a key={cat.id} href={`#cat-${cat.id}`} className="anchor-btn">
-            {cat.nombre.toUpperCase()}
-          </a>
+      {/* FILTRO DE ALÉRGENOS */}
+      <div className="allergen-filter-wrapper">
+        <p className="filter-label">Excluir platos con:</p>
+        <div className="allergen-filter-grid">
+          {Object.values(allAllergens).map(ale => (
+            <button 
+              key={ale.id}
+              className={`allergen-filter-btn ${selectedAllergens.includes(ale.id) ? 'active' : ''}`}
+              onClick={() => handleAllergenToggle(ale.id)}
+            >
+              <img src={ale.imagen} alt={ale.nombre} title={ale.nombre} />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ACCESOS DIRECTOS */}
+      <div className={`category-anchors-grid ${editMode ? 'edit-active' : ''}`}>
+        {categories.map((cat, index) => (
+          <div
+            key={cat.id}
+            draggable={editMode}
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => handleDrop(e, index)}
+            className={`anchor-wrapper ${editMode ? 'draggable-anchor' : ''}`}
+          >
+            <a href={editMode ? null : `#cat-${cat.id}`} className="anchor-btn">
+              {editMode && <span className="drag-icon">☰</span>}
+              {cat.nombre.toUpperCase()}
+            </a>
+          </div>
         ))}
       </div>
 
       <div className="menu-sections">
-        {categories.map((cat, index) => {
-          const categoryPlates = plates.filter(p => 
-            p.idCategoria === cat.id && p.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-          );
+        {categories.map((cat) => {
+          const categoryPlates = plates.filter(p => {
+            const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+            const belongsToCat = p.idCategoria === cat.id;
+            const hasExcludedAllergen = p.alergenos?.some(aleId => selectedAllergens.includes(aleId));
+            
+            return belongsToCat && matchesSearch && !hasExcludedAllergen;
+          });
+
           if (categoryPlates.length === 0 && !editMode) return null;
 
           return (
-            <section key={cat.id} id={`cat-${cat.id}`} className="category-section"
-              draggable={editMode} onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={(e) => e.preventDefault()} onDrop={(e) => handleDrop(e, index)}
-            >
-              <div className={`category-header-row ${editMode ? 'draggable-cursor' : ''}`}>
-                <h2 className="category-title-text">
-                  {editMode && <span className="drag-handle">≡</span>}
-                  {cat.nombre}
-                </h2>
+            <section key={cat.id} id={`cat-${cat.id}`} className="category-section">
+              <div className="category-header-row">
+                <h2 className="category-title-text">{cat.nombre}</h2>
                 <div className="category-line-right"></div>
               </div>
               <div className="plates-grid">
                 {categoryPlates.map(plate => (
-                  <div key={plate.id} className={`plate-card-public ${plate.disponible === false ? 'plate-off' : ''}`}
+                  <div 
+                    key={plate.id} 
+                    className={`plate-card-public ${plate.disponible === false ? 'plate-off' : ''} ${editMode ? 'editable-card' : ''}`}
                     onClick={() => toggleAvailability(plate)}
                   >
                     <div className="plate-card-img">
@@ -162,11 +200,10 @@ const Menu = ({ role: propsRole }) => {
         })}
       </div>
 
-      {/* --- LEYENDA DE ALÉRGENOS --- */}
       <div className="allergen-info-card footer-allergens">
         <div className="allergen-notice">
           <h3>Información de Alérgenos</h3>
-          <p>Cualquier duda consulte a nuestro personal o llame al restaurante.</p>
+          <p>Consulte a nuestro personal para más detalles.</p>
         </div>
         <div className="allergen-legend-grid">
           {Object.values(allAllergens).map(ale => (
@@ -178,15 +215,13 @@ const Menu = ({ role: propsRole }) => {
         </div>
       </div>
 
-      {/* --- BOTÓN DE RESERVA MEJORADO --- */}
       <section className="menu-cta-container">
         <button 
           onClick={() => navigate("/dashboard", { state: { selectedTab: "nueva-reserva" } })} 
           className="cta-main-button"
         >
-          <span className="cta-icon">{isAdmin ? "" : ""}</span>
           <span className="cta-text">
-            {isAdmin ? "VOLVER AL PANEL DE CONTROL" : (authRole ? "REALIZAR UNA RESERVA" : "INICIA SESIÓN PARA RESERVAR")}
+            {isAdmin ? "VOLVER AL PANEL DE CONTROL" : (authRole ? "RESERVAR MESA" : "INICIA SESIÓN PARA RESERVAR")}
           </span>
         </button>
       </section>
