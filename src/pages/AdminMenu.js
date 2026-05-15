@@ -216,7 +216,7 @@ const AdminMenu = () => {
               </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#fff", padding: "10px", borderRadius: "6px", border: "1px solid #FFD700", width: "fit-content" }}>
-                <label style={{ ...labelStyle, marginBottom: 0 }}>-+Disponible?</label>
+                <label style={{ ...labelStyle, marginBottom: 0 }}>Disponible?</label>
                 <input name="disponible" type="checkbox" checked={formData.disponible} onChange={handleChange} style={{ width: "18px", height: "18px", cursor: "pointer" }} />
                 <span style={{ fontWeight: "bold", color: formData.disponible ? "#2e7d32" : "#DC143C", fontSize: "13px" }}>
                     {formData.disponible ? "SÍ" : "NO"}

@@ -1570,6 +1570,91 @@ table tr:hover td {
   text-align: center;
 }
 
+.draggable-anchor {
+  cursor: grab;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 2px;
+}
+.draggable-anchor:active {
+  cursor: grabbing;
+}
+.drag-icon {
+  margin-right: 5px;
+  color: #888;
+}
+
+.allergen-filter-wrapper {
+  margin: 20px auto;
+  text-align: center;
+  max-width: 1200px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+}
+
+.filter-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.allergen-filter-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.allergen-filter-btn {
+  background: white;
+  border: 2px solid #eee;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.allergen-filter-btn img {
+  width: 100%;
+  height: auto;
+  filter: grayscale(100%);
+  opacity: 0.6;
+}
+
+.allergen-filter-btn:hover {
+  transform: scale(1.1);
+  border-color: #d32f2f;
+}
+
+.allergen-filter-btn.active {
+  border-color: #d32f2f;
+  background: #ffebee;
+  box-shadow: 0 0 10px rgba(211, 47, 47, 0.3);
+}
+
+.allergen-filter-btn.active img {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+
+.clear-filters {
+  margin-top: 15px;
+  background: none;
+  border: none;
+  color: #d32f2f;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
 /* T├¡tulo centrado al medio */
 .header-content, .header-content h1 {
   display: flex;
