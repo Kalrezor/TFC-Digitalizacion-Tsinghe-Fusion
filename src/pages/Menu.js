@@ -216,8 +216,20 @@ const Menu = ({ role: propsRole }) => {
       </div>
 
       <section className="menu-cta-container">
-        <button 
-          onClick={() => navigate("/dashboard", { state: { selectedTab: "nueva-reserva" } })} 
+        <button
+          onClick={() => {
+            if (isAdmin) {
+              navigate("/dashboard?section=inicio");
+              return;
+            }
+
+            const reservePath = "/dashboard?section=reservas";
+            if (authRole) {
+              navigate(reservePath);
+            } else {
+              navigate(`/login?next=${encodeURIComponent(reservePath)}`);
+            }
+          }}
           className="cta-main-button"
         >
           <span className="cta-text">
