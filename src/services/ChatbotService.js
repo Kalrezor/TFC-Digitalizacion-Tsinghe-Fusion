@@ -21,6 +21,8 @@ const RESTAURANT_KEYWORDS = [
   "precios",
   "reserva",
   "reservas",
+  "reseva",
+  "resevas",
   "restaurante",
   "tsinghe",
   "usuario",
@@ -53,6 +55,14 @@ const ADMIN_KEYWORDS = [
 
 const GREETING_KEYWORDS = ["hola", "buenas", "buenos dias", "buenas tardes"];
 
+const normalizeRole = (role) => {
+  const normalized = normalizeText(role || "");
+  if (["admin", "administrador", "administrator"].includes(normalized)) {
+    return "admin";
+  }
+  return "comensal";
+};
+
 const normalizeText = (value) =>
   value
     .toLowerCase()
@@ -65,6 +75,7 @@ const containsAny = (message, keywords) => {
 };
 
 const buildSystemInstruction = ({ role, userName, userEmail, locationPath, firebaseContext }) => {
+  const effectiveRole = normalizeRole(role);
   const baseRules = [
     "Eres el chatbot interno de Tsinghe Cocina Fusion.",
     "Responde siempre en espanol claro, breve y util.",
@@ -81,7 +92,7 @@ const buildSystemInstruction = ({ role, userName, userEmail, locationPath, fireb
     `Contexto Firebase disponible:\n${firebaseContext || "Sin contexto especifico disponible."}`,
   ];
 
-  if (role === "admin") {
+  if (effectiveRole === "admin") {
     return [
       ...baseRules,
       "Rol: administrador.",
@@ -113,6 +124,7 @@ class ChatbotService {
 
   validateMessage(message, role) {
     const cleanMessage = message.trim();
+    const effectiveRole = normalizeRole(role);
 
     if (!cleanMessage) {
       return {
@@ -125,7 +137,7 @@ class ChatbotService {
       return {
         allowed: false,
         reason:
-          role === "admin"
+          effectiveRole === "admin"
             ? "Hola. Puedo ayudarte con carta, reservas, mesas, usuarios y consultas internas del restaurante."
             : "Hola. Puedo ayudarte con la carta, alergenos, reservas, ofertas y navegacion por la web.",
       };
@@ -139,7 +151,7 @@ class ChatbotService {
       };
     }
 
-    if (role !== "admin" && containsAny(cleanMessage, ADMIN_KEYWORDS)) {
+    if (effectiveRole !== "admin" && containsAny(cleanMessage, ADMIN_KEYWORDS)) {
       return {
         allowed: false,
         reason:
@@ -188,7 +200,7 @@ class ChatbotService {
 
     const firebaseContext = await chatbotContextService.buildContext({
       message,
-      role,
+      role: normalizeRole(role),
       user,
     });
 

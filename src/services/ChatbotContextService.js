@@ -16,6 +16,14 @@ const includesAny = (message, words) => {
   return words.some((word) => normalized.includes(normalizeText(word)));
 };
 
+const normalizeRole = (role) => {
+  const normalized = normalizeText(role || "");
+  if (["admin", "administrador", "administrator"].includes(normalized)) {
+    return "admin";
+  }
+  return "comensal";
+};
+
 const todayString = () => new Date().toISOString().split("T")[0];
 
 const compactList = (items, formatter, limit = 8) => {
@@ -29,7 +37,8 @@ class ChatbotContextService {
   async buildContext({ message, role, user }) {
     const tasks = [];
     const cleanMessage = normalizeText(message);
-    const isAdmin = role === "admin";
+    const effectiveRole = normalizeRole(role);
+    const isAdmin = effectiveRole === "admin";
 
     if (
       includesAny(cleanMessage, [
@@ -50,7 +59,7 @@ class ChatbotContextService {
       tasks.push(this.getOffersContext());
     }
 
-    if (includesAny(cleanMessage, ["reserva", "reservas"])) {
+    if (includesAny(cleanMessage, ["reserva", "reservas", "reseva", "resevas"])) {
       tasks.push(
         isAdmin
           ? this.getAdminReservationsContext()
@@ -63,7 +72,7 @@ class ChatbotContextService {
     }
 
     if (!tasks.length) {
-      tasks.push(this.getBasicNavigationContext(role));
+      tasks.push(this.getBasicNavigationContext(effectiveRole));
     }
 
     const results = await Promise.allSettled(tasks);
