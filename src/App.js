@@ -9,6 +9,7 @@ import {
 
 import useAuth from "./hooks/useAuth";
 import NavigationBar from "./components/NavigationBar";
+import RestaurantChatbot from "./components/RestaurantChatbot";
 
 // Vistas públicas
 import Home from "./pages/Home";
@@ -205,6 +206,10 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {isAuthenticated && (
+        <RestaurantChatbot user={user} role={role} userName={userName} />
+      )}
     </Router>
   );
 }

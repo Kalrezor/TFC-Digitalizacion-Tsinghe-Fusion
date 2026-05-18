@@ -971,3 +971,166 @@ select {
   border-radius: 0 !important;
   background: var(--editorial-white) !important;
 }
+
+/* ============================================================
+   RESTAURANT CHATBOT - FUNCTIONAL BASE
+   ============================================================ */
+
+.restaurant-chatbot {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 1200;
+  font-family: var(--font-sans-editorial);
+}
+
+.chatbot-toggle {
+  width: 68px;
+  height: 68px;
+  border: 1px solid var(--editorial-black);
+  border-radius: 999px;
+  background: var(--editorial-black);
+  color: var(--editorial-white);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 10px;
+  font-weight: 700;
+  transition:
+    background-color 300ms ease,
+    color 300ms ease,
+    transform 500ms var(--editorial-ease);
+}
+
+.chatbot-toggle:hover {
+  background: var(--editorial-white);
+  color: var(--editorial-black);
+}
+
+.chatbot-panel {
+  position: absolute;
+  right: 0;
+  bottom: 82px;
+  width: min(380px, calc(100vw - 32px));
+  height: min(560px, calc(100vh - 140px));
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--editorial-white);
+  border: 1px solid var(--editorial-black);
+}
+
+.chatbot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 18px;
+  border-bottom: 1px solid var(--editorial-black);
+}
+
+.chatbot-header h2 {
+  margin: 2px 0 0;
+  font-family: var(--font-serif-editorial);
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.chatbot-kicker {
+  margin: 0;
+  color: var(--editorial-black);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.chatbot-close {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--editorial-black);
+  background: var(--editorial-white);
+  color: var(--editorial-black);
+  cursor: pointer;
+}
+
+.chatbot-messages {
+  padding: 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chatbot-message {
+  max-width: 88%;
+  padding: 12px;
+  border: 1px solid var(--editorial-black);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.chatbot-message.is-user {
+  align-self: flex-end;
+  background: var(--editorial-black);
+  color: var(--editorial-white);
+}
+
+.chatbot-message.is-bot {
+  align-self: flex-start;
+  background: var(--editorial-white);
+  color: var(--editorial-black);
+}
+
+.chatbot-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  border-top: 1px solid var(--editorial-black);
+}
+
+.chatbot-form input {
+  min-width: 0;
+  border: 0;
+  padding: 14px;
+  font-size: 14px;
+}
+
+.chatbot-form input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--editorial-black);
+}
+
+.chatbot-form button {
+  border: 0;
+  border-left: 1px solid var(--editorial-black);
+  background: var(--editorial-white);
+  color: var(--editorial-black);
+  padding: 0 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.chatbot-form button:hover:not(:disabled) {
+  background: var(--editorial-black);
+  color: var(--editorial-white);
+}
+
+.chatbot-form button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .restaurant-chatbot {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .chatbot-panel {
+    width: calc(100vw - 32px);
+    height: min(540px, calc(100vh - 120px));
+  }
+}
