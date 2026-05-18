@@ -27,7 +27,7 @@ const Login = () => {
       console.log("Login exitoso");
       setEmail("");
       setPassword("");
-      navigate(nextPath ? nextPath : "/dashboard", { replace: true });
+      navigate(nextPath ? nextPath : "/home", { replace: true });
     } else {
       setError(result.error || "Error al iniciar sesion");
     }
@@ -53,7 +53,7 @@ const Login = () => {
           );
         } else {
           console.log("Usuario ya tiene perfil completo");
-          navigate(nextPath ? nextPath : "/dashboard", { replace: true });
+          navigate(nextPath ? nextPath : "/home", { replace: true });
         }
       } else {
         setError(result.error || "Error al iniciar sesion con Google");

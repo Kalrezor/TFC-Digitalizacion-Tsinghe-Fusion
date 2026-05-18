@@ -34,7 +34,7 @@ const NavigationBar = ({ isAuthenticated, user, role, logout }) => {
           </Link>
           {isAuthenticated && role === "admin" && (
             <Link to="/dashboard" className="editorial-nav-link">
-              Studio
+              PERFIL
             </Link>
           )}
         </div>
