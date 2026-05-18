@@ -1,18 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import chatbotService from "../services/ChatbotService";
 import "../styles/MinimalStyle.css";
 
 const getWelcomeMessage = (role) => {
-  if (role === "admin") {
+  if (normalizeRole(role) === "admin") {
     return "Hola. Puedo ayudarte con carta, reservas, mesas, usuarios y consultas internas del restaurante.";
   }
 
   return "Hola. Puedo ayudarte con la carta, alergenos, reservas, ofertas y navegacion por la web.";
 };
 
+const normalizeRole = (role) => {
+  const normalized = (role || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  if (["admin", "administrador", "administrator"].includes(normalized)) {
+    return "admin";
+  }
+  return "comensal";
+};
+
 const RestaurantChatbot = ({ user, role, userName }) => {
   const location = useLocation();
+  const effectiveRole = useMemo(() => normalizeRole(role), [role]);
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,9 +32,23 @@ const RestaurantChatbot = ({ user, role, userName }) => {
     {
       id: "welcome",
       sender: "bot",
-      text: getWelcomeMessage(role),
+      text: getWelcomeMessage(effectiveRole),
     },
   ]);
+
+  useEffect(() => {
+    setMessages((prev) => {
+      const [firstMessage, ...rest] = prev;
+      if (firstMessage?.id !== "welcome") return prev;
+      return [
+        {
+          ...firstMessage,
+          text: getWelcomeMessage(effectiveRole),
+        },
+        ...rest,
+      ];
+    });
+  }, [effectiveRole]);
 
   if (!user || !role) return null;
 
@@ -46,7 +72,7 @@ const RestaurantChatbot = ({ user, role, userName }) => {
       const result = await chatbotService.sendMessage({
         message,
         user,
-        role,
+        role: effectiveRole,
         userName,
         locationPath: location.pathname,
         history: messages,
@@ -70,7 +96,7 @@ const RestaurantChatbot = ({ user, role, userName }) => {
           <header className="chatbot-header">
             <div>
               <p className="chatbot-kicker">
-                {role === "admin" ? "Asistente interno" : "Asistente"}
+                {effectiveRole === "admin" ? "Asistente interno" : "Asistente"}
               </p>
               <h2>Tsinghe</h2>
             </div>
@@ -106,7 +132,7 @@ const RestaurantChatbot = ({ user, role, userName }) => {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder={
-                role === "admin"
+                effectiveRole === "admin"
                   ? "Reservas de hoy, mesas libres..."
                   : "Platos, alergenos, reservas..."
               }
