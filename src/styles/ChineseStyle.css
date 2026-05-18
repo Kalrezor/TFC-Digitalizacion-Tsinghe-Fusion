@@ -1634,6 +1634,18 @@ table tr:hover td {
   color: #050505;
 }
 
+/* Allergen icons must keep their original color in the top exclusion filter. */
+.allergen-filter-wrapper .allergen-filter-btn img,
+.allergen-filter-wrapper .allergen-filter-btn.active img {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.allergen-filter-btn img {
+  filter: none;
+  opacity: 1;
+}
+
 /* ============================================================
    EDITORIAL OVERRIDES
    Visual-only restyling for menu, dashboard and functional views.
@@ -2638,4 +2650,11 @@ table tr:hover td {
 .btn-toggle-edit {
   background: #ffffff;
   color: #050505;
+}
+
+/* Allergen icons must keep their original color in the top exclusion filter. */
+.allergen-filter-wrapper .allergen-filter-btn img,
+.allergen-filter-wrapper .allergen-filter-btn.active img {
+  filter: none !important;
+  opacity: 1 !important;
 }
