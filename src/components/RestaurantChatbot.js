@@ -3,6 +3,9 @@ import { useLocation } from "react-router-dom";
 import chatbotService from "../services/ChatbotService";
 import "../styles/MinimalStyle.css";
 
+const SUPPORT_PHONE =
+  process.env.REACT_APP_RESTAURANT_SUPPORT_PHONE || "+34 600 123 456";
+
 const getWelcomeMessage = (role) => {
   if (normalizeRole(role) === "admin") {
     return "Hola. Puedo ayudarte con carta, reservas, mesas, usuarios y consultas internas del restaurante.";
@@ -82,7 +85,7 @@ const RestaurantChatbot = ({ user, role, userName }) => {
       addMessage(
         "bot",
         error.message ||
-          "Ahora mismo no puedo conectar con Gemini. Revisa la API key local y vuelve a intentarlo.",
+          `Ahora mismo no puedo completar la consulta. Contacta con soporte del restaurante: ${SUPPORT_PHONE}.`,
       );
     } finally {
       setLoading(false);

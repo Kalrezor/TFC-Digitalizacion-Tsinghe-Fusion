@@ -1,9 +1,23 @@
 import chatbotContextService from "./ChatbotContextService";
 
-const GEMINI_MODEL =
-  process.env.REACT_APP_GEMINI_MODEL || "gemini-2.5-flash";
+const SUPPORT_PHONE =
+  process.env.REACT_APP_RESTAURANT_SUPPORT_PHONE || "+34 600 123 456";
 
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const DEFAULT_GEMINI_MODELS = [
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-2.0-flash",
+];
+
+const getConfiguredModels = () => {
+  const configured = process.env.REACT_APP_GEMINI_MODEL || "";
+  const models = configured
+    .split(",")
+    .map((model) => model.trim())
+    .filter(Boolean);
+
+  return Array.from(new Set([...models, ...DEFAULT_GEMINI_MODELS]));
+};
 
 const RESTAURANT_KEYWORDS = [
   "alergeno",
@@ -17,6 +31,29 @@ const RESTAURANT_KEYWORDS = [
   "ofertas",
   "plato",
   "platos",
+  "postre",
+  "postres",
+  "bebida",
+  "bebidas",
+  "entrante",
+  "entrantes",
+  "arroz",
+  "arroces",
+  "sopa",
+  "sopas",
+  "ensalada",
+  "ensaladas",
+  "fideo",
+  "fideos",
+  "tallarines",
+  "pato",
+  "pollo",
+  "ternera",
+  "cerdo",
+  "marisco",
+  "mariscos",
+  "vegano",
+  "vegetariano",
   "precio",
   "precios",
   "reserva",
@@ -54,6 +91,9 @@ const ADMIN_KEYWORDS = [
 ];
 
 const GREETING_KEYWORDS = ["hola", "buenas", "buenos dias", "buenas tardes"];
+const COURTESY_KEYWORDS = ["gracias", "muchas gracias", "ok", "vale", "perfecto", "genial"];
+
+const UNCLEAR_MESSAGE = `No he entendido bien la consulta. Podrias hacer la pregunta nuevamente? Por ejemplo: "que reservas hay hoy?", "que ofertas hay?" o "que platos tienen alergenos?". Si necesitas ayuda directa, contacta con soporte del restaurante: ${SUPPORT_PHONE}.`;
 
 const normalizeRole = (role) => {
   const normalized = normalizeText(role || "");
@@ -72,6 +112,29 @@ const normalizeText = (value) =>
 const containsAny = (message, keywords) => {
   const normalized = normalizeText(message);
   return keywords.some((keyword) => normalized.includes(normalizeText(keyword)));
+};
+
+const typoHint = (message) => {
+  const normalized = normalizeText(message);
+  const typoExamples = [
+    ["resrva", "reserva"],
+    ["resrvas", "reservas"],
+    ["ofrta", "oferta"],
+    ["ofrtas", "ofertas"],
+    ["alrgeno", "alergeno"],
+    ["alrgenos", "alergenos"],
+    ["meza", "mesa"],
+    ["mezas", "mesas"],
+    ["postre", "postre"],
+    ["postrez", "postres"],
+  ];
+
+  const fixedWords = typoExamples.reduce(
+    (text, [wrong, right]) => text.replaceAll(wrong, right),
+    normalized,
+  );
+
+  return fixedWords !== normalized ? `El usuario pudo querer decir: "${fixedWords}".` : "";
 };
 
 const buildSystemInstruction = ({ role, userName, userEmail, locationPath, firebaseContext }) => {
@@ -106,6 +169,8 @@ const buildSystemInstruction = ({ role, userName, userEmail, locationPath, fireb
     ...baseRules,
     "Rol: comensal.",
     "Puede recibir ayuda sobre carta, alergenos, reservas, ofertas y navegacion.",
+    "Si el contexto contiene reservas propias del comensal, puedes mostrarlas al usuario.",
+    "Si pregunta por reservas sin decir 'mis', interpreta que pregunta por sus propias reservas, nunca por reservas globales.",
     "No respondas consultas internas de base de datos, usuarios, reservas globales o mesas libres internas.",
     "Nunca reveles reservas de otros usuarios ni informacion operativa interna.",
   ].join("\n");
@@ -129,7 +194,14 @@ class ChatbotService {
     if (!cleanMessage) {
       return {
         allowed: false,
-        reason: "Escribe una pregunta sobre el restaurante para ayudarte.",
+        reason: UNCLEAR_MESSAGE,
+      };
+    }
+
+    if (cleanMessage.length <= 2) {
+      return {
+        allowed: false,
+        reason: UNCLEAR_MESSAGE,
       };
     }
 
@@ -140,6 +212,14 @@ class ChatbotService {
           effectiveRole === "admin"
             ? "Hola. Puedo ayudarte con carta, reservas, mesas, usuarios y consultas internas del restaurante."
             : "Hola. Puedo ayudarte con la carta, alergenos, reservas, ofertas y navegacion por la web.",
+      };
+    }
+
+    if (containsAny(cleanMessage, COURTESY_KEYWORDS)) {
+      return {
+        allowed: false,
+        reason:
+          "Con gusto. Si necesitas algo mas, puedo ayudarte con carta, postres, alergenos, reservas, mesas u ofertas del restaurante.",
       };
     }
 
@@ -160,11 +240,7 @@ class ChatbotService {
     }
 
     if (!containsAny(cleanMessage, RESTAURANT_KEYWORDS)) {
-      return {
-        allowed: false,
-        reason:
-          "Puedo ayudarte con temas del restaurante: carta, platos, reservas, mesas, ofertas, alergenos o navegacion dentro de la web.",
-      };
+      return { allowed: true };
     }
 
     return { allowed: true };
@@ -178,6 +254,44 @@ class ChatbotService {
         role: message.sender === "user" ? "user" : "model",
         parts: [{ text: message.text }],
       }));
+  }
+
+  getGeminiEndpoint(model) {
+    return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  }
+
+  isHighDemandError(error) {
+    const message = (error?.message || "").toLowerCase();
+    return (
+      message.includes("high demand") ||
+      message.includes("overloaded") ||
+      message.includes("unavailable") ||
+      message.includes("try again later") ||
+      error?.status === 429 ||
+      error?.status === 503
+    );
+  }
+
+  async callGemini({ model, apiKey, payload }) {
+    const response = await fetch(this.getGeminiEndpoint(model), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => null);
+      const message = errorBody?.error?.message || "Gemini no respondio correctamente.";
+      const error = new Error(message);
+      error.status = response.status;
+      error.model = model;
+      throw error;
+    }
+
+    return response.json();
   }
 
   async sendMessage({
@@ -202,67 +316,79 @@ class ChatbotService {
       message,
       role: normalizeRole(role),
       user,
+      history,
     });
 
-    const response = await fetch(GEMINI_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [
-            {
-              text: buildSystemInstruction({
-                role,
-                userName,
-                userEmail: user?.email,
-                locationPath,
-                firebaseContext,
-              }),
-            },
-          ],
-        },
-        contents: [
-          ...this.buildHistory(history),
+    const payload = {
+      systemInstruction: {
+        parts: [
           {
-            role: "user",
-            parts: [{ text: message.trim() }],
+            text: buildSystemInstruction({
+              role,
+              userName,
+              userEmail: user?.email,
+              locationPath,
+              firebaseContext: `${typoHint(message)}\n${firebaseContext}`.trim(),
+            }),
           },
         ],
-        generationConfig: {
-          temperature: 0.35,
-          topP: 0.9,
-          maxOutputTokens: 420,
+      },
+      contents: [
+        ...this.buildHistory(history),
+        {
+          role: "user",
+          parts: [{ text: message.trim() }],
         },
-      }),
-    });
+      ],
+      generationConfig: {
+        temperature: 0.35,
+        topP: 0.9,
+        maxOutputTokens: 420,
+      },
+    };
 
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => null);
-      const message = errorBody?.error?.message || "Gemini no respondio correctamente.";
+    let lastError = null;
+    for (const model of getConfiguredModels()) {
+      try {
+        const data = await this.callGemini({ model, apiKey, payload });
+        return {
+          success: true,
+          answer: extractGeminiText(data),
+          model,
+          raw: data,
+        };
+      } catch (error) {
+        lastError = error;
+        if (error.message.toLowerCase().includes("leaked")) {
+          throw new Error(
+            `No puedo conectar con el asistente porque la API key fue bloqueada. Contacta con soporte del restaurante: ${SUPPORT_PHONE}.`,
+          );
+        }
 
-      if (message.toLowerCase().includes("leaked")) {
-        throw new Error(
-          "La API key de Gemini fue marcada como filtrada. Revocala y crea una nueva.",
-        );
+        if (error.status === 403) {
+          throw new Error(
+            `Gemini rechazo la conexion del asistente. Contacta con soporte del restaurante: ${SUPPORT_PHONE}.`,
+          );
+        }
+
+        if (!this.isHighDemandError(error)) {
+          break;
+        }
       }
-
-      if (response.status === 403) {
-        throw new Error(
-          "Gemini rechazo la API key. Revisa permisos, restricciones o crea una key nueva.",
-        );
-      }
-
-      throw new Error(message);
     }
 
-    const data = await response.json();
+    const fallbackAnswer = await chatbotContextService.buildLocalAnswer({
+      message,
+      role: normalizeRole(role),
+      user,
+      history,
+    });
+
     return {
       success: true,
-      answer: extractGeminiText(data),
-      raw: data,
+      answer: `${fallbackAnswer}\n\nNota: Gemini esta temporalmente saturado, asi que respondi usando los datos locales de Firebase.`,
+      fallback: true,
+      error: lastError?.message,
     };
   }
 }
