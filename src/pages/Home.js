@@ -149,15 +149,13 @@ const Home = () => {
             }}
           >
             {user
-              ? `Bienvenido, ${user.email?.split("@")[0]}`
+              ? `Bienvenido, ${(user?.displayName || '').split(' ')[0]}`
               : "Listo para sentarte a la mesa"}
           </h2>
 
           {user ? (
             <div className="home-actions">
-              <Link to="/dashboard" className="editorial-button">
-                Mi panel
-              </Link>
+              
               <button onClick={logout} className="editorial-button">
                 Cerrar sesion
               </button>

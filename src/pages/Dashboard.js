@@ -15,6 +15,7 @@ import AdminMenu from "./AdminMenu";
 import TablesManagementView from "../components/TableManagement/TablesManagementView";
 import AdminOffers from "./AdminOffers";
 import Home from "./Home";
+import ProfileForm from "../components/ProfileForm";
 import Menu from "./Menu";
 import "../styles/ChineseStyle.css";
 
@@ -103,7 +104,7 @@ const WelcomePanel = ({ role, userName }) => (
 const renderContent = (selectedOption, role, userId, userName, userEmail) => {
   switch (selectedOption) {
     case "inicio":
-      return <WelcomePanel role={role} userName={userName} />;
+      return <ProfileForm userId={userId} />;
 
     case "preview-inicio":
       return <Home />;

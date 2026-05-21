@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/MinimalStyle.css";
 
-const NavigationBar = ({ isAuthenticated, user, role, logout }) => {
+const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const navigate = useNavigate();
 
@@ -26,14 +26,32 @@ const NavigationBar = ({ isAuthenticated, user, role, logout }) => {
         </Link>
 
         <div className="editorial-nav-center">
-          <Link to="/" className="editorial-nav-link">
+          <Link
+            to={isAuthenticated ? "/dashboard?section=preview-inicio" : "/"}
+            className="editorial-nav-link"
+          >
             Inicio
           </Link>
-          <Link to="/menu" className="editorial-nav-link">
+          <Link
+            to={isAuthenticated ? "/dashboard?section=preview-menu" : "/menu"}
+            className="editorial-nav-link"
+          >
             Menu
           </Link>
+          {isAuthenticated && (
+            <Link
+              to={
+                role === "admin"
+                  ? "/dashboard?section=admin-reservas"
+                  : "/dashboard?section=reservas"
+              }
+              className="editorial-nav-link"
+            >
+              Reserva
+            </Link>
+          )}
           {isAuthenticated && role === "admin" && (
-            <Link to="/dashboard" className="editorial-nav-link">
+            <Link to="/dashboard?section=inicio" className="editorial-nav-link">
               PERFIL
             </Link>
           )}
@@ -47,17 +65,17 @@ const NavigationBar = ({ isAuthenticated, user, role, logout }) => {
                 className="editorial-button"
                 style={{ maxWidth: "190px" }}
               >
-                {user?.email?.split("@")[0] || "Usuario"}
+                {userName || user?.displayName || user?.email?.split("@")[0] || "Usuario"}
               </button>
 
               {showUserMenu && (
                 <div className="editorial-user-menu">
-                  <Link
-                    to="/dashboard"
+                      <Link
+                    to="/dashboard?section=inicio"
                     onClick={() => setShowUserMenu(false)}
                     className="editorial-menu-item editorial-ui"
                   >
-                    Mi panel
+                    Configuración de perfil
                   </Link>
                   <button
                     onClick={handleLogout}
