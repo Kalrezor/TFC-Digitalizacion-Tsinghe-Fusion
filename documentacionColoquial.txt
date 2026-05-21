@@ -1,0 +1,106 @@
+DOCUMENTACIÓN COLOQUIAL (TALLER) — Proyecto TFC: Digitalización Tsinghe Fusion
+
+Objetivo de este documento: explicar de forma práctica y funcional qué hace la aplicación y qué puede hacer cada tipo de usuario. No es publicidad: es una guía de uso clara y directa.
+
+Navegación y roles (resumen)
+- Usuario no logueado (visitante): explora la web sin iniciar sesión.
+- Comensal (usuario autenticado): puede reservar y gestionar sus reservas.
+- Admin (personal del restaurante): gestiona menú, mesas y reservas globales.
+
+DETALLE POR ROL — Qué puede ver y qué puede hacer
+
+1) Usuario no logueado (visitante) 👀
+
+Qué ve
+- Inicio con enlaces principales: "Ver Menú", "Iniciar Sesión".
+- Menú público: categorías, platos, fotos, descripciones, precios y iconos de alérgenos.
+
+Qué puede hacer
+- Buscar platos por nombre.
+- Abrir la ficha de un plato para ver ingredientes y alérgenos.
+- Filtrar la carta por alérgenos para excluir platos.
+- Pulsar el botón inferior (CTA): si pulsa "Reservar" se le redirige a `/login?next=/dashboard?section=reservas`.
+
+Limitaciones
+- No puede crear, editar ni cancelar reservas.
+- No ve información privada ni la sección "Mis Reservas".
+
+Ejemplo de flujo (visitante → iniciar reserva)
+1. Pulsa "Reservar" → navegador abre `/login?next=/dashboard?section=reservas`.
+2. Tras autenticar, la app redirige al formulario de reservas.
+
+2) Comensal (usuario autenticado) 🍽️
+
+Qué ve
+- Todo lo del visitante + su área personal con "Mis Reservas" y perfil.
+
+Qué puede hacer (detalle operativo)
+- Reservar mesa: formulario con fecha, hora, número de personas y notas.
+- Consultar disponibilidad en tiempo real para la franja seleccionada.
+- Confirmar, editar o cancelar sus reservas según la política del restaurante.
+- Guardar preferencias (alérgenos, número de comensales habituales).
+- Consultar historial de reservas pasadas.
+
+Reglas importantes para el comensal
+- La app valida disponibilidad antes de confirmar.
+- Si no hay mesas disponibles se muestran alternativas o la posibilidad de lista de espera (si está implementada).
+- No-show: la reserva puede marcarse como "no-show" si no aparece en 15 minutos (automatizable con funciones en servidor).
+
+Ejemplo de flujo (comensal reserva)
+1. Pulsa "Reservar" en el menú.
+2. Selecciona fecha/hora → la app muestra mesas disponibles.
+3. Confirma → la reserva aparece en "Mis Reservas".
+
+3) Admin (personal del restaurante) 🔧
+
+Qué ve
+- Panel admin (`/dashboard?section=inicio`) con acceso a: vista inicio, ver menú, gestionar menú, mesas, ofertas y todas las reservas.
+
+Qué puede hacer (operaciones concretas)
+- Gestión de menú:
+  - Crear / editar / eliminar platos (nombre, descripción, precio, imagen, categoría, alérgenos, orden, estado disponible).
+  - Crear / editar categorías.
+  - Subir imágenes desde el equipo (Storage).
+- Gestión de mesas:
+  - CRUD de mesas (nº, capacidad, ubicación, activo/inactivo).
+  - Consultar disponibilidad por fecha/turno.
+- Gestión de reservas:
+  - Ver todas las reservas con filtros (fecha, estado, cliente).
+  - Crear reservas manuales (por teléfono o presencial).
+  - Modificar, cancelar o reasignar mesas de reservas.
+  - Marcar reservas como `confirmada`, `anulada` o `no-show`.
+- Usuarios y permisos: promover usuarios a `admin`, desactivar cuentas.
+
+Precauciones y buenas prácticas para admin
+- Revisar cambios antes de publicar porque afectan la vista pública.
+- Optimizar imágenes antes de subir.
+- Usar transacciones al asignar mesas para evitar conflictos.
+
+Ejemplo de flujo (admin crea reserva por teléfono)
+1. Abre `AdminReservationForm` → rellena datos del cliente y fecha/hora.
+2. Asigna mesa y confirma → reserva marcada como `confirmada` y aparece en la lista global.
+
+RESUMEN RÁPIDO (por rol)
+- Visitante: ver menú, buscar, filtrar alérgenos, iniciar sesión.
+- Comensal: reservar, editar/cancelar reservas propias, ver historial y preferencias.
+- Admin: control completo (CRUD menú/mesas, gestión global de reservas, usuarios).
+
+COMPORTAMIENTO ESPECÍFICO DEL BOTÓN CTA EN EL MENÚ
+- Visitante: CTA redirige a login con `next` hacia reservas.
+- Comensal: CTA abre `/dashboard?section=reservas`.
+- Admin: CTA abre `/dashboard?section=inicio` (volver al panel).
+
+ARRANQUE RÁPIDO (comandos)
+```bash
+npm install
+npm run dev
+# build producción:
+npm run build
+```
+
+NOTA TÉCNICA BÁSICA (solo para contexto)
+- Datos en Firestore; imágenes en Storage. Los roles controlan vista/acciones en `Sidebar`.
+
+¿Quieres que lo convierta en un PDF con capturas y pasos visuales por cada flujo (visitante→login→reserva; admin→crear plato; admin→asignar mesa)? Puedo generarlo y dejar `DOCUMENTACION_COLOQUIAL.pdf` en la raíz.
+
+Fin de la guía funcional coloquial.

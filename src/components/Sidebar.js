@@ -17,17 +17,16 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
   const menuOptions =
     role === "admin"
       ? [
-          
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
           { id: "preview-menu", label: "Ver Menu", icon: "Menu" },
           { id: "admin-menu", label: "Gestionar Menu", icon: "Menu" },
           { id: "admin-mesas", label: "Gestionar Mesas", icon: "Mesas" },
           { id: "admin-ofertas", label: "Ofertas", icon: "Oferta" },
           { id: "admin-reservas", label: "Todas las Reservas", icon: "Lista" },
-          { id: "Configuración", label: "Perfil", icon: "Configuración" }
+          { id: "inicio", label: "Configuración de perfil", icon: "Configuración" }
         ]
       : [
-          { id: "Configuración", label: "Perfil", icon: "Configuración" },
+          { id: "inicio", label: "Configuración de perfil", icon: "Configuración" },
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
           { id: "preview-menu", label: "Ver Menú", icon: "Menu" },
           { id: "reservas", label: "Reservas", icon: "Lista" },

@@ -18,6 +18,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ConfirmReservation from "./pages/ConfirmReservation";
+import Reservations from "./pages/Reservations";
 
 // Vistas de usuario autenticado
 import Dashboard from "./pages/Dashboard";
@@ -65,13 +66,12 @@ const LoginRoute = ({ isAuthenticated, loading, needsGooglePasswordSetup }) => {
         />
       );
     }
-    return <Navigate to={nextPath || "/dashboard"} replace />;
+    return <Navigate to={nextPath || "/"} replace />;
   }
 
   return <Login />;
 };
 
-// ── Componentes de Ruta Protegida ───────────────────────────────────────────
 const ProtectedRoute = ({ children, isAuthenticated, loading }) => {
   if (loading) return <LoadingScreen />;
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -101,6 +101,7 @@ function App() {
       <NavigationBar
         isAuthenticated={isAuthenticated}
         user={user}
+        userName={userName}
         role={role}
         logout={logout}
       />
@@ -154,11 +155,7 @@ function App() {
           path="/reservations"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-              {role === "admin" ? (
-                <AdminReservationsView />
-              ) : (
-                <MyReservationsView userId={user?.uid} />
-              )}
+              <Reservations userId={user?.uid} />
             </ProtectedRoute>
           }
         />
