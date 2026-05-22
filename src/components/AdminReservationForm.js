@@ -2,9 +2,9 @@
 // Formulario para que el admin cree reservas en nombre de otros usuarios
 // Con búsqueda en tiempo real y opción de crear usuario
 
-import React, { useState, useEffect } from "react";
-import ReservationService from "../models/ReservationService";
-import UserService from "../models/UserService";
+import React, { useState, useEffect, useCallback } from "react";
+import ReservationService from "../services/ReservationService";
+import UserService from "../services/UserService";
 import "../styles/ChineseStyle.css";
 
 const AdminReservationForm = ({ onReservationCreated }) => {
@@ -31,47 +31,30 @@ const AdminReservationForm = ({ onReservationCreated }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Cargar usuarios al montar
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  // Filtrar usuarios por búsqueda en tiempo real
-  useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredUsers(users);
-    } else {
-      const term = searchTerm.toLowerCase();
-      const filtered = users.filter(
-        (user) =>
-          user.name.toLowerCase().includes(term) ||
-          user.email.toLowerCase().includes(term),
-      );
-      setFilteredUsers(filtered);
-    }
-  }, [searchTerm, users]);
-
-  // Cargar mesas disponibles cuando cambia fecha/hora
-  useEffect(() => {
-    if (formData.reservationDate && formData.reservationTime) {
-      loadAvailableTables();
-    }
-  }, [formData.reservationDate, formData.reservationTime]);
+  const getUserDisplayName = useCallback((user) =>
+    user?.name || user?.displayName || user?.email?.split("@")[0] || "Usuario",
+  [],
+  );
 
   // Cargar lista de usuarios
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       const result = await UserService.getAllUsers();
       if (result.success) {
-        setUsers(result.users);
+        const normalizedUsers = result.users
+          .filter((user) => user.email)
+          .sort((a, b) =>
+            getUserDisplayName(a).localeCompare(getUserDisplayName(b)),
+          );
+        setUsers(normalizedUsers);
       }
     } catch (err) {
       console.error("Error cargando usuarios:", err);
     }
-  };
+  }, [getUserDisplayName]);
 
   // Cargar mesas disponibles
-  const loadAvailableTables = async () => {
+  const loadAvailableTables = useCallback(async () => {
     try {
       const result = await ReservationService.getAvailableTables(
         formData.reservationDate,
@@ -90,7 +73,36 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     } catch (err) {
       console.error("Error cargando mesas:", err);
     }
-  };
+  }, [formData.reservationDate, formData.reservationTime, formData.numberOfPeople]);
+
+  // Cargar usuarios al montar
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+  // Filtrar usuarios por búsqueda en tiempo real
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredUsers(users);
+    } else {
+      const term = searchTerm.toLowerCase();
+      const filtered = users.filter(
+        (user) => {
+          const displayName = getUserDisplayName(user).toLowerCase();
+          const email = (user.email || "").toLowerCase();
+          return displayName.includes(term) || email.includes(term);
+        },
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [searchTerm, users, getUserDisplayName]);
+
+  // Cargar mesas disponibles cuando cambia fecha/hora
+  useEffect(() => {
+    if (formData.reservationDate && formData.reservationTime) {
+      loadAvailableTables();
+    }
+  }, [formData.reservationDate, formData.reservationTime, loadAvailableTables]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -99,18 +111,6 @@ const AdminReservationForm = ({ onReservationCreated }) => {
       [name]: name === "numberOfPeople" ? parseInt(value) : value,
     }));
     setError(null);
-  };
-
-  const handleUserChange = (e) => {
-    const userId = e.target.value;
-    const user = users.find((u) => u.id === userId);
-    setSelectedUser(user);
-    setFormData((prev) => ({
-      ...prev,
-      userEmail: user?.email || "",
-    }));
-    setShowNewUserForm(false);
-    setSearchTerm("");
   };
 
   // Crear nuevo usuario
@@ -155,13 +155,15 @@ const AdminReservationForm = ({ onReservationCreated }) => {
 
       if (result.success) {
         // Esperar un poco para que el trigger cree el documento en Firestore
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
         // Buscar el usuario creado
         const updatedUsers = await UserService.getAllUsers();
         if (updatedUsers.success) {
           setUsers(updatedUsers.users);
-          const newUser = updatedUsers.users.find(u => u.email === newUserData.email.trim());
+          const newUser = updatedUsers.users.find(
+            (u) => u.email === newUserData.email.trim(),
+          );
           if (newUser) {
             setSelectedUser(newUser);
             setFormData((prev) => ({
@@ -182,32 +184,6 @@ const AdminReservationForm = ({ onReservationCreated }) => {
       setError(err.message || "Error inesperado");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Enviar email de verificación
-  const sendVerificationEmail = async (email, name) => {
-    try {
-      const response = await fetch(
-        "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/sendVerificationEmail",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: email,
-            name: name,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        console.error(
-          "Error enviando email de verificación:",
-          response.statusText,
-        );
-      }
-    } catch (error) {
-      console.error("Error enviando email:", error);
     }
   };
 
@@ -247,7 +223,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     try {
       const reservationData = {
         userId: selectedUser.id,
-        userName: selectedUser.name,
+        userName: getUserDisplayName(selectedUser),
         userEmail: selectedUser.email,
         tableId: selectedTable,
         reservationDate: formData.reservationDate,
@@ -337,7 +313,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                           setSearchTerm("");
                         }}
                       >
-                        <div className="user-name">{user.name}</div>
+                        <div className="user-name">{getUserDisplayName(user)}</div>
                         <div className="user-email">{user.email}</div>
                         {/* Mostrar badge si emailVerified es false o undefined (usuario no verificado) */}
                         {!user.emailVerified && (
@@ -380,7 +356,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
               <>
                 <div className="selected-user">
                   <div>
-                    <strong>{selectedUser.name}</strong>
+                    <strong>{getUserDisplayName(selectedUser)}</strong>
                     <div style={{ fontSize: "12px", color: "#666" }}>
                       {selectedUser.email}
                     </div>
@@ -542,26 +518,6 @@ const AdminReservationForm = ({ onReservationCreated }) => {
             />
           </div>
 
-          {/* Mesas disponibles */}
-          {availableTables.length > 0 && (
-            <div className="form-group">
-              <label htmlFor="selectedTable">Mesa disponible</label>
-              <select
-                id="selectedTable"
-                value={selectedTable || ""}
-                onChange={(e) => setSelectedTable(e.target.value)}
-                required
-              >
-                {availableTables.map((table) => (
-                  <option key={table.id} value={table.id}>
-                    Mesa {table.tableNumber} - Capacidad: {table.capacity}{" "}
-                    personas
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           {/* Solicitudes especiales */}
           <div className="form-group">
             <label htmlFor="specialRequests">
@@ -600,3 +556,24 @@ const AdminReservationForm = ({ onReservationCreated }) => {
 };
 
 export default AdminReservationForm;
+
+/*
+{/* Mesas disponibles }
+          /*{availableTables.length > 0 && (
+            <div className="form-group">
+              <label htmlFor="selectedTable">Mesa disponible</label>
+              <select
+                id="selectedTable"
+                value={selectedTable || ""}
+                onChange={(e) => setSelectedTable(e.target.value)}
+                required
+              >
+                {availableTables.map((table) => (
+                  <option key={table.id} value={table.id}>
+                    Mesa {table.tableNumber} - Capacidad: {table.capacity}{" "}
+                    personas
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}*/

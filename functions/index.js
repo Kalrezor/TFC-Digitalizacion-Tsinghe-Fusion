@@ -6,7 +6,7 @@
  * 1. sendWelcomeEmail   - HTTP: enviar email de bienvenida 
  * 2. sendVerificationEmail - HTTP: crear usuario y enviar email de verificación
  * 3. onReservationWrite - Trigger: cuando se crea/cancela una reserva, actualiza la mesa
- * 4. initTables         - HTTP: inicializa las 20 mesas en Firestore (llamar UNA sola vez)
+ * 4. initTables         - HTTP: desactivada, Firestore es la fuente real de mesas
  *
  * DEPLOY: firebase deploy --only functions
  */
@@ -194,11 +194,8 @@ exports.onReservationWrite = onDocumentWritten(
 );
 
 // ════════════════════════════════════════════════════════════════════════════
-// 4. HTTP: inicializar las 20 mesas en Firestore
-//    Llamar UNA SOLA VEZ desde el navegador o con curl:
-//    curl -X POST https://us-central1-<proyecto>.cloudfunctions.net/initTables
-//    Una vez ejecutada, las mesas quedan en Firestore y esta funcion
-//    ya no hace falta volver a llamarla.
+// 4. HTTP: inicializacion de mesas desactivada.
+//    Firestore es la fuente de verdad y no se crean mesas automaticamente.
 // ════════════════════════════════════════════════════════════════════════════
 exports.initTables = onRequest(
   {
@@ -214,71 +211,101 @@ exports.initTables = onRequest(
       return;
     }
 
-    try {
-      // Capacidades de las 20 mesas (ajusta a tu gusto)
-      const capacities = [
-        2,
-        2,
-        4,
-        4,
-        4, // Mesas 1-5
-        4,
-        4,
-        6,
-        6,
-        6, // Mesas 6-10
-        6,
-        4,
-        4,
-        4,
-        4, // Mesas 11-15
-        8,
-        8,
-        2,
-        2,
-        10, // Mesas 16-20
-      ];
-
-      const batch = db.batch();
-
-      for (let i = 1; i <= 20; i++) {
-        const tableRef = db.collection("tables").doc("mesa-" + i);
-
-        // Si ya existe, no sobreescribir (merge: false evita borrar datos)
-        const existing = await tableRef.get();
-        if (existing.exists) {
-          logger.info("Mesa ya existe, saltando:", i);
-          continue;
-        }
-
-        batch.set(tableRef, {
-          tableNumber: i,
-          number: i,
-          capacity: capacities[i - 1] || 4,
-          active: true,
-          available: true,
-          reservationCount: 0,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-      }
-
-      await batch.commit();
-      logger.info("20 mesas inicializadas correctamente.");
-
-      res.status(200).json({
-        success: true,
-        message: "Mesas inicializadas. Revisa Firestore > coleccion 'tables'.",
-      });
-    } catch (error) {
-      logger.error("Error inicializando mesas:", error);
-      res.status(500).json({ error: error.message });
-    }
+    res.status(200).json({
+      success: true,
+      message: "Inicializacion automatica de mesas desactivada.",
+    });
   },
 );
 
 // ════════════════════════════════════════════════════════════════════════════
 // 5. HTTP: enviar email de verificación para usuarios creados por admin
 // ════════════════════════════════════════════════════════════════════════════
+
+// Listar usuarios de Firebase Auth para administradores.
+exports.listUsersAdmin = onRequest(
+  {
+    region: "us-central1",
+    cors: "*",
+    invoker: "public",
+  },
+  async (req, res) => {
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Access-Control-Allow-Headers", "Authorization, Content-Type");
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "GET") {
+      res.status(405).json({ error: "Solo GET" });
+      return;
+    }
+
+    try {
+      const authHeader = req.get("Authorization") || "";
+      const match = authHeader.match(/^Bearer (.+)$/);
+      if (!match) {
+        res.status(401).json({ error: "Token requerido" });
+        return;
+      }
+
+      const decodedToken = await admin.auth().verifyIdToken(match[1]);
+      const adminDoc = await db.collection("users").doc(decodedToken.uid).get();
+      if (!adminDoc.exists || adminDoc.data().role !== "admin") {
+        res.status(403).json({ error: "Solo administradores" });
+        return;
+      }
+
+      const [authUsers, firestoreUsers] = await Promise.all([
+        admin.auth().listUsers(1000),
+        db.collection("users").get(),
+      ]);
+
+      const firestoreById = new Map();
+      const firestoreByEmail = new Map();
+      firestoreUsers.forEach((doc) => {
+        const data = doc.data();
+        firestoreById.set(doc.id, { id: doc.id, ...data });
+        if (data.email) {
+          firestoreByEmail.set(String(data.email).toLowerCase(), {
+            id: doc.id,
+            ...data,
+          });
+        }
+      });
+
+      const users = authUsers.users
+        .filter((userRecord) => userRecord.email)
+        .map((userRecord) => {
+          const firestoreUser =
+            firestoreById.get(userRecord.uid) ||
+            firestoreByEmail.get(String(userRecord.email).toLowerCase()) ||
+            {};
+          return {
+            id: userRecord.uid,
+            email: userRecord.email,
+            name:
+              firestoreUser.name ||
+              userRecord.displayName ||
+              userRecord.email.split("@")[0],
+            displayName: userRecord.displayName || firestoreUser.displayName || "",
+            role: firestoreUser.role || "comensal",
+            emailVerified:
+              firestoreUser.emailVerified ?? userRecord.emailVerified ?? false,
+          };
+        })
+        .sort((a, b) => a.email.localeCompare(b.email));
+
+      res.status(200).json({ success: true, users });
+    } catch (error) {
+      logger.error("Error listando usuarios:", error);
+      res.status(500).json({ error: error.message });
+    }
+  },
+);
+
 exports.sendVerificationEmail = onRequest(
   {
     region: "us-central1",

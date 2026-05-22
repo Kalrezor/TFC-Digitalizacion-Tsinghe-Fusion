@@ -1,31 +1,35 @@
 // Componente: Sidebar.js
 // Sidebar desplegable/plegable para comensal y admin.
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/ChineseStyle.css";
 
 const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) => {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.toggle("editorial-lock", isOpen);
+    return () => document.body.classList.remove("editorial-lock");
+  }, [isOpen]);
 
   const menuOptions =
     role === "admin"
       ? [
-          { id: "inicio", label: "Panel Principal", icon: "Inicio" },
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
           { id: "preview-menu", label: "Ver Menu", icon: "Menu" },
           { id: "admin-menu", label: "Gestionar Menu", icon: "Menu" },
           { id: "admin-mesas", label: "Gestionar Mesas", icon: "Mesas" },
           { id: "admin-ofertas", label: "Ofertas", icon: "Oferta" },
           { id: "admin-reservas", label: "Todas las Reservas", icon: "Lista" },
-          { id: "admin-crear-reserva", label: "Crear Reserva", icon: "Crear" },
+          { id: "inicio", label: "Configuración de perfil", icon: "Configuración" }
         ]
       : [
-          { id: "inicio", label: "Dashboard", icon: "Panel" },
+          { id: "inicio", label: "Configuración de perfil", icon: "Configuración" },
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
-          { id: "reservas", label: "Mis Reservas", icon: "Lista" },
-          { id: "nueva-reserva", label: "Nueva Reserva", icon: "Crear" },
+          { id: "preview-menu", label: "Ver Menú", icon: "Menu" },
+          { id: "reservas", label: "Reservas", icon: "Lista" },
         ];
 
   const handleLogout = async () => {
@@ -40,41 +44,50 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
         onClick={() => setIsOpen(!isOpen)}
         title={isOpen ? "Ocultar menu" : "Mostrar menu"}
       >
-        =
+        Menu
       </button>
 
       <aside
         className={`sidebar ${isOpen ? "open" : "closed"}`}
         style={{
-          width: isOpen ? "220px" : "0",
-          background: "#1a1a1a",
-          borderRight: isOpen ? "3px solid #DC143C" : "none",
+          width: "min(420px, 88vw)",
+          background: "#fff",
+          borderRight: "1px solid #050505",
           display: "flex",
           flexDirection: "column",
-          padding: isOpen ? "24px 0" : "0",
-          transition: "all 0.3s ease",
+          padding: "34px 0",
+          transition: "transform 700ms cubic-bezier(0.16, 1, 0.3, 1)",
+          transform: isOpen ? "translateX(0)" : "translateX(-105%)",
           overflow: "hidden",
+          position: "fixed",
+          top: 0,
+          bottom: 0,
+          left: 0,
+          zIndex: 1001,
         }}
       >
         {isOpen && (
           <>
-            <div style={{ padding: "0 20px 20px", borderBottom: "1px solid #333" }}>
+            <div style={{ padding: "0 28px 28px", borderBottom: "1px solid #050505" }}>
               <div
                 style={{
                   fontSize: "11px",
-                  color: "#888",
+                  color: "#050505",
                   textTransform: "uppercase",
-                  letterSpacing: "1px",
+                  letterSpacing: "0.2em",
+                  fontWeight: 600,
                 }}
               >
                 Rol
               </div>
               <div
                 style={{
-                  color: "#FFD700",
-                  fontWeight: "bold",
+                  color: "#050505",
+                  fontFamily: "Georgia, 'Times New Roman', serif",
+                  fontWeight: 400,
                   marginTop: "4px",
-                  fontSize: "14px",
+                  fontSize: "34px",
+                  lineHeight: 1,
                 }}
               >
                 {role === "admin" ? "Administrador" : "Comensal"}
@@ -82,10 +95,11 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
               {userName && (
                 <div
                   style={{
-                    color: "#ccc",
+                    color: "#71717a",
                     fontSize: "12px",
                     marginTop: "8px",
-                    fontStyle: "italic",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.18em",
                   }}
                 >
                   {userName}
@@ -93,7 +107,7 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
               )}
             </div>
 
-            <nav style={{ flex: 1, padding: "16px 0" }}>
+            <nav style={{ flex: 1, padding: "22px 0", background: "transparent", border: 0, boxShadow: "none", position: "static" }}>
               <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
                 {menuOptions.map((option) => {
                   const isActive = selectedOption === option.id;
@@ -103,27 +117,30 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
                         onClick={() => onSelectOption(option.id)}
                         style={{
                           width: "100%",
-                          background: isActive ? "#DC143C" : "transparent",
-                          color: isActive ? "#fff" : "#ccc",
+                          background: isActive ? "#050505" : "transparent",
+                          color: isActive ? "#fff" : "#050505",
                           border: "none",
                           borderLeft: isActive
-                            ? "4px solid #FFD700"
-                            : "4px solid transparent",
-                          padding: "12px 20px",
+                            ? "1px solid #050505"
+                            : "1px solid transparent",
+                          borderBottom: "1px solid #050505",
+                          padding: "18px 28px",
                           textAlign: "left",
                           cursor: "pointer",
-                          fontSize: "14px",
+                          fontSize: "11px",
                           display: "flex",
                           alignItems: "center",
                           gap: "10px",
-                          transition: "all 0.2s",
-                          fontWeight: isActive ? "bold" : "normal",
+                          transition: "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.2em",
                         }}
                         onMouseEnter={(e) => {
-                          if (!isActive) e.currentTarget.style.background = "#2a2a2a";
+                          if (!isActive) e.currentTarget.style.opacity = "0.55";
                         }}
                         onMouseLeave={(e) => {
-                          if (!isActive) e.currentTarget.style.background = "transparent";
+                          if (!isActive) e.currentTarget.style.opacity = "1";
                         }}
                       >
                         <span style={{ fontSize: "11px", minWidth: "38px" }}>
@@ -137,23 +154,25 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
               </ul>
             </nav>
 
-            <div style={{ padding: "0 16px" }}>
+            <div style={{ padding: "0 28px" }}>
               <button
                 onClick={handleLogout}
                 style={{
                   width: "100%",
                   background: "transparent",
-                  color: "#DC143C",
-                  border: "2px solid #DC143C",
-                  borderRadius: "6px",
-                  padding: "10px",
+                  color: "#050505",
+                  border: "1px solid #050505",
+                  borderRadius: "0",
+                  padding: "14px",
                   cursor: "pointer",
-                  fontSize: "13px",
-                  fontWeight: "bold",
-                  transition: "all 0.2s",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  transition: "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#DC143C";
+                  e.currentTarget.style.background = "#050505";
                   e.currentTarget.style.color = "#fff";
                 }}
                 onMouseLeave={(e) => {
@@ -173,14 +192,15 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
           className="sidebar-overlay"
           onClick={() => setIsOpen(false)}
           style={{
-            display: "none",
+            display: "block",
             position: "fixed",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0, 0, 0, 0.5)",
-            zIndex: 999,
+            background: "rgba(255, 255, 255, 0.72)",
+            backdropFilter: "blur(4px)",
+            zIndex: 1000,
           }}
         />
       )}

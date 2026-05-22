@@ -13,7 +13,7 @@ import {
   deleteDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import { db } from "../firebase";
 
 class MenuService {
 
