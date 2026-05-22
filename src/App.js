@@ -1,126 +1,130 @@
-// App.js
-// Componente principal con React Router.
-// Rutas publicas, protegidas por login y protegidas por rol admin.
-
 import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 
-import useAuth from "./controllers/useAuth";
+import useAuth from "./hooks/useAuth";
 import NavigationBar from "./components/NavigationBar";
+import RestaurantChatbot from "./components/RestaurantChatbot";
 
-// Vistas publicas
-import Home from "./views/Home";
-import Menu from "./views/Menu";
-import Login from "./views/Login";
-import Register from "./views/Register";
-import ForgotPassword from "./views/ForgotPassword";
-import ConfirmReservation from "./views/ConfirmReservation";
+// Vistas públicas
+import Home from "./pages/Home";
+import Menu from "./pages/Menu";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ConfirmReservation from "./pages/ConfirmReservation";
+import Reservations from "./pages/Reservations";
 
 // Vistas de usuario autenticado
-import Dashboard from "./views/Dashboard";
-import ReservationsView from "./views/ReservationsView";
+import Dashboard from "./pages/Dashboard";
+import MyReservationsView from "./pages/MyReservationsView";
+import AdminReservationsView from "./pages/AdminReservationsView";
 
 // Vistas solo admin
-import AdminMenu from "./views/AdminMenu";
-import AdminTables from "./views/AdminTables";
-import AdminOffers from "./views/AdminOffers";
+import AdminMenu from "./pages/AdminMenu";
+import AdminTables from "./pages/AdminTables";
+import AdminOffers from "./pages/AdminOffers";
 
 import "./styles/MinimalStyle.css";
 
-// Componente de carga responsivo
+// ── Pantalla de Carga ────────────────────────────────────────────────────────
 const LoadingScreen = () => (
-  <div style={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "60vh",
-    padding: "20px",
-  }}>
-    <div style={{
-      textAlign: "center",
-    }}>
-      <div style={{
-        fontSize: "16px",
-        color: "#568d6e",
-        fontWeight: "600",
-      }}>
-        Cargando...
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "60vh",
+    }}
+  >
+    <div style={{ textAlign: "center" }}>
+      <div style={{ fontSize: "16px", color: "#568d6e", fontWeight: "600" }}>
+        Cargando autenticación...
       </div>
     </div>
   </div>
 );
 
-// ── Ruta protegida: requiere login ──────────────────────────────────────────
+const LoginRoute = ({ isAuthenticated, loading, needsGooglePasswordSetup }) => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const nextPath = searchParams.get("next");
+  const email = searchParams.get("email") || "";
+
+  if (loading) return <LoadingScreen />;
+  if (isAuthenticated) {
+    if (needsGooglePasswordSetup) {
+      return (
+        <Navigate
+          to={`/forgot-password?email=${encodeURIComponent(email)}&setup=google`}
+          replace
+        />
+      );
+    }
+    return <Navigate to={nextPath || "/"} replace />;
+  }
+
+  return <Login />;
+};
+
 const ProtectedRoute = ({ children, isAuthenticated, loading }) => {
-  if (loading) {
-    return <LoadingScreen />;
-  }
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
+  if (loading) return <LoadingScreen />;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
-// ── Ruta protegida: requiere rol admin ──────────────────────────────────────
 const AdminRoute = ({ children, isAuthenticated, loading, role }) => {
-  if (loading) {
-    return <LoadingScreen />;
-  }
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  if (role !== "admin") {
-    return <Navigate to="/dashboard" replace />;
-  }
-  return children;
+  if (loading) return <LoadingScreen />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return role === "admin" ? children : <Navigate to="/dashboard" replace />;
 };
 
-// ── App principal ───────────────────────────────────────────────────────────
+// ── App Principal ───────────────────────────────────────────────────────────
 function App() {
   const { user, userName, userEmail, role, loading, logout } = useAuth();
+
   const isAuthenticated = !!user;
   const needsGooglePasswordSetup =
     sessionStorage.getItem("googlePasswordSetupPending") === "true";
+
+  // IMPORTANTE: El chequeo de loading debe ir AQUÍ dentro
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Router>
       <NavigationBar
         isAuthenticated={isAuthenticated}
         user={user}
+        userName={userName}
         role={role}
         logout={logout}
       />
 
       <Routes>
-        {/* ── Rutas publicas ─────────────────────────────────────────────── */}
+        {/* Rutas públicas */}
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/confirm-reservation" element={<ConfirmReservation />} />
 
-        {/* ── Autenticacion (redirige si ya esta logueado) ────────────────── */}
+        {/* Lógica de Login mejorada */}
         <Route
           path="/login"
           element={
-            isAuthenticated ? (
-              needsGooglePasswordSetup ? (
-                <Navigate
-                  to={`/forgot-password?email=${encodeURIComponent(
-                    user.email,
-                  )}&setup=google`}
-                  replace
-                />
-              ) : (
-                <Navigate to="/dashboard" replace />
-              )
-            ) : (
-              <Login />
-            )
+            <LoginRoute
+              isAuthenticated={isAuthenticated}
+              loading={loading}
+              needsGooglePasswordSetup={needsGooglePasswordSetup}
+            />
           }
         />
+
         <Route
           path="/register"
           element={
@@ -131,15 +135,8 @@ function App() {
             )
           }
         />
-        <Route
-          path="/forgot-password"
-          element={<ForgotPassword />}
-        />
 
-        {/* ── Confirmación de reserva (publica) ──────────────────────────── */}
-        <Route path="/confirm-reservation" element={<ConfirmReservation />} />
-
-        {/* ── Rutas de usuario autenticado ────────────────────────────────── */}
+        {/* Rutas protegidas (Usuario) */}
         <Route
           path="/dashboard"
           element={
@@ -158,17 +155,12 @@ function App() {
           path="/reservations"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-              <ReservationsView
-                role={role}
-                userId={user?.uid}
-                userEmail={userEmail}
-                userName={userName}
-              />
+              <Reservations userId={user?.uid} />
             </ProtectedRoute>
           }
         />
 
-        {/* ── Rutas solo admin ────────────────────────────────────────────── */}
+        {/* Rutas protegidas (Admin) */}
         <Route
           path="/admin/menu"
           element={
@@ -181,6 +173,7 @@ function App() {
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/tables"
           element={
@@ -189,10 +182,11 @@ function App() {
               loading={loading}
               role={role}
             >
-              <AdminTables />
+              <AdminTables userId={user?.uid} userRole={role} />
             </AdminRoute>
           }
         />
+
         <Route
           path="/admin/offers"
           element={
@@ -206,9 +200,13 @@ function App() {
           }
         />
 
-        {/* ── Fallback ─────────────────────────────────────────────────────── */}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {isAuthenticated && (
+        <RestaurantChatbot user={user} role={role} userName={userName} />
+      )}
     </Router>
   );
 }

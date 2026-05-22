@@ -78,3 +78,4 @@ INICIO A LA APP:
 
 guiarse de reservationsView.js para aplicar al resto.
 CRUD EN "todas las reservas" solo para vista de admin
+

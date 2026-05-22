@@ -1,11 +1,12 @@
-### feat: actualización del estilo en menu y funcionalidad para que el admin pueda modifiscar la carta
+### feat: implementado filtro de exclusión de alérgenos y mejora de la edición de la carta para el admin
 
-Se ha agregado un nuevo estilo visual para que el usuario pueda visualizar la carta con sus platos divididos por categorias y una leyenda con los alergenos, además se ha añadido la forma para que si un usuario registrado como admin entra puede modificar la colocación de la carta, de tal manera que puede cambiar el orden de las categorias si estas las arrastra al lugar que quiere, y puede activar o desactivar los platos para que se visualicen o no. 
+He integrado nuevas funcionalidades clave en la vista del menú para mejorar la interactividad y la accesibilidad de la carta para los admins como para los clientes
 
 ### Funcionalidades Destacadas
 *   **Filtro Inteligente de Alérgenos:** He implementado un sistema de filtros de exclusión basado en iconos. Al seleccionar uno o varios alérgenos, la carta oculta automáticamente los platos que los contienen, garantizando una navegación segura para usuarios con restricciones alimentarias.
 
-* **Consistencia Visual**: Diseño visual de la carta con las catgorias agrupando los platos y una leyenda para los alergenos.
-* **Funcionalidad de admin**: El admin tiene de:
-    * la opción de modificar la colocación de las categorias y organizarlas aplicando el orden que quiera. Las mueve arrastrandolas y dejandolas en la posición que desea
-    * la opción de habilitar la vista de platos o desabilitarla, este solo tiene que pulsar encima del plato que quier que se muestre o desaparezca
+*   **Reorganización Estructural (Drag & Drop):** Para optimizar la administración, he habilitado la reordenación de categorías mediante arrastre directamente en los botones de acceso directo. Esto elimina la necesidad de desplazarse por secciones extensas para cambiar el orden de la carta.
+
+*   **Gestión de Disponibilidad en Tiempo Real:** El administrador puede alternar la disponibilidad de los platos (marcar como "Agotado") con un solo clic en modo edición, reflejándose los cambios de forma instantánea en la base de datos.
+
+*   **Interfaz Adaptativa:** Refactorización del header de administración para ofrecer un entorno de trabajo más limpio y centrado en la estructura del menú.

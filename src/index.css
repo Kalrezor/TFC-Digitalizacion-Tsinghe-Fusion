@@ -1,0 +1,23 @@
+:root {
+  --bg: #ffffff;
+  --text: #333333;
+  --border: #eeeeee;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header, footer, nav, main {
+  padding: 0; 
+  margin: 0;
+}
