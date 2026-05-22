@@ -1,7 +1,5 @@
 // Vista: AdminOffers.js
-// CRUD completo de ofertas para administradores.
-// Importaciones corregidas desde models/ (no services/).
-// Sin errores de sintaxis en template literals.
+// CRUD completo de ofertas - Corrección del botón Editar y sincronización de datos.
 
 import React, { useState, useEffect } from "react";
 import offerService from "../services/OfferService";
@@ -12,6 +10,7 @@ const EMPTY_FORM = {
   title:       "",
   description: "",
   discount:    "",
+  imageUrl:    "", 
   startDate:   "",
   endDate:     "",
   active:      true,
@@ -30,7 +29,6 @@ const AdminOffers = () => {
   const [formData, setFormData]       = useState(EMPTY_FORM);
   const [selectedDishes, setSelDishes] = useState([]);
 
-  // Carga inicial
   useEffect(() => {
     loadOffers();
     loadDishes();
@@ -42,7 +40,7 @@ const AdminOffers = () => {
     const result = await offerService.getAllOffers();
     setLoading(false);
     if (result.success) setOffers(result.offers);
-    else setError("Error al cargar ofertas: " + result.error);
+    else setError("Error al cargar las ofertas: " + result.error);
   };
 
   const loadDishes = async () => {
@@ -50,7 +48,6 @@ const AdminOffers = () => {
     if (result.success) setDishes(result.menus);
   };
 
-  // Formulario - abrir nuevo
   const openNew = () => {
     setFormData(EMPTY_FORM);
     setSelDishes([]);
@@ -60,12 +57,13 @@ const AdminOffers = () => {
     setSuccess(null);
   };
 
-  // Formulario - abrir edicion
+  // Esta función es clave para que el botón de editar funcione perfectamente
   const openEdit = (offer) => {
     setFormData({
       title:       offer.title       || "",
       description: offer.description || "",
       discount:    offer.discount    || "",
+      imageUrl:    offer.imageUrl    || "", 
       startDate:   offer.startDate   || "",
       endDate:     offer.endDate     || "",
       active:      offer.active !== false,
@@ -82,6 +80,26 @@ const AdminOffers = () => {
     setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("La imagen supera el límite permitido de 2MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData((prev) => ({ ...prev, imageUrl: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({ ...prev, imageUrl: "" }));
+  };
+
   const toggleDish = (id) => {
     setSelDishes((prev) =>
       prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]
@@ -91,11 +109,11 @@ const AdminOffers = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.discount) {
-      setError("Titulo y descuento son obligatorios.");
+      setError("El título y el porcentaje de descuento son obligatorios.");
       return;
     }
     if (formData.startDate && formData.endDate && new Date(formData.startDate) >= new Date(formData.endDate)) {
-      setError("La fecha de fin debe ser posterior a la de inicio.");
+      setError("La fecha de fin debe ser posterior a la fecha de inicio.");
       return;
     }
 
@@ -109,33 +127,32 @@ const AdminOffers = () => {
 
     setLoading(false);
     if (result.success) {
-      setSuccess(editingId ? "Oferta actualizada." : "Oferta creada.");
+      setSuccess(editingId ? "Oferta actualizada con éxito." : "Oferta publicada correctamente.");
       setShowForm(false);
       setFormData(EMPTY_FORM);
       setSelDishes([]);
       setEditingId(null);
       loadOffers();
     } else {
-      setError("Error al guardar: " + result.error);
+      setError("Error al procesar la solicitud: " + result.error);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Eliminar esta oferta definitivamente?")) return;
+    if (!window.confirm("¿Seguro que deseas eliminar esta oferta?")) return;
     setLoading(true);
     const result = await offerService.deleteOffer(id, true);
     setLoading(false);
-    if (result.success) { setSuccess("Oferta eliminada."); loadOffers(); }
+    if (result.success) { setSuccess("Oferta removida."); loadOffers(); }
     else setError("Error al eliminar: " + result.error);
   };
 
   const handleToggleActive = async (offer) => {
     const result = await offerService.updateOffer(offer.id, { active: !offer.active }, true);
     if (result.success) loadOffers();
-    else setError("Error al cambiar estado.");
+    else setError("No se pudo cambiar el estado de la oferta.");
   };
 
-  // Comprobar si una oferta esta en vigor ahora mismo
   const isEnVigor = (offer) => {
     if (!offer.active) return false;
     const now   = new Date();
@@ -146,7 +163,6 @@ const AdminOffers = () => {
     return true;
   };
 
-  // Filtros
   const filtered = offers.filter((o) => {
     const matchSearch =
       o.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -158,120 +174,151 @@ const AdminOffers = () => {
     return matchSearch && matchStatus;
   });
 
-  // Nombre de platos relacionados
   const getDishNames = (dishIds) => {
-    if (!dishIds || dishIds.length === 0) return "Todos los platos";
+    if (!dishIds || dishIds.length === 0) return "Todos los platos de la carta";
     return dishIds
       .map((id) => dishes.find((d) => d.id === id)?.name || id)
       .join(", ");
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "30px", background: "#fcfcfa", minHeight: "100vh" }}>
 
-      {/* Cabecera */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h1 style={{ color: "#DC143C", margin: 0 }}>Administracion de Ofertas</h1>
-        <button onClick={openNew} disabled={loading} style={btnPrimary}>
+      {/* Cabecera Principal */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+        <h1 style={{ color: "#DC143C", fontSize: "28px", fontWeight: "bold", margin: 0 }}>
+          Administración de Ofertas
+        </h1>
+        <button onClick={openNew} disabled={loading} style={btnMainHeader}>
           + Nueva Oferta
         </button>
       </div>
 
-      {/* Mensajes */}
       {error   && <div style={alertError}>{error}</div>}
       {success && <div style={alertSuccess}>{success}</div>}
 
-      {/* Formulario */}
+      {/* Formulario Estructurado */}
       {showForm && (
-        <div style={{ background: "#fff8f0", border: "2px solid #DC143C", borderRadius: "10px", padding: "24px", marginBottom: "24px" }}>
-          <h2 style={{ color: "#DC143C", marginTop: 0 }}>{editingId ? "Editar Oferta" : "Nueva Oferta"}</h2>
+        <div style={{ background: "#fff8f2", border: "1px solid #FFD700", borderRadius: "8px", padding: "30px", marginBottom: "35px" }}>
+          <h2 style={{ color: "#DC143C", fontSize: "20px", marginTop: 0, marginBottom: "25px" }}>
+            {editingId ? "Editar Oferta Activa" : "Nueva Oferta"}
+          </h2>
+          
           <form onSubmit={handleSubmit}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={labelStyle}>Titulo de la Oferta *</label>
-                <input name="title" value={formData.title} onChange={handleChange}
-                  placeholder="Ej: Descuento Fin de Semana" required style={inputStyle} />
-              </div>
-
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={labelStyle}>Descripcion</label>
-                <textarea name="description" value={formData.description} onChange={handleChange}
-                  rows={3} placeholder="Describe la oferta..." style={{ ...inputStyle, resize: "vertical" }} />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Descuento (%) *</label>
-                <input name="discount" type="number" min="1" max="100" value={formData.discount}
-                  onChange={handleChange} placeholder="Ej: 20" required style={inputStyle} />
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingTop: "24px" }}>
-                <input name="active" type="checkbox" id="chk-active" checked={formData.active} onChange={handleChange} />
-                <label htmlFor="chk-active" style={{ color: "#8B0000", fontWeight: "bold" }}>Oferta activa</label>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Fecha de Inicio</label>
-                <input name="startDate" type="datetime-local" value={formData.startDate}
-                  onChange={handleChange} style={inputStyle} />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Fecha de Fin</label>
-                <input name="endDate" type="datetime-local" value={formData.endDate}
-                  onChange={handleChange} style={inputStyle} />
-              </div>
-
-              {/* Selector de platos incluidos */}
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label style={labelStyle}>Platos incluidos en la oferta (opcional)</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "8px", maxHeight: "160px", overflowY: "auto", border: "1px solid #FFD700", borderRadius: "6px", padding: "10px" }}>
-                  {dishes.length === 0 && <span style={{ color: "#888", fontSize: "13px" }}>No hay platos disponibles.</span>}
-                  {dishes.map((dish) => {
-                    const checked = selectedDishes.includes(dish.id);
-                    return (
-                      <label
-                        key={dish.id}
-                        style={{
-                          display:       "flex",
-                          alignItems:    "center",
-                          gap:           "6px",
-                          background:    checked ? "#FFD700" : "#f5f5f5",
-                          padding:       "6px 10px",
-                          borderRadius:  "20px",
-                          cursor:        "pointer",
-                          fontSize:      "13px",
-                          fontWeight:    checked ? "bold" : "normal",
-                          border:        checked ? "1px solid #8B0000" : "1px solid #ccc",
-                          transition:    "all 0.15s",
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleDish(dish.id)}
-                          style={{ display: "none" }}
-                        />
-                        {dish.name} ({parseFloat(dish.price || 0).toFixed(2)} euros)
-                      </label>
-                    );
-                  })}
+            <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "35px" }}>
+              
+              {/* Bloque Izquierdo */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                <div>
+                  <label style={labelStyle}>Título de la Oferta *</label>
+                  <input name="title" value={formData.title} onChange={handleChange}
+                    placeholder="Ej: Descuento Fin de Semana" required style={inputStyle} />
                 </div>
-                <small style={{ color: "#888" }}>
-                  {selectedDishes.length === 0
-                    ? "Sin seleccion (aplica a todos los platos)"
-                    : selectedDishes.length + " plato(s) seleccionado(s)"}
-                </small>
+
+                <div>
+                  <label style={labelStyle}>Descripción</label>
+                  <textarea name="description" value={formData.description} onChange={handleChange}
+                    rows={4} placeholder="Describe los detalles o condiciones de la oferta..." style={{ ...inputStyle, resize: "none" }} />
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                  <div>
+                    <label style={labelStyle}>Descuento (%) *</label>
+                    <input name="discount" type="number" min="1" max="100" value={formData.discount}
+                      onChange={handleChange} placeholder="Ej: 20" required style={inputStyle} />
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingTop: "25px" }}>
+                    <input name="active" type="checkbox" id="form-active-chk" checked={formData.active} onChange={handleChange} style={{ width: "16px", height: "16px", cursor: "pointer" }} />
+                    <label htmlFor="form-active-chk" style={{ color: "#8B0000", fontWeight: "bold", cursor: "pointer", fontSize: "14px" }}>Oferta activa</label>
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                  <div>
+                    <label style={labelStyle}>Fecha de Inicio</label>
+                    <input name="startDate" type="datetime-local" value={formData.startDate}
+                      onChange={handleChange} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Fecha de Fin</label>
+                    <input name="endDate" type="datetime-local" value={formData.endDate}
+                      onChange={handleChange} style={inputStyle} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Bloque Derecho */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div>
+                  <label style={labelStyle}>Imagen de la Oferta</label>
+                  
+                  <label style={btnYellowUploadFull}>
+                    Subir Imagen
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleFileChange} 
+                      style={{ display: "none" }} 
+                    />
+                  </label>
+
+                  {formData.imageUrl && (
+                    <div style={{ marginTop: "12px", position: "relative", width: "100%", height: "140px", border: "1px solid #FFD700", borderRadius: "6px", overflow: "hidden", background: "#fff" }}>
+                      <img src={formData.imageUrl} alt="Miniatura subida" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <button type="button" onClick={handleRemoveImage} style={btnDeleteFloatingImg}>Quitar Foto</button>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Platos incluidos en la oferta</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", maxHeight: "150px", overflowY: "auto", border: "1px solid #FFD700", borderRadius: "6px", padding: "12px", background: "#fff" }}>
+                    {dishes.length === 0 && <span style={{ color: "#888", fontSize: "13px" }}>Cargando platos...</span>}
+                    {dishes.map((dish) => {
+                      const isChecked = selectedDishes.includes(dish.id);
+                      return (
+                        <label
+                          key={dish.id}
+                          style={{
+                            display:       "flex",
+                            alignItems:    "center",
+                            gap:           "6px",
+                            background:    isChecked ? "#FFD700" : "#f8f9fa",
+                            padding:       "6px 12px",
+                            borderRadius:  "20px",
+                            cursor:        "pointer",
+                            fontSize:      "12px",
+                            fontWeight:    isChecked ? "bold" : "normal",
+                            border:        isChecked ? "1px solid #8B0000" : "1px solid #ddd",
+                            transition:    "all 0.1s ease",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleDish(dish.id)}
+                            style={{ display: "none" }}
+                          />
+                          {dish.name}
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <small style={{ color: "#666", display: "block", marginTop: "6px" }}>
+                    {selectedDishes.length === 0 
+                      ? "Aplica globalmente a todos los platos de la carta." 
+                      : `Filtro aplicado a ${selectedDishes.length} plato(s).`}
+                  </small>
+                </div>
               </div>
             </div>
 
-            <div style={{ marginTop: "20px", display: "flex", gap: "12px" }}>
-              <button type="submit" disabled={loading} style={btnPrimary}>
-                {loading ? "Guardando..." : "Guardar Oferta"}
-              </button>
+            <div style={{ marginTop: "30px", display: "flex", gap: "12px", justifyContent: "flex-end", borderTop: "1px solid #eee", paddingTop: "15px" }}>
               <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} style={btnSecondary}>
                 Cancelar
+              </button>
+              <button type="submit" disabled={loading} style={btnSubmitForm}>
+                {loading ? "Guardando..." : "Guardar Oferta"}
               </button>
             </div>
           </form>
@@ -279,9 +326,9 @@ const AdminOffers = () => {
       )}
 
       {/* Filtros */}
-      <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "12px", marginBottom: "25px" }}>
         <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar oferta..." style={{ ...inputStyle, maxWidth: "260px" }} />
+          placeholder="Buscar oferta..." style={{ ...inputStyle, maxWidth: "300px" }} />
         <select value={filterStatus} onChange={(e) => setFilter(e.target.value)} style={{ ...inputStyle, maxWidth: "200px" }}>
           <option value="all">Todas</option>
           <option value="active">Activas</option>
@@ -290,8 +337,8 @@ const AdminOffers = () => {
         </select>
       </div>
 
-      {/* Estadisticas */}
-      <div style={{ display: "flex", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
+      {/* Cuadros de Estadísticas */}
+      <div style={{ display: "flex", gap: "16px", marginBottom: "30px", flexWrap: "wrap" }}>
         {[
           { label: "Total Ofertas",    value: offers.length },
           { label: "Activas",          value: offers.filter((o) => o.active).length },
@@ -299,21 +346,21 @@ const AdminOffers = () => {
           { label: "Desc. Promedio",   value: offers.length > 0 ? Math.round(offers.reduce((s, o) => s + (o.discount || 0), 0) / offers.length) + "%" : "0%" },
         ].map((s) => (
           <div key={s.label} style={statBox}>
-            <div style={{ fontSize: "22px", fontWeight: "bold", color: "#DC143C" }}>{s.value}</div>
-            <div style={{ fontSize: "12px", color: "#555" }}>{s.label}</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#DC143C" }}>{s.value}</div>
+            <div style={{ fontSize: "12px", color: "#666", marginTop: "2px" }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Loading */}
-      {loading && <p style={{ color: "#DC143C" }}>Cargando...</p>}
+      {loading && <p style={{ color: "#DC143C", fontWeight: "bold" }}>Cargando ofertas...</p>}
 
-      {/* Sin resultados */}
       {!loading && filtered.length === 0 && (
-        <p style={{ textAlign: "center", color: "#888", padding: "30px" }}>No hay ofertas que coincidan.</p>
+        <p style={{ textAlign: "center", color: "#999", padding: "40px", border: "1px dashed #ccc", borderRadius: "8px" }}>
+          No se encontraron ofertas que coincidan.
+        </p>
       )}
 
-      {/* Lista de ofertas */}
+      {/* Listado de Tarjetas */}
       {!loading && filtered.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {filtered.map((offer) => {
@@ -321,59 +368,61 @@ const AdminOffers = () => {
             return (
               <div key={offer.id} style={{
                 background:   "#fff",
-                border:       "2px solid " + (enVigor ? "#4CAF50" : offer.active ? "#FFD700" : "#ccc"),
-                borderRadius: "10px",
+                border:       "1px solid " + (enVigor ? "#4CAF50" : offer.active ? "#FFD700" : "#ddd"),
+                borderRadius: "8px",
                 padding:      "20px",
                 position:     "relative",
+                boxShadow:    "0 2px 6px rgba(0,0,0,0.02)"
               }}>
-                {/* Badges */}
-                <div style={{ position: "absolute", top: "16px", right: "16px", display: "flex", gap: "8px" }}>
-                  <span style={{ background: offer.active ? "#4CAF50" : "#f44336", color: "#fff", padding: "3px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "bold" }}>
+                <div style={{ position: "absolute", top: "16px", right: "16px", display: "flex", gap: "6px" }}>
+                  <span style={{ background: offer.active ? "#4CAF50" : "#f44336", color: "#fff", padding: "3px 8px", borderRadius: "4px", fontSize: "11px", fontWeight: "bold" }}>
                     {offer.active ? "Activa" : "Inactiva"}
                   </span>
                   {enVigor && (
-                    <span style={{ background: "#FFD700", color: "#8B0000", padding: "3px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "bold" }}>
+                    <span style={{ background: "#FFD700", color: "#000", padding: "3px 8px", borderRadius: "4px", fontSize: "11px", fontWeight: "bold" }}>
                       En Vigor
                     </span>
                   )}
                 </div>
 
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "20px" }}>
-                  <div style={{ background: "#DC143C", color: "#fff", borderRadius: "50%", width: "60px", height: "60px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: "18px", fontWeight: "bold" }}>
-                    -{offer.discount}%
-                  </div>
-                  <div style={{ flex: 1, paddingRight: "120px" }}>
-                    <h3 style={{ margin: "0 0 6px", color: "#1a1a1a" }}>{offer.title}</h3>
-                    {offer.description && <p style={{ margin: "0 0 8px", color: "#555", fontSize: "14px" }}>{offer.description}</p>}
-                    {offer.startDate && (
-                      <p style={{ margin: "0 0 4px", fontSize: "13px", color: "#888" }}>
-                        Desde: {new Date(offer.startDate).toLocaleString("es-ES")}
-                      </p>
-                    )}
-                    {offer.endDate && (
-                      <p style={{ margin: "0 0 4px", fontSize: "13px", color: "#888" }}>
-                        Hasta: {new Date(offer.endDate).toLocaleString("es-ES")}
-                      </p>
-                    )}
-                    <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#333" }}>
-                      <strong>Platos:</strong> {getDishNames(offer.dishIds)}
+                <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+                  {offer.imageUrl ? (
+                    <div style={{ width: "80px", height: "80px", borderRadius: "6px", overflow: "hidden", border: "1px solid #eee", flexShrink: 0 }}>
+                      <img src={offer.imageUrl} alt={offer.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                  ) : (
+                    <div style={{ background: "#DC143C", color: "#fff", borderRadius: "50%", width: "55px", height: "55px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: "16px", fontWeight: "bold" }}>
+                      -{offer.discount}%
+                    </div>
+                  )}
+
+                  <div style={{ flex: 1, paddingRight: "140px" }}>
+                    <h3 style={{ margin: "0 0 4px", color: "#111", fontSize: "16px" }}>{offer.title}</h3>
+                    {offer.description && <p style={{ margin: "0 0 8px", color: "#555", fontSize: "13px" }}>{offer.description}</p>}
+                    
+                    <div style={{ display: "flex", gap: "15px", fontSize: "12px", color: "#777" }}>
+                      {offer.startDate && <span><strong>Inicio:</strong> {new Date(offer.startDate).toLocaleString("es-ES")}</span>}
+                      {offer.endDate && <span><strong>Fin:</strong> {new Date(offer.endDate).toLocaleString("es-ES")}</span>}
+                    </div>
+                    <p style={{ margin: "4px 0 0", fontSize: "12px", color: "#444" }}>
+                      <strong>Platos vinculados:</strong> {getDishNames(offer.dishIds)}
                     </p>
                   </div>
                 </div>
 
-                {/* Acciones */}
-                <div style={{ marginTop: "16px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  <button onClick={() => handleToggleActive(offer)} disabled={loading}
-                    style={{ ...btnToggle, background: offer.active ? "#888" : "#4CAF50" }}>
+                <div style={{ marginTop: "15px", display: "flex", gap: "8px" }}>
+                  <button onClick={() => handleToggleActive(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#f5f5f5", color: "#333", border: "1px solid #ccc" }}>
                     {offer.active ? "Desactivar" : "Activar"}
                   </button>
-                  <button onClick={() => openEdit(offer)} disabled={loading} style={btnEdit}>
+                  {/* CORREGIDO: Ahora llama correctamente a openEdit(offer) */}
+                  <button onClick={() => openEdit(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#FFD700", color: "#000", border: "1px solid #8B0000" }}>
                     Editar
                   </button>
-                  <button onClick={() => handleDelete(offer.id)} disabled={loading} style={btnDelete}>
+                  <button onClick={() => handleDelete(offer.id)} disabled={loading} style={{ ...btnSmallAction, background: "#DC143C", color: "#fff", border: "none" }}>
                     Eliminar
                   </button>
                 </div>
+
               </div>
             );
           })}
@@ -383,16 +432,45 @@ const AdminOffers = () => {
   );
 };
 
-// Estilos reutilizables
-const labelStyle   = { display: "block", color: "#8B0000", fontWeight: "bold", marginBottom: "4px", fontSize: "13px" };
-const inputStyle   = { width: "100%", padding: "10px", border: "2px solid #FFD700", borderRadius: "6px", fontSize: "14px", boxSizing: "border-box" };
-const btnPrimary   = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" };
-const btnSecondary = { backgroundColor: "#888", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer" };
-const btnEdit      = { background: "#FFD700", color: "#1a1a1a", border: "none", padding: "8px 16px", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" };
-const btnDelete    = { background: "#DC143C", color: "#fff", border: "none", padding: "8px 16px", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" };
-const btnToggle    = { color: "#fff", border: "none", padding: "8px 16px", borderRadius: "6px", cursor: "pointer", fontSize: "13px", fontWeight: "bold" };
-const statBox      = { background: "#fff", border: "2px solid #DC143C", borderRadius: "8px", padding: "16px 24px", textAlign: "center", minWidth: "100px" };
-const alertError   = { background: "#ffe0e0", border: "1px solid #DC143C", padding: "10px", borderRadius: "6px", marginBottom: "12px", color: "#8B0000" };
-const alertSuccess = { background: "#e0ffe0", border: "1px solid #4CAF50", padding: "10px", borderRadius: "6px", marginBottom: "12px", color: "#2e7d32" };
+// --- ESTILOS COMPONENTES ---
+const labelStyle   = { display: "block", color: "#8B0000", fontWeight: "bold", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" };
+const inputStyle   = { width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", fontSize: "14px", boxSizing: "border-box", background: "#fff" };
+
+const btnYellowUploadFull = {
+  display: "block",
+  width: "100%",
+  padding: "14px 0",
+  background: "#FFD700",
+  color: "#000",
+  border: "none",
+  borderRadius: "8px",
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: "14px",
+  textAlign: "center",
+  boxSizing: "border-box"
+};
+
+const btnMainHeader   = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "14px" };
+const btnSubmitForm   = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "10px 22px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" };
+const btnSecondary    = { backgroundColor: "#bbb", color: "#fff", border: "none", padding: "10px 22px", borderRadius: "6px", cursor: "pointer" };
+const btnSmallAction  = { padding: "6px 14px", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" };
+const statBox         = { background: "#fff", border: "1px solid #FFD700", borderRadius: "6px", padding: "12px 20px", textAlign: "center", minWidth: "110px" };
+const alertError      = { background: "#ffebee", border: "1px solid #c62828", padding: "12px", borderRadius: "6px", marginBottom: "16px", color: "#c62828", fontSize: "14px" };
+const alertSuccess    = { background: "#e8f5e9", border: "1px solid #2e7d32", padding: "12px", borderRadius: "6px", marginBottom: "16px", color: "#2e7d32", fontSize: "14px" };
+
+const btnDeleteFloatingImg = {
+  position: "absolute",
+  top: "8px",
+  right: "8px",
+  background: "rgba(220, 20, 60, 0.9)",
+  color: "#fff",
+  border: "none",
+  borderRadius: "4px",
+  padding: "4px 8px",
+  fontSize: "11px",
+  cursor: "pointer",
+  fontWeight: "bold"
+};
 
 export default AdminOffers;
