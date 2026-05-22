@@ -1,3 +1,6 @@
+// Vista: Menu.js
+// Corrección de la alineación del texto "Frutos Secos" en la leyenda de alérgenos inferior.
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../controllers/useAuth";
@@ -116,17 +119,57 @@ const Menu = ({ role: propsRole }) => {
         />
       </div>
 
-      {/* FILTRO DE ALÉRGENOS */}
+      {/* FILTRO DE ALÉRGENOS - EN UNA ÚNICA FILA HORIZONTAL */}
       <div className="allergen-filter-wrapper">
         <p className="filter-label">Excluir platos con:</p>
-        <div className="allergen-filter-grid">
+        <div 
+          className="allergen-filter-grid"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "nowrap",
+            overflowX: "auto",
+            justifyContent: "center",
+            gap: "8px",
+            padding: "10px 4px",
+            width: "100%"
+          }}
+        >
           {Object.values(allAllergens).map(ale => (
             <button 
               key={ale.id}
               className={`allergen-filter-btn ${selectedAllergens.includes(ale.id) ? 'active' : ''}`}
               onClick={() => handleAllergenToggle(ale.id)}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+                padding: "6px",
+                aspectRatio: "1 / 1",
+                width: "75px",
+                minWidth: "75px",
+                height: "75px",
+                flexShrink: 0
+              }}
             >
-              <img src={ale.imagen} alt={ale.nombre} title={ale.nombre} />
+              <img 
+                src={ale.imagen} 
+                alt={ale.nombre} 
+                title={ale.nombre} 
+                style={{ marginBottom: 0, width: "24px", height: "24px", objectFit: "contain" }} 
+              />
+              <span style={{ 
+                fontSize: "10px", 
+                fontWeight: "500", 
+                textTransform: "capitalize",
+                textAlign: "center",
+                lineHeight: "1.1",
+                wordBreak: "break-word"
+              }}>
+                {ale.nombre}
+              </span>
             </button>
           ))}
         </div>
@@ -143,9 +186,30 @@ const Menu = ({ role: propsRole }) => {
             onDrop={(e) => handleDrop(e, index)}
             className={`anchor-wrapper ${editMode ? 'draggable-anchor' : ''}`}
           >
-            <a href={editMode ? null : `#cat-${cat.id}`} className="anchor-btn">
-              {editMode && <span className="drag-icon">☰</span>}
-              {cat.nombre.toUpperCase()}
+            <a 
+              href={editMode ? null : `#cat-${cat.id}`} 
+              className="anchor-btn"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                padding: "10px 18px"
+              }}
+            >
+              {cat.imagen && (
+                <img 
+                  src={cat.imagen} 
+                  alt="" 
+                  style={{ 
+                    width: "22px", 
+                    height: "22px", 
+                    objectFit: "contain",
+                    flexShrink: 0
+                  }} 
+                />
+              )}
+              <span>{cat.nombre.toUpperCase()}</span>
             </a>
           </div>
         ))}
@@ -165,9 +229,23 @@ const Menu = ({ role: propsRole }) => {
 
           return (
             <section key={cat.id} id={`cat-${cat.id}`} className="category-section">
-              <div className="category-header-row">
-                <h2 className="category-title-text">{cat.nombre}</h2>
-                <div className="category-line-right"></div>
+              <div className="category-header-row" style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                {cat.imagen && (
+                  <img 
+                    src={cat.imagen} 
+                    alt="" 
+                    style={{ 
+                      width: "35px", 
+                      height: "35px", 
+                      objectFit: "contain",
+                      flexShrink: 0
+                    }} 
+                  />
+                )}
+                <h2 className="category-title-text" style={{ margin: 0, whiteSpace: "nowrap" }}>
+                  {cat.nombre}
+                </h2>
+                <div className="category-line-right" style={{ flexGrow: 1 }}></div>
               </div>
               <div className="plates-grid">
                 {categoryPlates.map(plate => (
@@ -200,16 +278,38 @@ const Menu = ({ role: propsRole }) => {
         })}
       </div>
 
+      {/* INFORMACIÓN DE ALÉRGENOS FIJADA Y ALINEADA EN EL PIE DE PÁGINA */}
       <div className="allergen-info-card footer-allergens">
         <div className="allergen-notice">
           <h3>Información de Alérgenos</h3>
           <p>Consulte a nuestro personal para más detalles.</p>
         </div>
-        <div className="allergen-legend-grid">
+        <div className="allergen-legend-grid" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "16px" }}>
           {Object.values(allAllergens).map(ale => (
-            <div key={ale.id} className="allergen-legend-item">
-              <img src={ale.imagen} alt={ale.nombre} />
-              <span>{ale.nombre}</span>
+            <div 
+              key={ale.id} 
+              className="allergen-legend-item"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                width: "80px",
+                textAlign: "center"
+              }}
+            >
+              <img src={ale.imagen} alt={ale.nombre} style={{ width: "22px", height: "22px", objectFit: "contain", marginBottom: "6px" }} />
+              <span style={{ 
+                fontSize: "10px", 
+                fontWeight: "600", 
+                textTransform: "uppercase", 
+                letterSpacing: "0.5px",
+                lineHeight: "1.2",
+                display: "block",
+                width: "100%"
+              }}>
+                {ale.nombre}
+              </span>
             </div>
           ))}
         </div>
