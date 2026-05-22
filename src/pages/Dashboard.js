@@ -17,6 +17,7 @@ import AdminOffers from "./AdminOffers";
 import Home from "./Home";
 import ProfileForm from "../components/ProfileForm";
 import Menu from "./Menu";
+import SplitBillForm from "../components/SplitBillForm";
 import "../styles/ChineseStyle.css";
 
 // Pantalla de bienvenida segun rol
@@ -44,7 +45,7 @@ const WelcomePanel = ({ role, userName }) => (
       }}
     >
       {role === "admin"
-        ? "Desde aqui puedes gestionar el menu del restaurante, las mesas, las ofertas y todas las reservas."
+        ? "Desde aqui puedes gestionar el menu del restaurante, las mesas, las ofertas and todas las reservas."
         : "Aqui puedes crear, consultar y cancelar tus reservas en Tsinghe Cocina Fusión."}
     </p>
 
@@ -115,6 +116,10 @@ const renderContent = (selectedOption, role, userId, userName, userEmail) => {
     // Comensal
     case "reservas":
       return <Reservations userId={userId} />;
+
+    // Opción compartida para ambos roles
+    case "split-bill":
+      return <SplitBillForm />;
 
     // Admin
     case "admin-menu":

@@ -1,12 +1,8 @@
-### feat: implementado filtro de exclusión de alérgenos y mejora de la edición de la carta para el admin
+### feat: funcionalidad del Spill Bill agregada y funcional
 
-He integrado nuevas funcionalidades clave en la vista del menú para mejorar la interactividad y la accesibilidad de la carta para los admins como para los clientes
+He integrado en la barra lateral la opcion de poder entrar a la seccion de repartición de cuenta tanto para admin como para comensal, en este el usuario vera un mini formulario para introducir el Importe Total y el numero de personas asi se puede dividir de forma equitativa
 
 ### Funcionalidades Destacadas
-*   **Filtro Inteligente de Alérgenos:** He implementado un sistema de filtros de exclusión basado en iconos. Al seleccionar uno o varios alérgenos, la carta oculta automáticamente los platos que los contienen, garantizando una navegación segura para usuarios con restricciones alimentarias.
+*   **Calculadora automatica:** He implementado para que se calcule automaticamente la reparticion del total a pagar de la cuenta entre los usuarios de la mesa
 
-*   **Reorganización Estructural (Drag & Drop):** Para optimizar la administración, he habilitado la reordenación de categorías mediante arrastre directamente en los botones de acceso directo. Esto elimina la necesidad de desplazarse por secciones extensas para cambiar el orden de la carta.
 
-*   **Gestión de Disponibilidad en Tiempo Real:** El administrador puede alternar la disponibilidad de los platos (marcar como "Agotado") con un solo clic en modo edición, reflejándose los cambios de forma instantánea en la base de datos.
-
-*   **Interfaz Adaptativa:** Refactorización del header de administración para ofrecer un entorno de trabajo más limpio y centrado en la estructura del menú.
