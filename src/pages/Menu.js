@@ -1,5 +1,5 @@
 // Vista: Menu.js
-// Corrección de la alineación del texto "Frutos Secos" en la leyenda de alérgenos inferior.
+// Ajuste de imágenes avanzado: Contenedores simétricos y escalado inteligente sin deformación ni desalineación.
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -17,9 +17,8 @@ const Menu = ({ role: propsRole }) => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [editMode, setEditMode] = useState(false);
-  
-  // Estado para el filtro de alérgenos (exclusión)
   const [selectedAllergens, setSelectedAllergens] = useState([]);
+  const [selectedPlate, setSelectedPlate] = useState(null);
 
   const currentRole = propsRole || authRole;
   const isAdmin = currentRole === "admin";
@@ -67,25 +66,67 @@ const Menu = ({ role: propsRole }) => {
     if (!editMode) return;
     const sourceIndex = e.dataTransfer.getData("index");
     if (sourceIndex == targetIndex) return;
-
     const newCategories = [...categories];
     const [removed] = newCategories.splice(sourceIndex, 1);
     newCategories.splice(targetIndex, 0, removed);
-    
     setCategories(newCategories);
-
     for (let i = 0; i < newCategories.length; i++) {
       await menuService.updateCategory(newCategories[i].id, { orden: i }, true);
     }
   };
 
   const toggleAvailability = async (plate) => {
-    if (!editMode) return;
     const newStatus = plate.disponible === false;
     const result = await menuService.updatePlate(plate.id, { disponible: newStatus }, true);
     if (result.success) {
       setPlates(prev => prev.map(p => p.id === plate.id ? { ...p, disponible: newStatus } : p));
     }
+  };
+
+  // Obtiene la lista ordenada exactamente según la estructura de categorías de la carta
+  const getFilteredPlatesList = () => {
+    const orderedPlates = [];
+    
+    categories.forEach(cat => {
+      const categoryPlates = plates.filter(p => {
+        const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+        const belongsToCat = p.idCategoria === cat.id;
+        const hasExcludedAllergen = p.alergenos?.some(aleId => selectedAllergens.includes(aleId));
+        return belongsToCat && matchesSearch && !hasExcludedAllergen;
+      });
+      
+      orderedPlates.push(...categoryPlates);
+    });
+
+    return orderedPlates;
+  };
+
+  const handlePlateClick = (plate) => {
+    if (editMode) {
+      toggleAvailability(plate);
+    } else {
+      setSelectedPlate(plate);
+    }
+  };
+
+  const handlePrevPlate = (e) => {
+    e.stopPropagation();
+    const currentList = getFilteredPlatesList();
+    const currentIndex = currentList.findIndex(p => p.id === selectedPlate.id);
+    if (currentIndex === -1) return;
+    
+    const prevIndex = currentIndex === 0 ? currentList.length - 1 : currentIndex - 1;
+    setSelectedPlate(currentList[prevIndex]);
+  };
+
+  const handleNextPlate = (e) => {
+    e.stopPropagation();
+    const currentList = getFilteredPlatesList();
+    const currentIndex = currentList.findIndex(p => p.id === selectedPlate.id);
+    if (currentIndex === -1) return;
+
+    const nextIndex = currentIndex === currentList.length - 1 ? 0 : currentIndex + 1;
+    setSelectedPlate(currentList[nextIndex]);
   };
 
   if (loading) return <div className="loading-container"><div className="loading-spinner"></div></div>;
@@ -119,7 +160,6 @@ const Menu = ({ role: propsRole }) => {
         />
       </div>
 
-      {/* FILTRO DE ALÉRGENOS - EN UNA ÚNICA FILA HORIZONTAL */}
       <div className="allergen-filter-wrapper">
         <p className="filter-label">Excluir platos con:</p>
         <div 
@@ -154,20 +194,8 @@ const Menu = ({ role: propsRole }) => {
                 flexShrink: 0
               }}
             >
-              <img 
-                src={ale.imagen} 
-                alt={ale.nombre} 
-                title={ale.nombre} 
-                style={{ marginBottom: 0, width: "24px", height: "24px", objectFit: "contain" }} 
-              />
-              <span style={{ 
-                fontSize: "10px", 
-                fontWeight: "500", 
-                textTransform: "capitalize",
-                textAlign: "center",
-                lineHeight: "1.1",
-                wordBreak: "break-word"
-              }}>
+              <img src={ale.imagen} alt={ale.nombre} style={{ width: "24px", height: "24px", objectFit: "contain" }} />
+              <span style={{ fontSize: "10px", fontWeight: "500", textTransform: "capitalize", textAlign: "center" }}>
                 {ale.nombre}
               </span>
             </button>
@@ -175,7 +203,6 @@ const Menu = ({ role: propsRole }) => {
         </div>
       </div>
 
-      {/* ACCESOS DIRECTOS */}
       <div className={`category-anchors-grid ${editMode ? 'edit-active' : ''}`}>
         {categories.map((cat, index) => (
           <div
@@ -189,26 +216,9 @@ const Menu = ({ role: propsRole }) => {
             <a 
               href={editMode ? null : `#cat-${cat.id}`} 
               className="anchor-btn"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "10px",
-                padding: "10px 18px"
-              }}
+              style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "10px 18px" }}
             >
-              {cat.imagen && (
-                <img 
-                  src={cat.imagen} 
-                  alt="" 
-                  style={{ 
-                    width: "22px", 
-                    height: "22px", 
-                    objectFit: "contain",
-                    flexShrink: 0
-                  }} 
-                />
-              )}
+              {cat.imagen && <img src={cat.imagen} alt="" style={{ width: "22px", height: "22px", objectFit: "contain" }} />}
               <span>{cat.nombre.toUpperCase()}</span>
             </a>
           </div>
@@ -221,7 +231,6 @@ const Menu = ({ role: propsRole }) => {
             const matchesSearch = p.nombre.toLowerCase().includes(searchTerm.toLowerCase());
             const belongsToCat = p.idCategoria === cat.id;
             const hasExcludedAllergen = p.alergenos?.some(aleId => selectedAllergens.includes(aleId));
-            
             return belongsToCat && matchesSearch && !hasExcludedAllergen;
           });
 
@@ -230,21 +239,8 @@ const Menu = ({ role: propsRole }) => {
           return (
             <section key={cat.id} id={`cat-${cat.id}`} className="category-section">
               <div className="category-header-row" style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                {cat.imagen && (
-                  <img 
-                    src={cat.imagen} 
-                    alt="" 
-                    style={{ 
-                      width: "35px", 
-                      height: "35px", 
-                      objectFit: "contain",
-                      flexShrink: 0
-                    }} 
-                  />
-                )}
-                <h2 className="category-title-text" style={{ margin: 0, whiteSpace: "nowrap" }}>
-                  {cat.nombre}
-                </h2>
+                {cat.imagen && <img src={cat.imagen} alt="" style={{ width: "35px", height: "35px", objectFit: "contain" }} />}
+                <h2 className="category-title-text" style={{ margin: 0 }}>{cat.nombre}</h2>
                 <div className="category-line-right" style={{ flexGrow: 1 }}></div>
               </div>
               <div className="plates-grid">
@@ -252,18 +248,47 @@ const Menu = ({ role: propsRole }) => {
                   <div 
                     key={plate.id} 
                     className={`plate-card-public ${plate.disponible === false ? 'plate-off' : ''} ${editMode ? 'editable-card' : ''}`}
-                    onClick={() => toggleAvailability(plate)}
+                    onClick={() => handlePlateClick(plate)}
+                    style={{ display: "flex", alignItems: "stretch" }} 
                   >
-                    <div className="plate-card-img">
-                      <img src={plate.imagen} alt="" />
+                    {/* PERFECCIONADO: Contenedor simétrico con tamaño fijo absoluto para que todos midan idéntico */}
+                    <div 
+                      className="plate-card-img" 
+                      style={{ 
+                        display: "flex", 
+                        justifyContent: "center", 
+                        alignItems: "center", 
+                        backgroundColor: "#ffffff", 
+                        overflow: "hidden",
+                        position: "relative",
+                        width: "140px",      
+                        minWidth: "140px",   
+                        height: "100%",     
+                        padding: "8px",   
+                        boxSizing: "border-box"
+                      }}
+                    >
+                      <img 
+                        src={plate.imagen} 
+                        alt="" 
+                        style={{ 
+                          maxWidth: "100%", 
+                          maxHeight: "100%", 
+                          width: "auto",   
+                          height: "auto",   
+                          objectFit: "contain",
+                          display: "block",
+                          margin: "0 auto" 
+                        }} 
+                      />
                       {plate.disponible === false && <div className="overlay-sold-out">AGOTADO</div>}
                     </div>
-                    <div className="plate-card-info">
+                    
+                    <div className="plate-card-info" style={{ flexGrow: 1 }}>
                       <div className="plate-header">
                         <h3 className="item-name">{plate.nombre}</h3>
                         <span className="plate-price">{parseFloat(plate.precio).toFixed(2)} €</span>
                       </div>
-                      <p className="item-description">{plate.descripcion}</p>
                       <div className="plate-allergens-icons-row">
                         {plate.alergenos?.map(aleId => (
                           <img key={aleId} src={allAllergens[aleId]?.imagen} title={allAllergens[aleId]?.nombre} alt="" />
@@ -278,7 +303,139 @@ const Menu = ({ role: propsRole }) => {
         })}
       </div>
 
-      {/* INFORMACIÓN DE ALÉRGENOS FIJADA Y ALINEADA EN EL PIE DE PÁGINA */}
+      {/* --- POP-UP / MODAL DEL PLATO --- */}
+      {selectedPlate && (
+        <div 
+          className="modal-overlay" 
+          onClick={() => setSelectedPlate(null)}
+          style={{
+            position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+            backgroundColor: "rgba(0,0,0,0.7)", display: "flex", justifyContent: "center",
+            alignItems: "center", zIndex: 3000, backdropFilter: "blur(4px)"
+          }}
+        >
+          <div style={{ position: "relative", width: "90%", maxWidth: "600px" }}>
+            
+            {/* Flecha Izquierda */}
+            <button
+              onClick={handlePrevPlate}
+              style={{
+                position: "absolute", left: "-25px", top: "50%", transform: "translateY(-50%)",
+                background: "#f4f4f4", border: "1px solid #ddd", borderRadius: "50%", 
+                width: "45px", height: "45px", cursor: "pointer", zIndex: 3100, fontSize: "16px", 
+                display: "flex", alignItems: "center", justifyContent: "center", color: "#555",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.15)", transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => { e.target.style.background = "#e9e9e9"; e.target.style.color = "#000"; }}
+              onMouseLeave={(e) => { e.target.style.background = "#f4f4f4"; e.target.style.color = "#555"; }}
+            >
+              ◀
+            </button>
+
+            {/* Recuadro del Contenido */}
+            <div 
+              className="modal-content-plate" 
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: "white", width: "100%", borderRadius: "12px",
+                overflow: "hidden", position: "relative", boxShadow: "0 20px 40px rgba(0,0,0,0.25)"
+              }}
+            >
+              <button 
+                onClick={() => setSelectedPlate(null)}
+                style={{
+                  position: "absolute", top: "15px", right: "15px", background: "white",
+                  border: "1px solid #aaa", borderRadius: "50%", width: "30px", height: "30px",
+                  cursor: "pointer", zIndex: 10, fontWeight: "bold", color: "#555"
+                }}
+              >
+                ✕
+              </button>
+              
+              {/* PERFECCIONADO: Caja de foto del Pop-up con proporciones controladas */}
+              <div 
+                style={{ 
+                  width: "100%", 
+                  height: "320px", 
+                  overflow: "hidden", 
+                  display: "flex", 
+                  justifyContent: "center", 
+                  alignItems: "center", 
+                  backgroundColor: "#ffffff",
+                  padding: "15px",
+                  boxSizing: "border-box"
+                }}
+              >
+                <img 
+                  src={selectedPlate.imagen} 
+                  alt={selectedPlate.nombre} 
+                  style={{ 
+                    maxWidth: "100%", 
+                    maxHeight: "100%", 
+                    width: "auto",
+                    height: "auto",
+                    objectFit: "contain",
+                    display: "block",
+                    margin: "0 auto"
+                  }} 
+                />
+              </div>
+              
+              <div style={{ padding: "30px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "15px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
+                  <h2 style={{ fontFamily: "Georgia, serif", fontSize: "28px", margin: 0, fontWeight: "400" }}>
+                    {selectedPlate.nombre}
+                  </h2>
+                  <span style={{ fontSize: "22px", fontWeight: "700", color: "#050505" }}>
+                    {parseFloat(selectedPlate.precio).toFixed(2)} €
+                  </span>
+                </div>
+                
+                <p style={{ color: "#444", fontSize: "16px", lineHeight: "1.6", marginBottom: "25px" }}>
+                  {selectedPlate.descripcion}
+                </p>
+                
+                <div style={{ borderTop: "1px solid #eee", paddingTop: "15px" }}>
+                  <h4 style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px", color: "#888" }}>
+                    Información de Alérgenos
+                  </h4>
+                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                    {selectedPlate.alergenos?.length > 0 ? (
+                      selectedPlate.alergenos.map(aleId => (
+                        <div key={aleId} style={{ display: "flex", alignItems: "center", gap: "5px", background: "#f9f9f9", padding: "5px 10px", borderRadius: "20px", border: "1px solid #eee" }}>
+                          <img src={allAllergens[aleId]?.imagen} alt="" style={{ width: "18px", height: "18px" }} />
+                          <span style={{ fontSize: "12px", fontWeight: "600" }}>{allAllergens[aleId]?.nombre}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <span style={{ fontSize: "13px", color: "#aaa" }}>Sin alérgenos declarados.</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Flecha Derecha */}
+            <button
+              onClick={handleNextPlate}
+              style={{
+                position: "absolute", right: "-25px", top: "50%", transform: "translateY(-50%)",
+                background: "#f4f4f4", border: "1px solid #ddd", borderRadius: "50%", 
+                width: "45px", height: "45px", cursor: "pointer", zIndex: 3100, fontSize: "16px", 
+                display: "flex", alignItems: "center", justifyContent: "center", color: "#555",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.15)", transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => { e.target.style.background = "#e9e9e9"; e.target.style.color = "#000"; }}
+              onMouseLeave={(e) => { e.target.style.background = "#f4f4f4"; e.target.style.color = "#555"; }}
+            >
+              ▶
+            </button>
+
+          </div>
+        </div>
+      )}
+
+      {/* FOOTER DE ALÉRGENOS */}
       <div className="allergen-info-card footer-allergens">
         <div className="allergen-notice">
           <h3>Información de Alérgenos</h3>
@@ -286,30 +443,9 @@ const Menu = ({ role: propsRole }) => {
         </div>
         <div className="allergen-legend-grid" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "16px" }}>
           {Object.values(allAllergens).map(ale => (
-            <div 
-              key={ale.id} 
-              className="allergen-legend-item"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                width: "80px",
-                textAlign: "center"
-              }}
-            >
-              <img src={ale.imagen} alt={ale.nombre} style={{ width: "22px", height: "22px", objectFit: "contain", marginBottom: "6px" }} />
-              <span style={{ 
-                fontSize: "10px", 
-                fontWeight: "600", 
-                textTransform: "uppercase", 
-                letterSpacing: "0.5px",
-                lineHeight: "1.2",
-                display: "block",
-                width: "100%"
-              }}>
-                {ale.nombre}
-              </span>
+            <div key={ale.id} className="allergen-legend-item" style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "80px" }}>
+              <img src={ale.imagen} alt={ale.nombre} style={{ width: "22px", height: "22px", marginBottom: "6px" }} />
+              <span style={{ fontSize: "10px", fontWeight: "600", textTransform: "uppercase", textAlign: "center" }}>{ale.nombre}</span>
             </div>
           ))}
         </div>
@@ -322,7 +458,6 @@ const Menu = ({ role: propsRole }) => {
               navigate("/dashboard?section=inicio");
               return;
             }
-
             const reservePath = "/dashboard?section=reservas";
             if (authRole) {
               navigate(reservePath);
