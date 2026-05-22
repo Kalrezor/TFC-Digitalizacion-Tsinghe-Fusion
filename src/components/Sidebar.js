@@ -23,6 +23,7 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
           { id: "admin-mesas", label: "Gestionar Mesas", icon: "Mesas" },
           { id: "admin-ofertas", label: "Ofertas", icon: "Oferta" },
           { id: "admin-reservas", label: "Todas las Reservas", icon: "Lista" },
+          { id: "split-bill", label: "Dividir Cuenta", icon: "Cuenta" },
           { id: "inicio", label: "Configuración de perfil", icon: "Configuración" }
         ]
       : [
@@ -30,6 +31,7 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
           { id: "preview-menu", label: "Ver Menú", icon: "Menu" },
           { id: "reservas", label: "Reservas", icon: "Lista" },
+          { id: "split-bill", label: "Dividir Cuenta", icon: "Cuenta" },
         ];
 
   const handleLogout = async () => {
@@ -114,7 +116,10 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
                   return (
                     <li key={option.id}>
                       <button
-                        onClick={() => onSelectOption(option.id)}
+                        onClick={() => {
+                          onSelectOption(option.id);
+                          setIsOpen(false); // Cierra la sidebar tras clickear
+                        }}
                         style={{
                           width: "100%",
                           background: isActive ? "#050505" : "transparent",
