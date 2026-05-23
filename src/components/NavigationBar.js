@@ -19,7 +19,7 @@ const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
     <nav className="editorial-topbar">
       <div className="editorial-topbar-inner">
         <Link
-          to={isAuthenticated ? "/dashboard" : "/"}
+          to={isAuthenticated ? "/dashboard?section=preview-inicio" : "/"}
           className="editorial-brand"
         >
           Tsinghe
