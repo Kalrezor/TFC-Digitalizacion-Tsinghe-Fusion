@@ -67,10 +67,21 @@ const Home = () => {
         </div>
 
         <div className="home-hero-visual">
-          <div className="editorial-photo" aria-hidden="true" />
-          <div className="home-hero-meta editorial-ui">
-            <div>Reserva digital</div>
-            <div>Carta viva</div>
+          <div className="home-hero-video-wrapper" aria-hidden="true">
+            <video className="home-hero-video-bg" autoPlay muted loop playsInline>
+              <source
+                src="https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcorte%20vertic.mp4?alt=media&token=5081065f-00a2-40d1-9fbe-9511f9acca3c"
+                type="video/mp4"
+              />
+            </video>
+            <div className="editorial-photo">
+              <video className="home-hero-video-fg" autoPlay muted loop playsInline>
+                <source
+                  src="https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcorte%20vertic.mp4?alt=media&token=5081065f-00a2-40d1-9fbe-9511f9acca3c"
+                  type="video/mp4"
+                />
+              </video>
+            </div>
           </div>
         </div>
       </section>
@@ -78,7 +89,7 @@ const Home = () => {
       <section className="editorial-section editorial-frame">
         <div className="editorial-grid-3">
           <article className="editorial-cell">
-            <p className="editorial-kicker">01 · Producto</p>
+            <p className="editorial-kicker">Producto</p>
             <h3>Origen y precision</h3>
             <p>
               Recetas de inspiracion china preparadas con ingredientes cuidados
@@ -87,7 +98,7 @@ const Home = () => {
           </article>
 
           <article className="editorial-cell">
-            <p className="editorial-kicker">02 · Sala</p>
+            <p className="editorial-kicker">Sala</p>
             <h3>Calma y ritmo</h3>
             <p>
               Un ambiente sobrio para compartir sin ruido visual, pensado para
@@ -96,7 +107,7 @@ const Home = () => {
           </article>
 
           <article className="editorial-cell">
-            <p className="editorial-kicker">03 · Reserva</p>
+            <p className="editorial-kicker">Reserva</p>
             <h3>Mesa sin friccion</h3>
             <p>
               Reserva online, consulta disponibilidad y gestiona tus datos desde
@@ -138,8 +149,18 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="editorial-section editorial-frame">
-        <div style={{ maxWidth: "720px" }}>
+      <section className="editorial-section editorial-frame home-access-section">
+        <div className="home-access-video-wrapper" aria-hidden="true">
+          <video className="home-access-video-bg" autoPlay muted loop playsInline>
+            <source
+              src="https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2FSENTADOS_2.mp4?alt=media&token=53af7f03-87ae-409e-a93a-a56052200db8"
+              type="video/mp4"
+            />
+          </video>
+          <div className="home-access-video-overlay" />
+        </div>
+
+        <div className="home-access-content" style={{ maxWidth: "720px" }}>
           <p className="editorial-kicker">Acceso</p>
           <h2
             className="editorial-serif"
@@ -149,13 +170,12 @@ const Home = () => {
             }}
           >
             {user
-              ? `Bienvenido, ${(user?.displayName || '').split(' ')[0]}`
+              ? `Bienvenido, ${(user?.displayName || "").split(" ")[0]}`
               : "Listo para sentarte a la mesa"}
           </h2>
 
           {user ? (
             <div className="home-actions">
-              
               <button onClick={logout} className="editorial-button">
                 Cerrar sesion
               </button>

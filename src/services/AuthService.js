@@ -56,12 +56,34 @@ class AuthService {
         return {
           success: false,
           errorCode: error.code,
-          error: "Contraseña incorrecta",
+          error: "Contraseña incorrecta.",
           suggestion: "password",
         };
       }
+      if (error.code === "auth/invalid-email") {
+        return {
+          success: false,
+          errorCode: error.code,
+          error: "El email no es válido. Revísalo e intenta de nuevo.",
+          suggestion: "email",
+        };
+      }
+      if (error.code === "auth/user-disabled") {
+        return {
+          success: false,
+          errorCode: error.code,
+          error: "Tu cuenta está deshabilitada. Contacta con soporte.",
+        };
+      }
+      if (error.code === "auth/too-many-requests") {
+        return {
+          success: false,
+          errorCode: error.code,
+          error: "Has intentado iniciar sesión demasiadas veces. Intenta de nuevo más tarde.",
+        };
+      }
       console.error("Error en login:", error);
-      return { success: false, error: error.message };
+      return { success: false, error: "Error al iniciar sesión. Revisa tus datos y vuelve a intentarlo." };
     }
   }
 

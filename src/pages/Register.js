@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { toastSuccess, toastError } from "../services/ToastService";
 import AuthService from "../services/AuthService";
 import "../styles/MinimalStyle.css";
 
@@ -35,29 +36,35 @@ const Register = () => {
 
   const validateForm = () => {
     if (!formData.name.trim() || formData.name.trim().length < 2) {
-      setError("El nombre debe tener al menos 2 caracteres");
+      toastError("El nombre debe tener al menos 2 caracteres");
+      //setError("El nombre debe tener al menos 2 caracteres");
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError("Por favor ingresa un email valido");
+      toastError("Por favor ingresa un email válido");
+      //setError("Por favor ingresa un email válido");
       return false;
     }
     if (formData.password.length < 6) {
-      setError("La contrasena debe tener al menos 6 caracteres");
+      toastError("La contraseña debe tener al menos 6 caracteres");
+      //setError("La contraseña debe tener al menos 6 caracteres");
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Las contrasenas no coinciden");
+      toastError("Las contraseñas no coinciden");
+      //setError("Las contraseñas no coinciden");
       return false;
     }
     if (!formData.phone.trim()) {
-      setError("El numero de telefono es obligatorio");
+      toastError("El número de teléfono es obligatorio");
+      //setError("El número de teléfono es obligatorio");
       return false;
     }
     const phoneRegex = /^\+?[0-9\s\-()]{7,15}$/;
     if (!phoneRegex.test(formData.phone.trim())) {
-      setError("Por favor ingresa un numero de telefono valido");
+      toastError("Por favor ingresa un número de teléfono válido");
+      //setError("Por favor ingresa un número de teléfono válido");
       return false;
     }
     return true;
@@ -77,12 +84,15 @@ const Register = () => {
       );
 
       if (result.success) {
+        toastSuccess("Registro completado correctamente");
         setSuccess(true);
         setTimeout(() => navigate("/login"), 2000);
       } else {
+        toastError(result.error || "Error al registrarse");
         setError(result.error || "Error al registrarse");
       }
     } catch (err) {
+      toastError(err.message || "Error inesperado");
       setError(err.message || "Error inesperado");
     } finally {
       setLoading(false);
@@ -90,7 +100,14 @@ const Register = () => {
   };
 
   return (
-    <div className="editorial-auth-page">
+    <div className="editorial-auth-page login-video-page">
+      <video className="login-background-video" autoPlay muted loop playsInline>
+        <source
+          src="https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcorte.mp4?alt=media&token=788bcf2e-c93c-4801-aae5-457d729030a0"
+          type="video/mp4"
+        />
+      </video>
+      <div className="login-background-overlay" />
       <div className="editorial-auth-card">
         <div style={{ marginBottom: "28px", textAlign: "center" }}>
           <h1>Crear Cuenta</h1>
@@ -102,7 +119,7 @@ const Register = () => {
         )}
         {error && <div className="error-box">{error}</div>}
 
-        <form onSubmit={handleSubmit}>
+        <form noValidate onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Nombre Completo</label>
             <input
@@ -110,7 +127,6 @@ const Register = () => {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              required
               placeholder="Ej: Juan Garcia"
             />
           </div>
@@ -122,7 +138,6 @@ const Register = () => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              required
               placeholder="tu@email.com"
             />
           </div>
@@ -134,7 +149,6 @@ const Register = () => {
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              required
               placeholder="Minimo 6 caracteres"
             />
           </div>
@@ -146,7 +160,6 @@ const Register = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleInputChange}
-              required
             />
           </div>
 
@@ -157,7 +170,6 @@ const Register = () => {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              required
               placeholder="Ej: +34 600 123 456"
             />
           </div>

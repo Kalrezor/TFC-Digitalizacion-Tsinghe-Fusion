@@ -107,8 +107,8 @@ const ReservationFormComensal = () => {
 
   return (
     <div style={{ padding: "24px", width: "100%", maxWidth: "900px", margin: "0 auto" }}>
-      <h2 style={{ color: "#DC143C", marginBottom: "14px" }}>
-        🍽️ Crear Reserva
+      <h2 style={{ color: "#222", marginBottom: "14px" }}>
+        Crear reserva
       </h2>
 
       <div
@@ -232,7 +232,7 @@ const inputStyle = {
 };
 
 const submitStyle = {
-  background: "#DC143C",
+  background: "#18c618",
   color: "#fff",
   border: "none",
   padding: "12px 20px",

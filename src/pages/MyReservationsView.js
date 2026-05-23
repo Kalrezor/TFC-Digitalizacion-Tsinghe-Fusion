@@ -14,8 +14,8 @@ const MyReservationsView = ({ userId }) => {
 
   return (
     <div style={{ padding: "24px", maxWidth: "920px", margin: "0 auto" }}>
-      <h2 style={{ color: "#DC143C", marginBottom: "20px" }}>
-        📌 Mis Reservas
+      <h2 style={{ color: "#222", marginBottom: "20px" }}>
+        Mis Reservas
       </h2>
 
       {error && (
