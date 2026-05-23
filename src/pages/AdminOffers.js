@@ -2,6 +2,7 @@
 // CRUD completo de ofertas - Corrección del botón Editar y sincronización de datos.
 
 import React, { useState, useEffect } from "react";
+import { toastSuccess, toastError } from "../services/ToastService";
 import offerService from "../services/OfferService";
 import menuService  from "../services/MenuService";
 import "../styles/ChineseStyle.css";
@@ -143,10 +144,14 @@ const AdminOffers = () => {
     setLoading(true);
     const result = await offerService.deleteOffer(id, true);
     setLoading(false);
-    if (result.success) { setSuccess("Oferta removida."); loadOffers(); }
-    else setError("Error al eliminar: " + result.error);
+    if (result.success) {
+      toastSuccess("Oferta eliminada.");
+      loadOffers();
+    } else {
+      toastError("Error al eliminar: " + result.error);
+      setError("Error al eliminar: " + result.error);
+    }
   };
-
   const handleToggleActive = async (offer) => {
     const result = await offerService.updateOffer(offer.id, { active: !offer.active }, true);
     if (result.success) loadOffers();

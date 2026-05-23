@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { toastSuccess, toastError, toastInfo } from "../services/ToastService";
 import AuthService from "../services/AuthService";
 import "../styles/MinimalStyle.css";
 
@@ -34,9 +35,11 @@ const ForgotPassword = () => {
       await AuthService.requestPasswordReset(emailValue);
       setStep(2);
       setMessage("Token enviado a tu email");
+      toastSuccess("Token enviado a tu email");
     } catch (err) {
       setStep(2);
       setMessage("Token enviado a tu email");
+      toastInfo("Si hay una cuenta registrada, recibirás el token en tu email.");
     } finally {
       setLoading(false);
     }
@@ -55,11 +58,13 @@ const ForgotPassword = () => {
     setError(null);
 
     if (!email.trim()) {
-      setError("Por favor ingresa tu email");
+      toastError("Por favor ingresa tu email");
+      //setError("Por favor ingresa tu email");
       return;
     }
 
     if (!validateEmail(email)) {
+      toastError("Por favor ingresa un email válido");
       setError("Por favor ingresa un email válido");
       return;
     }
@@ -72,43 +77,51 @@ const ForgotPassword = () => {
     setError(null);
 
     if (!isGoogleSetup && !token.trim()) {
+      toastError("Ingresa el token recibido en tu email");
       setError("Ingresa el token recibido en tu email");
       return;
     }
 
     if (!isGoogleSetup && token.length !== 3) {
+      toastError("El token debe tener exactamente 3 caracteres");
       setError("El token debe tener exactamente 3 caracteres");
       return;
     }
 
     if (isGoogleSetup) {
       if (!phone.trim()) {
+        toastError("El número de teléfono es obligatorio");
         setError("El número de teléfono es obligatorio");
         return;
       }
       const phoneRegex = /^\+?[0-9\s\-\(\)]{7,15}$/;
       if (!phoneRegex.test(phone.trim())) {
+        toastError("Por favor ingresa un número de teléfono válido");
         setError("Por favor ingresa un número de teléfono válido");
         return;
       }
     }
 
     if (!newPassword) {
+      toastError("Ingresa una nueva contraseña");
       setError("Ingresa una nueva contraseña");
       return;
     }
 
     if (newPassword.length < 4) {
+      toastError("La contraseña debe tener al menos 4 caracteres");
       setError("La contraseña debe tener al menos 4 caracteres");
       return;
     }
 
     if (!confirmPassword) {
+      toastError("Confirma tu nueva contraseña");
       setError("Confirma tu nueva contraseña");
       return;
     }
 
     if (newPassword !== confirmPassword) {
+      toastError("Las contraseñas no coinciden");
       setError("Las contraseñas no coinciden");
       return;
     }
@@ -122,14 +135,17 @@ const ForgotPassword = () => {
 
       if (result.success) {
         sessionStorage.removeItem("googlePasswordSetupPending");
+        toastSuccess("Contraseña actualizada exitosamente");
         setMessage("Contraseña actualizada exitosamente");
         setTimeout(() => {
           navigate(isGoogleSetup ? "/dashboard" : "/login");
         }, 2000);
       } else {
+        toastError(result.error || "Error al resetear la contraseña");
         setError(result.error || "Error al resetear la contraseña");
       }
     } catch (err) {
+      toastError(err.message || "Error inesperado");
       setError(err.message || "Error inesperado");
     } finally {
       setLoading(false);
@@ -137,35 +153,13 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div style={{
-      minHeight: "calc(100vh - 60px)",
-      backgroundColor: "#faf5ed",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "20px",
-    }}>
-      <div style={{
-        width: "100%",
-        maxWidth: "480px",
-        backgroundColor: "white",
-        border: "1px solid #e0e0e0",
-        borderRadius: "4px",
-        padding: "clamp(20px, 5vw, 40px)",
-      }}>
+    <div className="editorial-auth-page">
+      <div className="editorial-auth-card">
         <div style={{ marginBottom: "28px", textAlign: "center" }}>
-          <h1 style={{
-            fontSize: "28px",
-            color: "#568d6e",
-            marginBottom: "8px",
-          }}>
+          <h1>
             {isGoogleSetup ? "Completar Registro" : "Recuperar Contraseña"}
           </h1>
-          <p style={{
-            fontSize: "13px",
-            color: "#666666",
-            margin: 0,
-          }}>
+          <p>
             {isGoogleSetup
               ? "Proporciona tu número de teléfono y crea una contraseña"
               : step === 1
@@ -175,19 +169,19 @@ const ForgotPassword = () => {
         </div>
 
         {message && (
-          <div className="success-message" style={{ marginBottom: "16px" }}>
+          <div className="success-message">
             ✓ {message}
           </div>
         )}
 
         {error && (
-          <div className="error-message" style={{ marginBottom: "16px" }}>
+          <div className="error-message">
             {error}
           </div>
         )}
 
         {step === 1 && (
-          <form onSubmit={handleRequestToken} style={{ marginBottom: "20px" }}>
+          <form noValidate onSubmit={handleRequestToken} style={{ marginBottom: "20px" }}>
             <div className="form-group">
               <label>Email</label>
               <input
@@ -195,7 +189,6 @@ const ForgotPassword = () => {
                 placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
               />
             </div>
 
@@ -211,7 +204,7 @@ const ForgotPassword = () => {
         )}
 
         {step === 2 && (
-          <form onSubmit={handleResetPassword} style={{ marginBottom: "20px" }}>
+          <form noValidate onSubmit={handleResetPassword} style={{ marginBottom: "20px" }}>
             <div className="form-group">
               <label>Email</label>
               <input
@@ -219,7 +212,6 @@ const ForgotPassword = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isGoogleSetup}
-                required
               />
             </div>
 
@@ -231,7 +223,6 @@ const ForgotPassword = () => {
                   placeholder="Ej: +34 600 123 456"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  required
                 />
               </div>
             )}
@@ -245,7 +236,6 @@ const ForgotPassword = () => {
                   value={token}
                   onChange={(e) => setToken(e.target.value.toUpperCase())}
                   maxLength="3"
-                  required
                 />
                 <small style={{
                   fontSize: "12px",
@@ -265,7 +255,6 @@ const ForgotPassword = () => {
                 placeholder="Mínimo 4 caracteres"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                required
               />
             </div>
 
@@ -276,7 +265,6 @@ const ForgotPassword = () => {
                 placeholder="Repite tu contraseña"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                required
               />
             </div>
 
@@ -291,28 +279,15 @@ const ForgotPassword = () => {
           </form>
         )}
 
-        <div style={{
-          textAlign: "center",
-          fontSize: "13px",
-          color: "#666666",
-        }}>
+        <div className="editorial-auth-links">
           {step === 1 ? (
             <>
-              ¿Recuerdas tu contraseña?{" "}
-              <Link
-                to="/login"
-                style={{
-                  color: "#2e8b57",
-                  textDecoration: "none",
-                  fontWeight: "600",
-                }}
-              >
-                Inicia sesión
-              </Link>
+              ¿Recuerdas tu contraseña? {" "}
+              <Link to="/login">Inicia sesión</Link>
             </>
           ) : (
             <>
-              ¿Necesitas un nuevo token?{" "}
+              ¿Necesitas un nuevo token? {" "}
               <button
                 onClick={() => {
                   setStep(1);

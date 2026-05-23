@@ -3,6 +3,7 @@
 // CRUD completo de platos vinculado a Firebase con selectores personalizados.
 
 import React, { useState, useEffect, useRef } from "react";
+import { toastSuccess, toastError } from "../services/ToastService";
 import menuService from "../models/MenuService";
 import "../styles/ChineseStyle.css";
 
@@ -89,6 +90,36 @@ const AdminMenu = () => {
     setError(null);
     setSuccess(null);
   };
+
+  const [confirmDeletePlate, setConfirmDeletePlate] = useState(null);
+
+  const handleDeleteClick = (plate) => {
+    setConfirmDeletePlate(plate);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeletePlate) return;
+    setLoading(true);
+    try {
+      const res = await menuService.deletePlate(confirmDeletePlate.id, true);
+      setLoading(false);
+      if (res && res.success !== false) {
+        toastSuccess("Plato eliminado correctamente");
+        loadPlatesOnly();
+        setConfirmDeletePlate(null);
+      } else {
+        const err = (res && res.error) || "Error al eliminar el plato";
+        toastError(err);
+        setError(err);
+      }
+    } catch (err) {
+      setLoading(false);
+      toastError("Error al eliminar: " + err.message);
+      setError(err.message);
+    }
+  };
+
+  const handleCancelDelete = () => setConfirmDeletePlate(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -301,13 +332,25 @@ const AdminMenu = () => {
                 </td>
                 <td style={td}>
                   <button onClick={() => openEdit(p)} style={btnEditSmaller}>Editar</button>
-                  <button onClick={() => {if(window.confirm("¿Eliminar?")) menuService.deletePlate(p.id, true).then(loadPlatesOnly)}} style={{...btnDelete, marginLeft: "5px"}}>Eliminar</button>
+                  <button onClick={() => handleDeleteClick(p)} style={{...btnDelete, marginLeft: "5px"}}>Eliminar</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {confirmDeletePlate && (
+        <div style={confirmBox}>
+          <div style={confirmText}>
+            ¿Eliminar "{confirmDeletePlate.nombre}"?
+            <div style={confirmMeta}>Capacidad: --</div>
+          </div>
+          <div style={confirmActions}>
+            <button onClick={handleConfirmDelete} style={btnConfirm} disabled={loading}>{loading ? "Eliminando..." : "Confirmar"}</button>
+            <button onClick={handleCancelDelete} style={btnCancel}>Cancelar</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -330,5 +373,11 @@ const th = { padding: "12px", textAlign: "left" };
 const td = { padding: "12px", verticalAlign: "middle" };
 const alertError = { background: "#ffe0e0", color: "#8B0000", padding: "10px", marginBottom: "10px", borderRadius: "6px" };
 const alertSuccess = { background: "#e0ffe0", color: "#2e7d32", padding: "10px", marginBottom: "10px", borderRadius: "6px" };
+const confirmBox = { backgroundColor: "#fff8f0", border: "1px solid #f1c0c0", borderRadius: "10px", padding: "14px", marginTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" };
+const confirmText = { color: "#1f2937", fontSize: "15px", fontWeight: "700" };
+const confirmMeta = { color: "#475569", fontSize: "13px", fontWeight: "400", marginTop: "6px" };
+const confirmActions = { display: "flex", gap: "10px" };
+const btnConfirm = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "8px 14px", borderRadius: "8px", cursor: "pointer", fontWeight: "700" };
+const btnCancel = { backgroundColor: "#f1f5f9", color: "#334155", border: "none", padding: "8px 14px", borderRadius: "8px", cursor: "pointer" };
 
 export default AdminMenu;

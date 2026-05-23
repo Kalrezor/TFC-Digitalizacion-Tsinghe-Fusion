@@ -30,6 +30,7 @@ import AdminMenu from "./pages/AdminMenu";
 import AdminTables from "./pages/AdminTables";
 import AdminOffers from "./pages/AdminOffers";
 
+import { Toaster } from "react-hot-toast";
 import "./styles/MinimalStyle.css";
 
 // ── Pantalla de Carga ────────────────────────────────────────────────────────
@@ -43,7 +44,7 @@ const LoadingScreen = () => (
     }}
   >
     <div style={{ textAlign: "center" }}>
-      <div style={{ fontSize: "16px", color: "#568d6e", fontWeight: "600" }}>
+      <div style={{ fontSize: "16px", color: "#000000", fontWeight: "600" }}>
         Cargando autenticación...
       </div>
     </div>
@@ -207,6 +208,14 @@ function App() {
       {isAuthenticated && (
         <RestaurantChatbot user={user} role={role} userName={userName} />
       )}
+      <Toaster
+        toastOptions={{
+          duration: 4500,
+          style: {
+            fontFamily: "Inter, Arial, sans-serif",
+          },
+        }}
+      />
     </Router>
   );
 }
