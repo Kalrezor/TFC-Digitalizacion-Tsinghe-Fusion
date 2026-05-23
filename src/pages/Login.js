@@ -3,6 +3,7 @@
 
 import React, { useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { toastSuccess, toastError } from "../services/ToastService";
 import AuthService from "../services/AuthService";
 import "../styles/MinimalStyle.css";
 
@@ -18,18 +19,24 @@ const Login = () => {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
+    if (!email.trim() || !password.trim()) {
+      toastError("Completa email y contraseña para continuar");
+      return;
+    }
+
+    setLoading(true);
     const result = await AuthService.loginWithEmail(email, password);
     setLoading(false);
 
     if (result.success) {
-      console.log("Login exitoso");
+      toastSuccess("Sesión iniciada correctamente");
       setEmail("");
       setPassword("");
       navigate(nextPath ? nextPath : "/home", { replace: true });
     } else {
-      setError(result.error || "Error al iniciar sesion");
+      toastError(result.error || "Error al iniciar sesión");
+      //setError(result.error || "Error al iniciar sesión");
     }
   };
 
@@ -41,8 +48,7 @@ const Login = () => {
       const result = await AuthService.loginWithGoogle();
 
       if (result.success) {
-        console.log("Google SignIn exitoso", result);
-
+        toastSuccess("Inicio de sesión con Google exitoso");
         if (result.requiresPassword) {
           sessionStorage.setItem("googlePasswordSetupPending", "true");
           navigate(
@@ -52,21 +58,29 @@ const Login = () => {
             { replace: true },
           );
         } else {
-          console.log("Usuario ya tiene perfil completo");
           navigate(nextPath ? nextPath : "/home", { replace: true });
         }
       } else {
-        setError(result.error || "Error al iniciar sesion con Google");
+        toastError(result.error || "Error al iniciar sesión con Google");
+        //setError(result.error || "Error al iniciar sesión con Google");
       }
     } catch (err) {
-      setError(err.message);
+      toastError(err.message || "Error inesperado al iniciar sesión");
+      //setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="editorial-auth-page">
+    <div className="editorial-auth-page login-video-page">
+      <video className="login-background-video" autoPlay muted loop playsInline>
+        <source
+          src="https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcorte.mp4?alt=media&token=788bcf2e-c93c-4801-aae5-457d729030a0"
+          type="video/mp4"
+        />
+      </video>
+      <div className="login-background-overlay" />
       <div className="editorial-auth-card">
         <div style={{ marginBottom: "32px", textAlign: "center" }}>
           <h1>Iniciar Sesion</h1>
@@ -79,7 +93,7 @@ const Login = () => {
           </div>
         )}
 
-        <form onSubmit={handleLoginSubmit} style={{ marginBottom: "24px" }}>
+        <form noValidate onSubmit={handleLoginSubmit} style={{ marginBottom: "24px" }}>
           <div className="form-group">
             <label>Email</label>
             <input
@@ -87,7 +101,6 @@ const Login = () => {
               placeholder="tu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
             />
           </div>
 
@@ -98,7 +111,6 @@ const Login = () => {
               placeholder="Tu contrasena"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
           </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import tableService from "../services/TableService";
+import { toastSuccess, toastError } from "../services/ToastService";
 import { db } from "../firebase";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 
@@ -68,7 +69,7 @@ const AdminTables = ({ userId, userRole }) => {
   const handleTableClick = (table) => {
     // Validar que sea admin
     if (!isAdmin) {
-      alert("⚠️ Solo administradores pueden fusionar mesas.");
+      toastError("Solo administradores pueden fusionar mesas.");
       return;
     }
 
@@ -77,7 +78,8 @@ const AdminTables = ({ userId, userRole }) => {
 
     // Si la mesa ya está ocupada por OTRA reserva, no deja seleccionarla
     if (table.reservationId && table.reservationId !== pendingRes.resId) {
-      return alert("Esta mesa ya está ocupada.");
+      toastError("Esta mesa ya está ocupada.");
+      return;
     }
 
     // Toggle de selección
@@ -93,11 +95,13 @@ const AdminTables = ({ userId, userRole }) => {
   // 4. CONFIRMAR FUSIÓN (USAR NUEVO MÉTODO)
   const handleConfirmFusion = async () => {
     if (!isAdmin) {
-      return alert("⚠️ Solo administradores pueden fusionar mesas.");
+      toastError("Solo administradores pueden fusionar mesas.");
+      return;
     }
 
     if (selectedMultiple.length === 0) {
-      return alert("Selecciona al menos una mesa.");
+      toastError("Selecciona al menos una mesa.");
+      return;
     }
 
     try {
@@ -115,15 +119,15 @@ const AdminTables = ({ userId, userRole }) => {
       );
 
       if (result.success) {
-        alert(`✅ ${result.message}`);
+        toastSuccess(result.message);
         setSelectedMultiple([]);
         navigate("/reservations");
       } else {
-        alert(`❌ Error: ${result.error}`);
+        toastError(result.error || "Error al fusionar mesas");
       }
     } catch (error) {
       console.error("Error en fusión:", error);
-      alert("Error al fusionar mesas: " + error.message);
+      toastError("Error al fusionar mesas: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -132,12 +136,12 @@ const AdminTables = ({ userId, userRole }) => {
   // LIBERAR/DESVINCULAR MESAS
   const handleReleaseTable = async (table) => {
     if (!isAdmin) {
-      alert("⚠️ Solo administradores pueden desvincular mesas.");
+      toastError("Solo administradores pueden desvincular mesas.");
       return;
     }
 
     if (!table.reservationId) {
-      alert("Esta mesa no está fusionada.");
+      toastError("Esta mesa no está fusionada.");
       return;
     }
 
@@ -147,7 +151,8 @@ const AdminTables = ({ userId, userRole }) => {
 
     // Validar PIN
     if (confirmPass.trim() !== dbPin) {
-      return alert("❌ PIN incorrecto.");
+      toastError("PIN incorrecto.");
+      return;
     }
 
     try {
@@ -157,7 +162,8 @@ const AdminTables = ({ userId, userRole }) => {
       const tablesResult = await tableService.getTablesByReservation(table.reservationId);
       
       if (!tablesResult.success) {
-        return alert("Error obteniendo mesas fusionadas");
+        toastError("Error obteniendo mesas fusionadas");
+        return;
       }
 
       const tableIdsToUnmerge = tablesResult.tables
@@ -168,13 +174,13 @@ const AdminTables = ({ userId, userRole }) => {
       const result = await tableService.unmergeTables(tableIdsToUnmerge);
 
       if (result.success) {
-        alert(`✅ ${result.message}`);
+        toastSuccess(result.message);
       } else {
-        alert(`❌ Error: ${result.error}`);
+        toastError(result.error || "Error al desvincular mesas");
       }
     } catch (error) {
       console.error("Error desvinculando:", error);
-      alert("Error al desvincular mesas: " + error.message);
+      toastError("Error al desvincular mesas: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -182,7 +188,7 @@ const AdminTables = ({ userId, userRole }) => {
 
   const handleReleaseBusyTable = async (table) => {
     if (!isAdmin) {
-      alert("⚠️ Solo administradores pueden liberar mesas.");
+      toastError("Solo administradores pueden liberar mesas.");
       return;
     }
 
@@ -190,7 +196,8 @@ const AdminTables = ({ userId, userRole }) => {
     if (!confirmPass) return;
 
     if (confirmPass.trim() !== dbPin) {
-      return alert("❌ PIN incorrecto.");
+      toastError("PIN incorrecto.");
+      return;
     }
 
     try {
@@ -205,11 +212,11 @@ const AdminTables = ({ userId, userRole }) => {
       });
 
       if (!result.success) {
-        alert(`❌ Error: ${result.error}`);
+        toastError(result.error || "Error al liberar mesa");
       }
     } catch (error) {
       console.error("Error liberando mesa:", error);
-      alert("Error al liberar mesa: " + error.message);
+      toastError("Error al liberar mesa: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -217,17 +224,17 @@ const AdminTables = ({ userId, userRole }) => {
 
   const handleChangeTableStatus = async (table, status) => {
     if (!isAdmin) {
-      alert("⚠️ Solo administradores pueden cambiar el estado de mesas.");
+      toastError("Solo administradores pueden cambiar el estado de mesas.");
       return;
     }
 
     if (!table.id) {
-      alert("Esta mesa no tiene ID en Firestore.");
+      toastError("Esta mesa no tiene ID en Firestore.");
       return;
     }
 
     if (table.reservationId || (!table.available && table.active !== false)) {
-      alert("Esta mesa está ocupada o fusionada. Libérala con PIN antes de modificarla.");
+      toastError("Esta mesa está ocupada o fusionada. Libérala con PIN antes de modificarla.");
       return;
     }
 
@@ -244,11 +251,11 @@ const AdminTables = ({ userId, userRole }) => {
       });
 
       if (!result.success) {
-        alert(`❌ Error: ${result.error}`);
+        toastError(result.error || "Error al cambiar estado de mesa");
       }
     } catch (error) {
       console.error("Error cambiando estado de mesa:", error);
-      alert("Error al cambiar estado de mesa: " + error.message);
+      toastError("Error al cambiar estado de mesa: " + error.message);
     } finally {
       setLoading(false);
     }

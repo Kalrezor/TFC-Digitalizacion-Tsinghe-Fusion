@@ -1,39 +1,53 @@
 import React, { useState } from "react";
+import { toastSuccess, toastError } from "../../services/ToastService";
 import tableService from "../../services/TableService";
 
 const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate }) => {
   const [deletingId, setDeletingId] = useState(null);
+  const [confirmDeleteTable, setConfirmDeleteTable] = useState(null);
 
   const handleDeleteClick = async (table) => {
-    // Verificar si se puede eliminar
     try {
       setDeletingId(table.id);
       const canDelete = await tableService.canDeleteTable(table.id);
 
       if (!canDelete) {
-        alert(
-          "❌ No se puede eliminar esta mesa.\n\nTiene reservas futuras asignadas."
-        );
+        toastError("No se puede eliminar esta mesa. Tiene reservas futuras asignadas.");
         setDeletingId(null);
         return;
       }
 
-      // Confirmar eliminación
-      const confirmed = window.confirm(
-        `¿Eliminar mesa #${table.tableNumber ?? table.number}?\n\nCapacidad: ${table.capacity} personas`
-      );
-
-      if (confirmed) {
-        await tableService.deleteTable(table.id);
-        onTableDelete();
-        alert("✅ Mesa eliminada correctamente");
-      }
+      setConfirmDeleteTable(table);
+      setDeletingId(null);
     } catch (error) {
       console.error("Error al eliminar mesa:", error);
-      alert("Error al eliminar: " + error.message);
-    } finally {
+      toastError("Error al eliminar: " + error.message);
       setDeletingId(null);
     }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteTable?.id) {
+      toastError("No se pudo identificar la mesa a eliminar.");
+      return;
+    }
+
+    try {
+      setDeletingId(confirmDeleteTable.id);
+      await tableService.deleteTable(confirmDeleteTable.id);
+      toastSuccess("Mesa eliminada correctamente");
+      onTableDelete();
+    } catch (error) {
+      console.error("Error al eliminar mesa:", error);
+      toastError("Error al eliminar: " + error.message);
+    } finally {
+      setDeletingId(null);
+      setConfirmDeleteTable(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDeleteTable(null);
   };
 
   if (loading) {
@@ -65,6 +79,29 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
           + Nueva Mesa
         </button>
       </div>
+
+      {confirmDeleteTable && (
+        <div style={styles.confirmBox}>
+          <div style={styles.confirmText}>
+            ¿Eliminar mesa #{confirmDeleteTable.tableNumber ?? confirmDeleteTable.number}?
+            <span style={styles.confirmMeta}>
+              Capacidad: {confirmDeleteTable.capacity} personas
+            </span>
+          </div>
+          <div style={styles.confirmActions}>
+            <button
+              onClick={handleConfirmDelete}
+              style={styles.btnConfirm}
+              disabled={deletingId === confirmDeleteTable.id}
+            >
+              {deletingId === confirmDeleteTable.id ? "Eliminando..." : "Confirmar"}
+            </button>
+            <button onClick={handleCancelDelete} style={styles.btnCancel}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={styles.tableWrapper}>
         <table style={styles.table}>
@@ -230,6 +267,51 @@ const styles = {
   actions: {
     display: "flex",
     gap: "8px",
+  },
+  confirmBox: {
+    backgroundColor: "#f8fafc",
+    border: "1px solid #cbd5e1",
+    borderRadius: "12px",
+    padding: "16px",
+    marginBottom: "16px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "12px",
+  },
+  confirmText: {
+    color: "#0f172a",
+    fontSize: "14px",
+    fontWeight: "600",
+  },
+  confirmMeta: {
+    display: "block",
+    color: "#475569",
+    fontSize: "13px",
+    fontWeight: "400",
+    marginTop: "4px",
+  },
+  confirmActions: {
+    display: "flex",
+    gap: "10px",
+  },
+  btnConfirm: {
+    backgroundColor: "#059669",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    padding: "10px 18px",
+    fontSize: "14px",
+    cursor: "pointer",
+  },
+  btnCancel: {
+    backgroundColor: "#f1f5f9",
+    color: "#334155",
+    border: "none",
+    borderRadius: "8px",
+    padding: "10px 18px",
+    fontSize: "14px",
+    cursor: "pointer",
   },
   btnEdit: {
     padding: "6px 12px",
