@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useMemo, useState } from "react";
 import useAuth from "../hooks/useAuth";
+import useTablesByDateAndShift from "../hooks/useTablesByDateAndShift";
 import UserService from "../services/UserService";
 import TableService from "../services/TableService";
 import ReservationTableService, {
@@ -26,6 +27,7 @@ const AdminReservationsView = () => {
   const [selectedShift, setSelectedShift] = useState(RESERVATION_SHIFTS.COMIDA);
   const [statusFilter, setStatusFilter] = useState("");
   const [tablesById, setTablesById] = useState({});
+  const [allTables, setAllTables] = useState([]);
   const [searchClientTerm, setSearchClientTerm] = useState("");
 
   const [reservations, setReservations] = useState([]);
@@ -45,6 +47,8 @@ const AdminReservationsView = () => {
   const [assignmentLoading, setAssignmentLoading] = useState(false);
   const [availableTables, setAvailableTables] = useState([]);
   const [selectedTableIds, setSelectedTableIds] = useState([]);
+
+  const { active: availableTablesByShift = [] } = useTablesByDateAndShift(selectedDate, selectedShift);
 
   const statusOptions = useMemo(
     () => Object.values(RESERVATION_STATUS),
@@ -193,6 +197,7 @@ const AdminReservationsView = () => {
         });
         console.log("tablesById:", map);
         setTablesById(map);
+        setAllTables(result.tables || []);
       } else {
         console.error("Error cargando mesas:", result.error);
       }
@@ -257,6 +262,24 @@ const AdminReservationsView = () => {
     setFeedback(null);
     setSearchPhone("");
   };
+
+  const totalPeopleInReservations = useMemo(() => {
+    return reservations.reduce((acc, reservation) => {
+      return acc + Number(reservation.peopleCount || reservation.numberOfPeople || 0);
+    }, 0);
+  }, [reservations]);
+
+  const availableSeats = useMemo(() => {
+    return availableTablesByShift.reduce((acc, table) => {
+      return acc + Number(table.capacity || 0);
+    }, 0);
+  }, [availableTablesByShift]);
+
+  const aforo = useMemo(() => {
+    return allTables.reduce((acc, table) => {
+      return acc + (table.available === false ? 0 : Number(table.capacity || 0));
+    }, 0);
+  }, [allTables]);
 
   const refreshSelectedReservation = async (currentReservations) => {
     if (!selectedReservation?.id) {
@@ -504,7 +527,19 @@ const AdminReservationsView = () => {
         </section>
 
         <section style={panelStyle}>
-          <div style={panelHeaderStyle}>Listado de reservas</div>
+          <div style={panelHeaderRowStyle}>
+            <div style={panelHeaderStyle}>Listado de reservas</div>
+            <div style={panelHeaderMetaStyle}>
+              {filterMode === "turno" && (
+                <span style={panelHeaderMetaItemStyle}>
+                  {totalPeopleInReservations} / {availableSeats}
+                </span>
+              )}
+              <span style={panelHeaderMetaItemStyle}>
+                Aforo {aforo}
+              </span>
+            </div>
+          </div>
           {loadingReservations ? (
             <div style={infoTextStyle}>Cargando reservas...</div>
           ) : reservationError ? (
@@ -922,10 +957,31 @@ const panelStyle = {
 };
 
 const panelHeaderStyle = {
-  marginBottom: 18,
+  marginBottom: 0,
   fontSize: 18,
   fontWeight: 700,
   color: "#222",
+};
+
+const panelHeaderRowStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  marginBottom: 18,
+};
+
+const panelHeaderMetaStyle = {
+  display: "flex",
+  gap: 12,
+  alignItems: "center",
+  flexWrap: "wrap",
+};
+
+const panelHeaderMetaItemStyle = {
+  fontSize: 14,
+  color: "#555",
+  fontWeight: 600,
 };
 
 const filtersGridStyle = {
