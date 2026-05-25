@@ -15,8 +15,6 @@ const Register = () => {
     phone: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const emailParam = searchParams.get("email");
@@ -31,7 +29,28 @@ const Register = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (error) setError(null);
+  };
+
+  const getRegisterErrorMessage = (error) => {
+    const message = typeof error === "string" ? error : error?.message || "";
+    const code = error?.code || error?.errorCode || "";
+
+    if (code === "auth/weak-password" || message.includes("auth/weak-password")) {
+      return "La contraseÃ±a debe tener al menos 6 caracteres";
+    }
+
+    if (
+      code === "auth/email-already-in-use" ||
+      message.includes("auth/email-already-in-use")
+    ) {
+      return "Este email ya estÃ¡ registrado. Â¿Quieres iniciar sesiÃ³n?";
+    }
+
+    if (code === "auth/invalid-email" || message.includes("auth/invalid-email")) {
+      return "El email no es vÃ¡lido.";
+    }
+
+    return message || "Error al registrarse";
   };
 
   const validateForm = () => {
@@ -85,15 +104,12 @@ const Register = () => {
 
       if (result.success) {
         toastSuccess("Registro completado correctamente");
-        setSuccess(true);
         setTimeout(() => navigate("/login"), 2000);
       } else {
-        toastError(result.error || "Error al registrarse");
-        setError(result.error || "Error al registrarse");
+        toastError(getRegisterErrorMessage(result));
       }
     } catch (err) {
-      toastError(err.message || "Error inesperado");
-      setError(err.message || "Error inesperado");
+      toastError(getRegisterErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -111,13 +127,8 @@ const Register = () => {
       <div className="editorial-auth-card">
         <div style={{ marginBottom: "28px", textAlign: "center" }}>
           <h1>Crear Cuenta</h1>
-          <p>Unete a Tsinghe Cocina Fusion</p>
+          <p>Únete a Tsinghe Cocina Fusión</p>
         </div>
-
-        {success && (
-          <div className="success-box">Registro exitoso. Redirigiendo...</div>
-        )}
-        {error && <div className="error-box">{error}</div>}
 
         <form noValidate onSubmit={handleSubmit}>
           <div className="form-group">
@@ -143,18 +154,18 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label>Contrasena</label>
+            <label>Contraseña</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              placeholder="Minimo 6 caracteres"
+              placeholder="Mínimo 6 caracteres"
             />
           </div>
 
           <div className="form-group">
-            <label>Confirmar Contrasena</label>
+            <label>Confirmar contraseña</label>
             <input
               type="password"
               name="confirmPassword"
@@ -164,7 +175,7 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label>Numero de Telefono</label>
+            <label>Número de teléfono</label>
             <input
               type="tel"
               name="phone"
@@ -185,7 +196,7 @@ const Register = () => {
         </form>
 
         <div className="editorial-auth-links" style={{ marginTop: "22px" }}>
-          Ya tienes cuenta? <Link to="/login">Inicia sesion</Link>
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
         </div>
       </div>
     </div>

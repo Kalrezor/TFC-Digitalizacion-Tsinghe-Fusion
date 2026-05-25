@@ -8,12 +8,12 @@ import { useState, useMemo, useCallback } from "react";
 const ALL_OPTIONS = [
   { id: "inicio",         label: "Inicio",           roles: ["admin", "comensal"] },
   { id: "preview-inicio", label: "Ver Inicio",       roles: ["admin", "comensal"] },
-  { id: "preview-menu",   label: "Ver Menu",         roles: ["admin", "comensal"] },
+  { id: "preview-menu",   label: "Ver Menú",         roles: ["admin", "comensal"] },
   { id: "reservas",       label: "Reservas",         roles: ["comensal"] },
   { id: "split-bill",     label: "Dividir Cuenta",   roles: ["admin", "comensal"] },
-  { id: "admin-menu",     label: "Gestion de Menu",   roles: ["admin"] },
-  { id: "admin-mesas",    label: "Gestion de Mesas",  roles: ["admin"] },
-  { id: "admin-ofertas",  label: "Gestion de Ofertas",roles: ["admin"] },
+  { id: "admin-menu",     label: "Gestión de Menú",   roles: ["admin"] },
+  { id: "admin-mesas",    label: "Gestión de Mesas",  roles: ["admin"] },
+  { id: "admin-ofertas",  label: "Gestión de Ofertas",roles: ["admin"] },
   { id: "admin-reservas", label: "Todas las Reservas",roles: ["admin"] },
 ];
 

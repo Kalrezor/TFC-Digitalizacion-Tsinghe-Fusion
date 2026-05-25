@@ -11,10 +11,10 @@
  * DEPLOY: firebase deploy --only functions
  */
 
-const functions = require("firebase-functions");
 const { setGlobalOptions } = require("firebase-functions");
 const { onRequest } = require("firebase-functions/https");
 const {
+  onDocumentCreated,
   onDocumentWritten,
 } = require("firebase-functions/firestore");
 const logger = require("firebase-functions/logger");
@@ -29,6 +29,39 @@ setGlobalOptions({ maxInstances: 10, region: "us-central1" });
 // NOTA: El trigger onUserCreated de Auth se maneja mejor desde Firestore
 // Se crean usuarios directamente en Firestore desde el cliente al registrarse
 // ════════════════════════════════════════════════════════════════════════════
+
+// Trigger: enviar email de bienvenida cuando se crea un documento en 'users/{uid}'
+exports.onUserCreated = onDocumentCreated(
+  {
+    document: "users/{userId}",
+    region: "us-central1",
+  },
+  async (event) => {
+    try {
+      const data = event.data?.data() || {};
+      const email = data.email;
+      if (!email) {
+        logger.warn("Nuevo usuario sin email en Firestore, saltando welcome email", { id: event.params.userId });
+        return null;
+      }
+
+      const name = data.name || String(email).split('@')[0];
+
+      const info = await transporter.sendMail({
+        from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
+        to: email,
+        subject: 'Bienvenido a Tsinghe Cocina Fusion',
+        html: buildWelcomeEmailHtml(name),
+      });
+
+      logger.info('EMAIL DE BIENVENIDA (trigger Firestore) enviado:', { to: email, name, messageId: info && info.messageId });
+      return null;
+    } catch (err) {
+      logger.error('Error enviando welcome email desde trigger Firestore:', err);
+      return null;
+    }
+  },
+);
 
 // ════════════════════════════════════════════════════════════════════════════
 // 2. HTTP: enviar email de bienvenida con Gmail/Nodemailer
@@ -46,6 +79,173 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false,
   },
 });
+
+const EMAIL_STYLES = `
+  body {
+    margin: 0;
+    padding: 32px;
+    background-color: #ffffff;
+    color: #050505;
+    font-family: Inter, Helvetica Neue, Arial, sans-serif;
+    line-height: 1.6;
+    letter-spacing: 0;
+  }
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #050505;
+    border-radius: 0;
+    overflow: hidden;
+  }
+  .header {
+    background: #ffffff;
+    padding: 38px 32px 30px;
+    text-align: left;
+    border-bottom: 1px solid #050505;
+  }
+  .header h1 {
+    color: #050505;
+    margin: 0;
+    font-family: Georgia, Times New Roman, serif;
+    font-size: 34px;
+    line-height: 0.96;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .content {
+    padding: 30px;
+    background: #ffffff;
+  }
+  .content h1,
+  .content h2,
+  .content h3 {
+    color: #050505;
+    margin-top: 0;
+    letter-spacing: 0;
+  }
+  .content h2 {
+    font-family: Georgia, Times New Roman, serif;
+    font-size: 28px;
+    line-height: 1.05;
+    font-weight: 400;
+  }
+  .content p,
+  .content li {
+    color: #050505;
+    font-size: 14px;
+  }
+  .content ul,
+  .content ol {
+    padding-left: 22px;
+  }
+  a {
+    color: #050505 !important;
+    text-decoration: none !important;
+  }
+  a:hover {
+    opacity: 0.65;
+  }
+  .button,
+  .btn {
+    display: inline-block;
+    min-height: 44px;
+    background: #ffffff;
+    color: #050505 !important;
+    padding: 12px 18px;
+    text-decoration: none;
+    border: 1px solid #050505;
+    border-radius: 0;
+    margin-top: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .button:hover,
+  .btn:hover {
+    background: #050505;
+    color: #ffffff !important;
+    border-color: #050505;
+  }
+  .info-box,
+  .reservation-details {
+    background: #ffffff;
+    border: 1px solid #050505;
+    border-radius: 0;
+    padding: 18px;
+    margin: 20px 0;
+  }
+  .muted {
+    color: #18181b !important;
+    font-size: 12px !important;
+  }
+  .link-copy {
+    word-break: break-all;
+  }
+  .footer {
+    background: #050505;
+    padding: 20px;
+    text-align: center;
+    color: #ffffff;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+  .footer p {
+    color: #ffffff;
+    margin: 0;
+  }
+`;
+
+const EMAIL_INLINE = {
+  body: "margin: 0; padding: 32px; background: #ffffff; color: #050505; font-family: Inter, Helvetica Neue, Arial, sans-serif; line-height: 1.6; letter-spacing: 0;",
+  container: "max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #050505; border-radius: 0; overflow: hidden;",
+  header: "background: #ffffff; padding: 38px 32px 30px; text-align: left; border-bottom: 1px solid #050505;",
+  title: "color: #050505; margin: 0; font-family: Georgia, Times New Roman, serif; font-size: 34px; line-height: 0.96; font-weight: 400; letter-spacing: 0;",
+  subtitle: "color: #050505; margin: 0 0 18px; font-family: Georgia, Times New Roman, serif; font-size: 28px; line-height: 1.05; font-weight: 400; letter-spacing: 0;",
+  content: "padding: 30px; background: #ffffff; color: #050505;",
+  paragraph: "color: #050505; font-size: 14px; line-height: 1.6;",
+  button: "display: inline-block; min-height: 20px; background: #ffffff; color: #050505 !important; padding: 12px 18px; text-decoration: none; border: 1px solid #050505; border-radius: 0; margin-top: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;",
+  panel: "background: #ffffff; border: 1px solid #050505; border-radius: 0; padding: 18px; margin: 20px 0; color: #050505;",
+  muted: "color: #18181b; font-size: 12px; line-height: 1.5;",
+  footer: "background: #050505; padding: 20px; text-align: center; color: #ffffff; font-size: 12px; letter-spacing: 0.08em;",
+  footerText: "color: #ffffff; margin: 0;",
+};
+
+const buildWelcomeEmailHtml = (name) => `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            ${EMAIL_STYLES}
+          </style>
+        </head>
+        <body style="${EMAIL_INLINE.body}">
+          <div class="container" style="${EMAIL_INLINE.container}">
+            <div class="header" style="${EMAIL_INLINE.header}">
+              <p style="margin: 0 0 14px; color: #050505; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;">Cocina fusion · Madrid</p>
+              <h1 style="${EMAIL_INLINE.title}">Tsinghe Cocina Fusion</h1>
+            </div>
+            <div class="content" style="${EMAIL_INLINE.content}">
+              <h2 style="${EMAIL_INLINE.subtitle}">Hola ${name}</h2>
+              <p style="${EMAIL_INLINE.paragraph}">Gracias por registrarte en <strong style="color: #050505;">Tsinghe Cocina Fusion</strong>.</p>
+              <p style="${EMAIL_INLINE.paragraph}">Estamos muy felices de tenerte con nosotros. Ahora puedes:</p>
+              <ul style="${EMAIL_INLINE.paragraph} padding-left: 22px;">
+                <li style="margin-bottom: 8px;">Explorar nuestro menú</li>
+                <li style="margin-bottom: 8px;">Hacer reservas de mesa</li>
+                <li>Ver tus reservas anteriores</li>
+              </ul>
+              <p style="${EMAIL_INLINE.paragraph}">Te esperamos para vivir una experiencia de mesa serena, precisa y contemporanea.</p>
+              <a href="https://digitalizacion-tsinge-fusion.web.app/" style="${EMAIL_INLINE.button}">Visitar restaurante</a>
+            </div>
+            <div class="footer" style="${EMAIL_INLINE.footer}">
+              <p style="${EMAIL_INLINE.footerText}">© 2026 Tsinghe Cocina Fusion. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
 
 exports.sendWelcomeEmail = onRequest(
   {
@@ -79,52 +279,11 @@ exports.sendWelcomeEmail = onRequest(
 
       const name = displayName || email.split("@")[0];
 
-      // Enviar email real con Gmail/Nodemailer
       const info = await transporter.sendMail({
         from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
         to: email,
-        subject: "¡Bienvenido a Tsinghe Cocina Fusión! 🍜",
-        html: `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: Arial, sans-serif; background-color: #f5f5dc; margin: 0; padding: 20px; }
-            .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }
-            .header { background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%); padding: 30px; text-align: center; }
-            .header h1 { color: white; margin: 0; font-size: 28px; }
-            .content { padding: 30px; }
-            .content h2 { color: #dc143c; margin-top: 0; }
-            .content p { color: #333; line-height: 1.6; }
-            .button { display: inline-block; background: #dc143c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px; }
-            .footer { background: #1a1a1a; padding: 20px; text-align: center; color: #888; font-size: 12px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🍜 Tsinghe Cocina Fusión</h1>
-            </div>
-            <div class="content">
-              <h2>¡Hola ${name}!</h2>
-              <p>Gracias por registrarte en <strong>Tsinghe Cocina Fusión</strong>.</p>
-              <p>Estamos muy felices de tenerte con nosotros. Ahora puedes:</p>
-              <ul>
-                <li>Explorar nuestro menú</li>
-                <li>Hacer reservas de mesa</li>
-                <li>Ver tus reservas anteriores</li>
-              </ul>
-              <p>¡Te esperamos para vivir una experiencia culinaria única!</p>
-              <a href="https://digitalizacion-tsinge-fusion.web.app/" class="button">Visitar nuestro restaurante</a>
-            </div>
-            <div class="footer">
-              <p>© 2024 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `,
+        subject: "Bienvenido a Tsinghe Cocina Fusion",
+        html: buildWelcomeEmailHtml(name),
       });
 
       logger.info("EMAIL DE BIENVENIDA (real) enviado:", {
@@ -348,28 +507,19 @@ exports.sendVerificationEmail = onRequest(
         <head>
           <meta charset="utf-8">
           <style>
-            body { font-family: Arial, sans-serif; background-color: #f5f5dc; margin: 0; padding: 20px; }
-            .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }
-            .header { background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%); padding: 30px; text-align: center; }
-            .header h1 { color: white; margin: 0; font-size: 28px; }
-            .content { padding: 30px; }
-            .content h2 { color: #dc143c; margin-top: 0; }
-            .content p { color: #333; line-height: 1.6; }
-            .button { display: inline-block; background: #dc143c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
-            .info-box { background: #fffacd; border-left: 4px solid #dc143c; padding: 15px; margin: 20px 0; }
-            .footer { background: #1a1a1a; padding: 20px; text-align: center; color: #888; font-size: 12px; }
+            ${EMAIL_STYLES}
           </style>
         </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🍜 Tsinghe Cocina Fusión</h1>
+        <body style="${EMAIL_INLINE.body}">
+          <div class="container" style="${EMAIL_INLINE.container}">
+            <div class="header" style="${EMAIL_INLINE.header}">
+              <h1 style="${EMAIL_INLINE.title}">🍜 Tsinghe Cocina Fusión</h1>
             </div>
-            <div class="content">
-              <h2>¡Hola ${displayName}!</h2>
+            <div class="content" style="${EMAIL_INLINE.content}">
+              <h2 style="${EMAIL_INLINE.subtitle}">¡Hola ${displayName}!</h2>
               <p>Tu cuenta ha sido creada por el administrador de <strong>Tsinghe Cocina Fusión</strong>.</p>
               
-              <div class="info-box">
+              <div class="info-box" style="${EMAIL_INLINE.panel}">
                 <strong>📋 Tu reserva está pendiente de confirmación</strong>
                 <p>Se ha creado una reserva a tu nombre. Para que sea válida, necesitas:</p>
                 <ul>
@@ -380,14 +530,14 @@ exports.sendVerificationEmail = onRequest(
 
               <p>Una vez completes estos pasos, tu reserva será confirmada automáticamente.</p>
 
-              <a href="https://digitalizacion-tsinge-fusion.web.app/login" class="button">Confirmar mi cuenta</a>
+              <a href="https://digitalizacion-tsinge-fusion.web.app/login" class="button" style="${EMAIL_INLINE.button}">Confirmar mi cuenta</a>
               
-              <p style="color: #999; font-size: 12px; margin-top: 30px;">
+              <p class="muted" style="${EMAIL_INLINE.muted} margin-top: 30px;">
                 Si no fuiste tú quien creó esta cuenta, puedes ignorar este mensaje.
               </p>
             </div>
-            <div class="footer">
-              <p>© 2024 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
+            <div class="footer" style="${EMAIL_INLINE.footer}">
+              <p style="${EMAIL_INLINE.footerText}">© 2024 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -432,7 +582,7 @@ exports.sendVerificationEmail = onRequest(
                 ⚠️ <strong>Este token expira en 15 minutos.</strong> Si no lo usas, tendrás que solicitar uno nuevo.
               </div>
 
-              <p style="color: #666; font-size: 12px; margin-top: 20px;">
+              <p class="muted" style="${EMAIL_INLINE.muted} margin-top: 20px;">
                 Si no solicitaste esta recuperación, ignora este email.
               </p>
             </div>
@@ -566,28 +716,21 @@ exports.resetPasswordWithToken = onRequest(
             <!DOCTYPE html>
             <html>
             <head><meta charset="utf-8"><style>
-              body { font-family: Arial, sans-serif; background-color: #f5f5dc; margin: 0; padding: 20px; }
-              .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }
-              .header { background: linear-gradient(135deg, #dc143c 0%, #8b0000 100%); padding: 30px; text-align: center; }
-              .header h1 { color: white; margin: 0; font-size: 28px; }
-              .content { padding: 30px; }
-              .content p { color: #333; line-height: 1.6; }
-              .btn { display: inline-block; padding: 12px 24px; background: #dc143c; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-              .footer { background: #1a1a1a; padding: 20px; text-align: center; color: #888; font-size: 12px; }
+              ${EMAIL_STYLES}
             </style></head>
-            <body>
-              <div class="container">
-                <div class="header"><h1>🔐 Establece tu Contraseña</h1></div>
-                <div class="content">
+            <body style="${EMAIL_INLINE.body}">
+              <div class="container" style="${EMAIL_INLINE.container}">
+                <div class="header" style="${EMAIL_INLINE.header}"><h1 style="${EMAIL_INLINE.title}">🔐 Establece tu Contraseña</h1></div>
+                <div class="content" style="${EMAIL_INLINE.content}">
                   <p>Has solicitado recuperar tu contraseña.</p>
                   <p>Como te registraste con Google, necesitas crear una contraseña para poder acceder con email y contraseña.</p>
                   <p>Haz clic en el siguiente botón para establecer tu contraseña:</p>
-                  <a href="${resetLink}" class="btn">Establecer Contraseña</a>
-                  <p style="color: #666; font-size: 12px; margin-top: 20px;">
+                  <a href="${resetLink}" class="btn" style="${EMAIL_INLINE.button}">Establecer Contraseña</a>
+                  <p class="muted" style="${EMAIL_INLINE.muted} margin-top: 20px;">
                     Si no solicitaste esto, ignora este email.
                   </p>
                 </div>
-                <div class="footer"><p>© 2024 Tsinghe Cocina Fusión.</p></div>
+                <div class="footer" style="${EMAIL_INLINE.footer}"><p style="${EMAIL_INLINE.footerText}">© 2024 Tsinghe Cocina Fusión.</p></div>
               </div>
             </body>
             </html>
@@ -624,26 +767,21 @@ exports.resetPasswordWithToken = onRequest(
           <head>
             <meta charset="utf-8">
             <style>
-              body { font-family: Arial, sans-serif; background-color: #f5f5dc; margin: 0; padding: 20px; }
-              .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; }
-              .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 30px; text-align: center; }
-              .header h1 { color: white; margin: 0; font-size: 28px; }
-              .content { padding: 30px; }
-              .footer { background: #1a1a1a; padding: 20px; text-align: center; color: #888; font-size: 12px; }
+              ${EMAIL_STYLES}
             </style>
           </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1>✅ Contraseña Actualizada</h1>
+          <body style="${EMAIL_INLINE.body}">
+            <div class="container" style="${EMAIL_INLINE.container}">
+              <div class="header" style="${EMAIL_INLINE.header}">
+                <h1 style="${EMAIL_INLINE.title}">✅ Contraseña Actualizada</h1>
               </div>
-              <div class="content">
+              <div class="content" style="${EMAIL_INLINE.content}">
                 <p>Tu contraseña ha sido actualizada exitosamente.</p>
                 <p>Ya puedes iniciar sesión con tu nueva contraseña en Tsinghe Cocina Fusión.</p>
-                <p style="color: #666; font-size: 12px;">Si no realizaste este cambio, contacta a soporte inmediatamente.</p>
+                <p class="muted" style="${EMAIL_INLINE.muted}">Si no realizaste este cambio, contacta a soporte inmediatamente.</p>
               </div>
-              <div class="footer">
-                <p>© 2024 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
+              <div class="footer" style="${EMAIL_INLINE.footer}">
+                <p style="${EMAIL_INLINE.footerText}">© 2024 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
               </div>
             </div>
           </body>
@@ -947,14 +1085,25 @@ exports.sendReservationConfirmation = onRequest(
       // Generar HTML del email
       const confirmationLink = `https://digitalizacion-tsinge-fusion.web.app/confirm-reservation?token=${confirmationToken}`;
       const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f5f5f5; padding: 20px; border-radius: 8px;">
-          <div style="background: white; padding: 30px; border-radius: 8px; border-left: 4px solid #DC143C;">
-            <h1 style="color: #DC143C; margin-top: 0;">¡Reserva Confirmada! 📅</h1>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            ${EMAIL_STYLES}
+          </style>
+        </head>
+        <body style="${EMAIL_INLINE.body}">
+          <div class="container" style="${EMAIL_INLINE.container}">
+            <div class="header" style="${EMAIL_INLINE.header}">
+              <h1 style="${EMAIL_INLINE.title}">¡Reserva Confirmada! 📅</h1>
+            </div>
+            <div class="content" style="${EMAIL_INLINE.content}">
             <p>Hola ${reservationDetails.userName},</p>
             <p>Tu reserva en <strong>Tsinghe Cocina Fusión</strong> ha sido registrada.</p>
             
-            <div style="background: #f9f9f9; padding: 20px; border-radius: 6px; margin: 20px 0;">
-              <h3 style="color: #333; margin-top: 0;">Detalles de tu Reserva:</h3>
+            <div class="reservation-details" style="${EMAIL_INLINE.panel}">
+              <h3>Detalles de tu Reserva:</h3>
               <p><strong>Fecha:</strong> ${reservationDetails.date}</p>
               <p><strong>Hora:</strong> ${reservationDetails.time}</p>
               <p><strong>Personas:</strong> ${reservationDetails.numberOfPeople}</p>
@@ -964,25 +1113,28 @@ exports.sendReservationConfirmation = onRequest(
 
             <p>Para confirmar tu reserva, haz clic en el botón de abajo:</p>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${confirmationLink}" style="background: #DC143C; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Confirmar Reserva</a>
+              <a href="${confirmationLink}" class="button" style="${EMAIL_INLINE.button}">Confirmar Reserva</a>
             </div>
 
-            <p style="color: #666; font-size: 12px; margin-top: 30px;">
+            <p class="muted" style="${EMAIL_INLINE.muted} margin-top: 30px;">
               O copia este enlace en tu navegador:<br>
-              <small>${confirmationLink}</small>
+              <small class="link-copy">${confirmationLink}</small>
             </p>
 
-            <p style="color: #666;">
+            <p class="muted" style="${EMAIL_INLINE.muted}">
               Si no realizaste esta reserva, ignora este email.
             </p>
 
-            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-            <p style="color: #999; font-size: 12px; text-align: center;">
-              Tsinghe Cocina Fusión - Auténtica Cocina China<br>
-              © 2024 Todos los derechos reservados
-            </p>
+            </div>
+            <div class="footer" style="${EMAIL_INLINE.footer}">
+              <p style="${EMAIL_INLINE.footerText}">
+                Tsinghe Cocina Fusión - Auténtica Cocina China<br>
+                © 2024 Todos los derechos reservados
+              </p>
+            </div>
           </div>
-        </div>
+        </body>
+        </html>
       `;
 
       await transporter.sendMail({
