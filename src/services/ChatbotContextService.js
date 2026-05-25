@@ -372,7 +372,7 @@ class ChatbotContextService {
       .map((result) =>
         result.status === "fulfilled"
           ? result.value
-          : `No se pudo recuperar parte de la informacion. Si el problema persiste, contacta con soporte del restaurante: ${SUPPORT_PHONE}.`,
+          : `No se pudo recuperar parte de la información. Si el problema persiste, contacta con soporte del restaurante: ${SUPPORT_PHONE}.`,
       )
       .filter(Boolean)
       .join("\n\n");
@@ -393,7 +393,7 @@ class ChatbotContextService {
 
     return [
       "CONTEXTO CARTA:",
-      `Categorias: ${categories.map((category) => category.nombre).join(", ") || "Sin categorias."}`,
+      `Categorías: ${categories.map((category) => category.nombre).join(", ") || "Sin categorías."}`,
       "Platos disponibles destacados:",
       compactList(
         availablePlates,
@@ -402,8 +402,8 @@ class ChatbotContextService {
             plate.alergenos
               ?.map((id) => allergens[id]?.nombre)
               .filter(Boolean)
-              .join(", ") || "sin alergenos indicados";
-          return `- ${plate.nombre}: ${plate.descripcion || "Sin descripcion"} (${plate.precio || "sin precio"} EUR). Alergenos: ${allergenNames}`;
+              .join(", ") || "sin alérgenos indicados";
+          return `- ${plate.nombre}: ${plate.descripcion || "Sin descripción"} (${plate.precio || "sin precio"} EUR). Alérgenos: ${allergenNames}`;
         },
         12,
       ),
@@ -419,7 +419,7 @@ class ChatbotContextService {
       compactList(
         result.offers,
         (offer) =>
-          `- ${offer.title || offer.name || "Oferta"}: ${offer.description || "Sin descripcion"}${offer.discount ? ` (${offer.discount}% descuento)` : ""}`,
+          `- ${offer.title || offer.name || "Oferta"}: ${offer.description || "Sin descripción"}${offer.discount ? ` (${offer.discount}% descuento)` : ""}`,
         10,
       ),
     ].join("\n");
@@ -505,12 +505,12 @@ class ChatbotContextService {
 
   getBasicNavigationContext(role) {
     return [
-      "CONTEXTO NAVEGACION:",
-      "- /menu muestra la carta publica con platos y alergenos.",
+      "CONTEXTO NAVEGACIÓN:",
+      "- /menu muestra la carta pública con platos y alérgenos.",
       "- /dashboard?section=reservas permite gestionar reservas del comensal.",
       "- /dashboard?section=preview-menu permite ver carta desde el panel.",
       role === "admin"
-        ? "- Admin: /dashboard permite acceder a menu, mesas, ofertas y reservas internas."
+        ? "- Admin: /dashboard permite acceder a menú, mesas, ofertas y reservas internas."
         : "- Comensal: puede consultar sus reservas y crear nuevas desde su panel.",
     ].join("\n");
   }
@@ -577,7 +577,7 @@ class ChatbotContextService {
       return this.answerMenu(cleanMessage);
     }
 
-    return "Puedo ayudarte con carta, platos, alergenos, reservas, mesas, ofertas y navegacion del restaurante.";
+    return "Puedo ayudarte con carta, platos, alérgenos, reservas, mesas, ofertas y navegación del restaurante.";
   }
 
   async answerOffers() {

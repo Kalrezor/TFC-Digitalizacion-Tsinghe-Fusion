@@ -1,7 +1,7 @@
 import { toast } from "react-hot-toast";
 
 const baseOptions = {
-  duration: 4500,
+  duration: 3000,
   position: "top-right",
   style: {
     borderRadius: "1rem",
@@ -13,9 +13,12 @@ const baseOptions = {
   },
 };
 
+const toastId = (type, message) => `${type}:${message}`;
+
 export const toastSuccess = (message) =>
   toast.success(message, {
     ...baseOptions,
+    id: toastId("success", message),
     icon: "✅",
     style: {
       ...baseOptions.style,
@@ -28,6 +31,7 @@ export const toastSuccess = (message) =>
 export const toastError = (message) =>
   toast.error(message, {
     ...baseOptions,
+    id: toastId("error", message),
     icon: "❌",
     style: {
       ...baseOptions.style,
@@ -40,6 +44,7 @@ export const toastError = (message) =>
 export const toastInfo = (message) =>
   toast(message, {
     ...baseOptions,
+    id: toastId("info", message),
     icon: "ℹ️",
     style: {
       ...baseOptions.style,

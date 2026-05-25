@@ -237,7 +237,7 @@ const styles = {
     textAlign: "left",
     fontSize: "13px",
     fontWeight: "600",
-    color: "#374151",
+    color: "#ffffff",
   },
   row: {
     borderBottom: "1px solid #e5e7eb",

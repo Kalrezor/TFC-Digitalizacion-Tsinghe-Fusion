@@ -3,12 +3,43 @@
 
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import useAuth from "../hooks/useAuth";
 import "../styles/MinimalStyle.css";
 
 const Home = () => {
   const navigate = useNavigate();
   const { user, role, logout } = useAuth();
+
+  const carouselSlides = [
+    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel1.jpg?alt=media&token=377a5544-b0f2-489a-af29-41c6fb0542d7", alt: "Imagen 1" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel2.jpg?alt=media&token=5023391c-893d-4325-bd55-5723ef8dd37d", alt: "Imagen 2" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel3.jpg?alt=media&token=19d625f6-d629-4ccc-810a-9049d90aa47d", alt: "Imagen 3" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel4.jpg?alt=media&token=bf132fdb-2cb1-4da0-be78-098b4feb0248", alt: "Imagen 4" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel5.jpg?alt=media&token=816ccb9c-4224-404c-8e8a-a1f31f5211fe", alt: "Imagen 5" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel6.jpg?alt=media&token=048fd638-e39a-43c2-ab6a-5403b07ffc98", alt: "Imagen 6" },
+  ];
+
+  const sliderSettings = {
+    dots: false,
+    infinite: true,
+    speed: 5000,
+    cssEase: "linear",
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 100,
+    pauseOnHover: false,
+    pauseOnFocus: false,
+    pauseOnDotsHover: false,
+    responsive: [
+      { breakpoint: 1200, settings: { slidesToShow: 3 } },
+      { breakpoint: 768, settings: { slidesToShow: 2 } },
+      { breakpoint: 0, settings: { slidesToShow: 1 } },
+    ],
+  };
 
   const goToMenu = () => {
     if (user) {
@@ -38,13 +69,13 @@ const Home = () => {
           <p className="editorial-kicker">Cocina fusion · Madrid</p>
           <h1 className="home-title editorial-serif">Tsinghe Cocina Fusion</h1>
           <p className="home-lede">
-            Una experiencia de mesa serena, precisa y contemporanea, donde la
+            Una experiencia de mesa serena, precisa y contemporánea, donde la
             cocina china se presenta con ritmo editorial y producto cuidado.
           </p>
 
           <div className="home-actions">
             <button onClick={goToMenu} className="editorial-button">
-              Ver menu
+              Ver menú
             </button>
             <button onClick={goToReservation} className="editorial-button">
               Reservar mesa
@@ -60,7 +91,7 @@ const Home = () => {
                 }
                 className="editorial-button"
               >
-                Iniciar sesion
+                Iniciar sesión
               </button>
             )}
           </div>
@@ -108,7 +139,7 @@ const Home = () => {
 
           <article className="editorial-cell">
             <p className="editorial-kicker">Reserva</p>
-            <h3>Mesa sin friccion</h3>
+            <h3>Mesa sin fricción</h3>
             <p>
               Reserva online, consulta disponibilidad y gestiona tus datos desde
               un panel simple.
@@ -117,14 +148,47 @@ const Home = () => {
         </div>
       </section>
 
+      <section
+        className="editorial-section editorial-frame"
+        style={{ margin: "20px 0", padding: "24px 0" }}
+      >
+        <div className="home-carousel-wrapper">
+          <Slider {...sliderSettings} className="home-carousel">
+            {carouselSlides.map((slide, index) => (
+              <div key={index} className="home-carousel-slide" style={{ padding: "0 8px" }}>
+                <div
+                  style={{
+                    borderRadius: "20px",
+                    overflow: "hidden",
+                    background: "transparent",
+                    minHeight: "260px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div style={{ width: "80%", height: "80%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <img
+                      src={slide.src}
+                      alt={slide.alt}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </Slider>
+        </div>
+      </section>
+
       <section className="editorial-section editorial-frame">
         <div className="editorial-grid-2">
           <article className="editorial-cell">
             <p className="editorial-kicker">Carta</p>
-            <h3>Platos, alergenos y disponibilidad</h3>
+            <h3>Platos, alérgenos y disponibilidad</h3>
             <p>
-              Explora la carta completa con filtros por alergenos y acceso claro
-              a cada categoria.
+              Explora la carta completa con filtros por alérgenos y acceso claro
+              a cada categoría.
             </p>
             <div className="home-actions">
               <button onClick={goToMenu} className="editorial-button">
@@ -137,7 +201,7 @@ const Home = () => {
             <p className="editorial-kicker">Mesa</p>
             <h3>Reserva en el momento adecuado</h3>
             <p>
-              Accede a tu cuenta para reservar y mantener tus proximas visitas
+              Accede a tu cuenta para reservar y mantener tus próximas visitas
               organizadas.
             </p>
             <div className="home-actions">
@@ -167,6 +231,7 @@ const Home = () => {
             style={{
               fontSize: "clamp(42px, 7vw, 92px)",
               margin: "18px 0 28px",
+              textShadow: "0 0 25px rgb(255, 255, 255, 80)",
             }}
           >
             {user
@@ -177,13 +242,13 @@ const Home = () => {
           {user ? (
             <div className="home-actions">
               <button onClick={logout} className="editorial-button">
-                Cerrar sesion
+                Cerrar sesión
               </button>
             </div>
           ) : (
             <div className="home-actions">
               <Link to="/login" className="editorial-button">
-                Iniciar sesion
+                Iniciar sesión
               </Link>
               <Link to="/register" className="editorial-button">
                 Registrarse

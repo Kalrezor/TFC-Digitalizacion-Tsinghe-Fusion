@@ -9,14 +9,14 @@
 
 :root {
   --pearl: #e8dccf;
-  --pearl-light: #faf5ed;
+  --pearl-light: #ffffff;
   --gold: #ffd700;
   --gold-dark: #ffcc00;
-  --sage: #6db888;
-  --sage-dark: #568d6e;
+  --sage: #656262;
+  --sage-dark: #000000;
   --emerald: #2e8b57;
-  --text-dark: #2d2d2d;
-  --text-light: #666666;
+  --text-dark: #050505;
+  --text-light: #050505;
   --border-light: #e0e0e0;
 }
 
@@ -48,26 +48,26 @@ body {
 h1 {
   font-size: clamp(24px, 5vw, 42px);
   font-weight: 600;
-  color: var(--sage-dark);
+  color: var(--text-dark);
   letter-spacing: -0.5px;
 }
 
 h2 {
   font-size: clamp(20px, 4vw, 32px);
   font-weight: 600;
-  color: var(--sage-dark);
+  color: var(--text-dark);
   letter-spacing: -0.3px;
 }
 
 h3 {
   font-size: clamp(18px, 3.5vw, 24px);
   font-weight: 600;
-  color: var(--emerald);
+  color: var(--text-dark);
 }
 
 p {
   font-size: 14px;
-  color: var(--text-light);
+  color: var(--text-dark);
   line-height: 1.7;
 }
 
@@ -110,12 +110,12 @@ p {
 /* Botón Secundario - Con borde */
 .btn-secondary {
   background-color: transparent;
-  color: var(--emerald);
-  border: 2px solid var(--emerald);
+  color: var(--text-dark);
+  border: 2px solid var(--text-dark);
 }
 
 .btn-secondary:hover {
-  background-color: var(--emerald);
+  background-color: var(--text-dark);
   color: white;
   transform: translateY(-2px);
 }
@@ -123,14 +123,14 @@ p {
 /* Botón Terciario - Dorado */
 .btn-tertiary {
   background-color: transparent;
-  color: var(--gold-dark);
-  border: 2px solid var(--gold-dark);
+  color: var(--text-dark);
+  border: 2px solid var(--text-dark);
   font-weight: 700;
 }
 
 .btn-tertiary:hover {
   background-color: var(--gold-dark);
-  color: var(--text-dark);
+  color: white;
   transform: translateY(-2px);
 }
 
@@ -473,7 +473,7 @@ nav a.active {
   --editorial-white: #ffffff;
   --editorial-black: #050505;
   --editorial-zinc: #18181b;
-  --editorial-muted: #71717a;
+  --editorial-muted: #000000;
   --editorial-line: #050505;
   --editorial-soft: #f6f6f3;
   --editorial-ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -840,7 +840,7 @@ select {
   padding: 18px;
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 6);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.22);
   overflow: hidden;
   display: flex;

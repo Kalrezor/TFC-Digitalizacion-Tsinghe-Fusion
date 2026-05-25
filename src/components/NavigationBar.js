@@ -81,7 +81,7 @@ const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
                     onClick={handleLogout}
                     className="editorial-menu-item editorial-ui"
                   >
-                    Cerrar sesion
+                    Cerrar sesión
                   </button>
                 </div>
               )}

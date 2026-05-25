@@ -3,6 +3,7 @@ import useAuth from "../hooks/useAuth";
 import useTablesByDateAndShift from "../hooks/useTablesByDateAndShift";
 import UserService from "../services/UserService";
 import TableService from "../services/TableService";
+import { toastSuccess, toastError } from "../services/ToastService";
 import ReservationTableService, {
   RESERVATION_SHIFTS,
   RESERVATION_TIMES,
@@ -42,7 +43,6 @@ const AdminReservationsView = () => {
 
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [formState, setFormState] = useState(defaultFormState);
-  const [feedback, setFeedback] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
   const [assignmentLoading, setAssignmentLoading] = useState(false);
   const [availableTables, setAvailableTables] = useState([]);
@@ -105,7 +105,6 @@ const AdminReservationsView = () => {
     setSearchPhone("");
     setAvailableTables([]);
     setSelectedTableIds([]);
-    setFeedback(null);
   };
 
   const loadReservations = async () => {
@@ -259,7 +258,6 @@ const AdminReservationsView = () => {
     }
 
     setSelectedTableIds(normalized.tableIds || []);
-    setFeedback(null);
     setSearchPhone("");
   };
 
@@ -295,18 +293,17 @@ const AdminReservationsView = () => {
   const handleSaveReservation = async (event) => {
     event.preventDefault();
     setFormLoading(true);
-    setFeedback(null);
 
     const name = selectedUser ? selectedUser.name || "" : manualName.trim();
     const phone = selectedUser ? selectedUser.phone || "" : manualPhone.trim();
 
     if (!name || !phone) {
-      setFeedback({ type: "error", message: "El nombre y el teléfono son obligatorios." });
+      toastError("El nombre y el teléfono son obligatorios.");
       setFormLoading(false);
       return;
     }
     if (!formState.date || !formState.time) {
-      setFeedback({ type: "error", message: "Fecha y hora son obligatorias." });
+      toastError("Fecha y hora son obligatorias.");
       setFormLoading(false);
       return;
     }
@@ -333,11 +330,11 @@ const AdminReservationsView = () => {
           payload,
         );
         if (result.success) {
-          setFeedback({ type: "success", message: "Reserva actualizada correctamente." });
+          toastSuccess("Reserva actualizada correctamente.");
           const updatedReservations = await loadReservations();
           await refreshSelectedReservation(updatedReservations);
         } else {
-          setFeedback({ type: "error", message: result.error || "Error actualizando la reserva." });
+          toastError(result.error || "Error actualizando la reserva.");
         }
       } else {
         const result = await ReservationTableService.createReservationFromAdmin({
@@ -352,32 +349,31 @@ const AdminReservationsView = () => {
         });
 
         if (result.success) {
-          setFeedback({ type: "success", message: "Reserva creada correctamente." });
+          toastSuccess("Reserva creada correctamente.");
           resetForm();
           await loadReservations();
         } else {
-          setFeedback({ type: "error", message: result.error || "Error creando la reserva." });
+          toastError(result.error || "Error creando la reserva.");
         }
       }
     } catch (error) {
       console.error("Error guardando reserva:", error);
-      setFeedback({ type: "error", message: error.message || "Error inesperado." });
+      toastError(error.message || "Error inesperado.");
     } finally {
       setFormLoading(false);
     }
   };
 
   const handleReservationStatusChange = async (reservationId, nextStatus) => {
-    setFeedback(null);
     const result = await ReservationTableService.updateReservation(reservationId, {
       status: nextStatus,
     });
     if (result.success) {
-      setFeedback({ type: "success", message: "Estado de reserva actualizado." });
+      toastSuccess("Estado de reserva actualizado.");
       const updatedReservations = await loadReservations();
       await refreshSelectedReservation(updatedReservations);
     } else {
-      setFeedback({ type: "error", message: result.error || "No se pudo actualizar el estado." });
+      toastError(result.error || "No se pudo actualizar el estado.");
     }
   };
 
@@ -386,7 +382,6 @@ const AdminReservationsView = () => {
       return;
     }
     setAssignmentLoading(true);
-    setFeedback(null);
 
     const result = await ReservationTableService.assignTablesToReservation(
       selectedReservation.id,
@@ -394,11 +389,11 @@ const AdminReservationsView = () => {
     );
 
     if (result.success) {
-      setFeedback({ type: "success", message: "Mesas asignadas correctamente." });
+      toastSuccess("Mesas asignadas correctamente.");
       const updatedReservations = await loadReservations();
       await refreshSelectedReservation(updatedReservations);
     } else {
-      setFeedback({ type: "error", message: result.error || "No se pudieron asignar mesas." });
+      toastError(result.error || "No se pudieron asignar mesas.");
     }
     setAssignmentLoading(false);
   };
@@ -408,18 +403,17 @@ const AdminReservationsView = () => {
       return;
     }
     setAssignmentLoading(true);
-    setFeedback(null);
 
     const result = await ReservationTableService.unassignTablesFromReservation(
       selectedReservation.id,
     );
 
     if (result.success) {
-      setFeedback({ type: "success", message: "Mesas desasignadas correctamente." });
+      toastSuccess("Mesas desasignadas correctamente.");
       const updatedReservations = await loadReservations();
       await refreshSelectedReservation(updatedReservations);
     } else {
-      setFeedback({ type: "error", message: result.error || "No se pudieron desasignar mesas." });
+      toastError(result.error || "No se pudieron desasignar mesas.");
     }
     setAssignmentLoading(false);
   };
@@ -612,12 +606,6 @@ const AdminReservationsView = () => {
 
         <section style={panelStyle}>
           <div style={panelHeaderStyle}>{selectedReservation ? "Editar reserva" : "Crear nueva reserva"}</div>
-          {feedback && (
-            <div style={feedback.type === "success" ? successBoxStyle : errorBoxStyle}>
-              {feedback.message}
-            </div>
-          )}
-
           <form onSubmit={handleSaveReservation} style={formStyle}>
             <div style={fieldLabelStyle}>
               Buscar cliente (teléfono, nombre o email)
@@ -686,7 +674,6 @@ const AdminReservationsView = () => {
                     if (selectedUser) setSelectedUser(null);
                   }}
                   style={inputStyle}
-                  required
                 />
               </label>
               <label style={fieldLabelStyle}>
@@ -699,7 +686,6 @@ const AdminReservationsView = () => {
                     if (selectedUser) setSelectedUser(null);
                   }}
                   style={inputStyle}
-                  required
                 />
               </label>
             </div>
@@ -733,7 +719,6 @@ const AdminReservationsView = () => {
                   value={formState.date}
                   onChange={(e) => setFormState({ ...formState, date: e.target.value })}
                   style={inputStyle}
-                  required
                 />
               </label>
               <label style={fieldLabelStyle}>
@@ -742,7 +727,6 @@ const AdminReservationsView = () => {
                   value={formState.time}
                   onChange={(e) => setFormState({ ...formState, time: e.target.value })}
                   style={inputStyle}
-                  required
                 >
                   <option value="">Selecciona una hora</option>
                   <optgroup label="Comida">
@@ -772,7 +756,6 @@ const AdminReservationsView = () => {
                   value={formState.peopleCount}
                   onChange={(e) => setFormState({ ...formState, peopleCount: Number(e.target.value) })}
                   style={inputStyle}
-                  required
                 />
               </label>
               <label style={fieldLabelStyle}>
@@ -1033,11 +1016,11 @@ const actionButtonStyle = {
   padding: "8px 12px",
   cursor: "pointer",
 };
-
+//crear reserva: botón verde
 const primaryButtonStyle = {
   appearance: "none",
   border: "none",
-  background: "#DC143C",
+  background: "#21840a",
   color: "#fff",
   borderRadius: 12,
   padding: "12px 18px",
@@ -1060,24 +1043,6 @@ const buttonRowStyle = {
   gap: 12,
   flexWrap: "wrap",
   marginTop: 8,
-};
-
-const feedbackBoxBase = {
-  borderRadius: 14,
-  padding: 14,
-  marginBottom: 18,
-};
-
-const successBoxStyle = {
-  ...feedbackBoxBase,
-  background: "#e6ffed",
-  color: "#1f6e4d",
-};
-
-const errorBoxStyle = {
-  ...feedbackBoxBase,
-  background: "#ffe8e8",
-  color: "#8b0000",
 };
 
 const infoTextStyle = {

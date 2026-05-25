@@ -18,8 +18,8 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
     role === "admin"
       ? [
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
-          { id: "preview-menu", label: "Ver Menu", icon: "Menu" },
-          { id: "admin-menu", label: "Gestionar Menu", icon: "Menu" },
+          { id: "preview-menu", label: "Ver Menú", icon: "Menu" },
+          { id: "admin-menu", label: "Gestionar Menú", icon: "Menu" },
           { id: "admin-mesas", label: "Gestionar Mesas", icon: "Mesas" },
           { id: "admin-ofertas", label: "Ofertas", icon: "Oferta" },
           { id: "admin-reservas", label: "Todas las Reservas", icon: "Lista" },
@@ -44,7 +44,7 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
       <button
         className="sidebar-toggle"
         onClick={() => setIsOpen(!isOpen)}
-        title={isOpen ? "Ocultar menu" : "Mostrar menu"}
+        title={isOpen ? "Ocultar menú" : "Mostrar menú"}
       >
         Menu
       </button>
@@ -185,7 +185,7 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
                   e.currentTarget.style.color = "#DC143C";
                 }}
               >
-                Cerrar Sesion
+                Cerrar Sesión
               </button>
             </div>
           </>

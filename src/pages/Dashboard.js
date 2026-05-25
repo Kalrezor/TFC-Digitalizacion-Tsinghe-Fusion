@@ -45,8 +45,8 @@ const WelcomePanel = ({ role, userName }) => (
       }}
     >
       {role === "admin"
-        ? "Desde aqui puedes gestionar el menu del restaurante, las mesas, las ofertas and todas las reservas."
-        : "Aqui puedes crear, consultar y cancelar tus reservas en Tsinghe Cocina Fusión."}
+        ? "Desde aquí puedes gestionar el menú del restaurante, las mesas, las ofertas y todas las reservas."
+        : "Aquí puedes crear, consultar y cancelar tus reservas en Tsinghe Cocina Fusión."}
     </p>
 
     {/* Tarjetas informativas para admin */}
@@ -61,7 +61,7 @@ const WelcomePanel = ({ role, userName }) => (
         }}
       >
         {[
-          { emoji: "🍜", label: "Menu", desc: "Platos, precios y alergenos" },
+          { emoji: "🍜", label: "Menú", desc: "Platos, precios y alérgenos" },
           {
             emoji: "🪑",
             label: "Mesas",

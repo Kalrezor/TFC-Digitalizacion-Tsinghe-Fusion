@@ -83,7 +83,7 @@ const Login = () => {
       <div className="login-background-overlay" />
       <div className="editorial-auth-card">
         <div style={{ marginBottom: "32px", textAlign: "center" }}>
-          <h1>Iniciar Sesion</h1>
+          <h1>Iniciar Sesión</h1>
           <p>Accede a tu cuenta en Tsinghe</p>
         </div>
 
@@ -105,10 +105,10 @@ const Login = () => {
           </div>
 
           <div className="form-group">
-            <label>Contrasena</label>
+            <label>Contraseña</label>
             <input
               type="password"
-              placeholder="Tu contrasena"
+              placeholder="Tu contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -120,7 +120,7 @@ const Login = () => {
             className="btn btn-primary"
             style={{ width: "100%" }}
           >
-            {loading ? "Iniciando..." : "Iniciar Sesion"}
+            {loading ? "Iniciando..." : "Iniciar Sesión"}
           </button>
         </form>
 
@@ -151,11 +151,11 @@ const Login = () => {
             to="/forgot-password"
             style={{ display: "inline-block", marginBottom: "12px" }}
           >
-            Olvidaste tu contrasena?
+            ¿Olvidaste tu contraseña?
           </Link>
           <br />
-          <span>No tienes cuenta? </span>
-          <Link to="/register">Registrate aqui</Link>
+          <span>¿No tienes cuenta? </span>
+          <Link to="/register">Regístrate aquí</Link>
         </div>
       </div>
     </div>
