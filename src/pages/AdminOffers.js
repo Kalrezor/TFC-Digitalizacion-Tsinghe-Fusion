@@ -46,7 +46,9 @@ const AdminOffers = () => {
 
   const loadDishes = async () => {
     const result = await menuService.getAllMenus();
-    if (result.success) setDishes(result.menus);
+    if (result.success && result.data) {
+      setDishes(result.data);
+    }
   };
 
   const openNew = () => {
@@ -58,7 +60,6 @@ const AdminOffers = () => {
     setSuccess(null);
   };
 
-  // Esta función es clave para que el botón de editar funcione perfectamente
   const openEdit = (offer) => {
     setFormData({
       title:       offer.title       || "",
@@ -152,6 +153,7 @@ const AdminOffers = () => {
       setError("Error al eliminar: " + result.error);
     }
   };
+
   const handleToggleActive = async (offer) => {
     const result = await offerService.updateOffer(offer.id, { active: !offer.active }, true);
     if (result.success) loadOffers();
@@ -160,11 +162,19 @@ const AdminOffers = () => {
 
   const isEnVigor = (offer) => {
     if (!offer.active) return false;
-    const now   = new Date();
-    const start = offer.startDate ? new Date(offer.startDate) : null;
-    const end   = offer.endDate   ? new Date(offer.endDate)   : null;
+    const now = new Date();
+    
+    const parseLocalDate = (dateStr) => {
+      if (!dateStr) return null;
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
+    const start = parseLocalDate(offer.startDate);
+    const end = parseLocalDate(offer.endDate);
+    
     if (start && now < start) return false;
-    if (end   && now > end)   return false;
+    if (end && now > end) return false;
     return true;
   };
 
@@ -345,7 +355,7 @@ const AdminOffers = () => {
       {/* Cuadros de Estadísticas */}
       <div style={{ display: "flex", gap: "16px", marginBottom: "30px", flexWrap: "wrap" }}>
         {[
-          { label: "Total Ofertas",    value: offers.length },
+          { label: "Total Ofertas",     value: offers.length },
           { label: "Activas",          value: offers.filter((o) => o.active).length },
           { label: "En Vigor",         value: offers.filter(isEnVigor).length },
           { label: "Desc. Promedio",   value: offers.length > 0 ? Math.round(offers.reduce((s, o) => s + (o.discount || 0), 0) / offers.length) + "%" : "0%" },
@@ -419,7 +429,6 @@ const AdminOffers = () => {
                   <button onClick={() => handleToggleActive(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#f5f5f5", color: "#333", border: "1px solid #ccc" }}>
                     {offer.active ? "Desactivar" : "Activar"}
                   </button>
-                  {/* CORREGIDO: Ahora llama correctamente a openEdit(offer) */}
                   <button onClick={() => openEdit(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#FFD700", color: "#000", border: "1px solid #8B0000" }}>
                     Editar
                   </button>

@@ -1,16 +1,19 @@
-### style: Pop-Up para los platos y arreglo de imagenes
+### style: Pop-Up para ofertas y arreglo de carrusel tras el merge
 
-He agregado para que se puedan abrir cada plato pinchandole y que se vea al estilo pop-up, le he agregado para moverse de un lado a otro pasando ordenadamente por los platos y he estado tocando un poco el estilo de las imagenes de los platos para intentar igualarlas lo maximo posible
+He corregido los estilos visuales del carrusel principal que se habían desalineado hacia la izquierda tras el merge de ramas, asegurando su centrado simétrico absoluto. Además, se ha solucionado el problema de sincronización de fechas en el Home para que las promociones activas se carguen correctamente desde Firestore y, al hacer clic sobre ellas, desplieguen un pop-up optimizado que muestra la imagen completa sin recortes.
 
 ### Funcionalidades Destacadas
 
-* **Ventana Emergente (Pop-up) de Plato:** * Se ha diseñado un modal interactivo que se despliega al hacer clic en cualquier plato disponible de la carta.
-    * Este pop-up centraliza los detalles extendidos del plato, mostrando de manera limpia la descripción completa y un desglose visual con los nombres e iconos de sus alérgenos específicos.
+* **Módulo de Ofertas y Vista Dinámica (Home):**
+    * Implementación de una lógica sanitizada para la validación temporal exacta de las promociones (`isEnVigor`), evitando conflictos de zonas horarias entre los strings de la base de datos y el navegador del cliente.
+    * Integración de un modal interactivo (pop-up) que renderiza dinámicamente la información de la oferta seleccionada y enlaza directamente con el flujo de reservas del restaurante.
 
-* **Navegación Secuencial Integrada:** * Se han acoplado flechas de dirección (`◀` y `▶`) directamente en los laterales exteriores del recuadro del pop-up.
-    * Estas flechas permiten al usuario navegar de forma fluida e intuitiva entre los platos de la carta sin necesidad de cerrar y abrir la ventana constantemente. El orden de navegación respeta estrictamente la estructura secuencial de las categorías y los filtros de búsqueda activos.
-    * Cuentan con un efecto visual interactivo (*hover*) en tono gris minimalista para mejorar la experiencia de usuario.
+* **Sincronización de Datos con Administración:**
+    * Corrección en el mapeo del catálogo de platos dentro de la vista de administración (`AdminOffers`), vinculando de forma correcta la respuesta del servicio externo (`result.data`) para asegurar la lectura completa de los nombres del menú.
 
-* **Optimización y Centrado Perfecto de Imágenes:** * Se ha implementado una arquitectura de cajas simétricas con tamaños fijos absolutos para las celdas de las imágenes en las tarjetas de la cuadrícula.
-    * Se configuró un escalado inteligente mediante propiedades avanzadas de CSS (`object-fit: contain`, `max-width`, `max-height` y anchos automáticos) tanto en la cuadrícula como en el pop-up. 
-    * Esto garantiza que, independientemente del tamaño o la proporción original de la foto (ya sean rectangulares, apaisadas o verticales), el contenido del plato nunca se corte ni se deforme, manteniéndose milimétricamente centrado sobre un lienzo de fondo limpio.
+* **Optimización y Estilos Adaptativos multimedia:**
+    * Reestructuración geométrica de las celdas de `react-slick` en el carrusel de imágenes, combinando anchos fijos y márgenes automáticos (`margin: 0 auto`) para estabilizar su alineación horizontal manteniendo la proporción vertical original de las fotografías.
+    * Configuración de escalado inteligente en la imagen del pop-up mediante `object-fit: contain` sobre un lienzo de respaldo oscuro (`#1a1a1a`), garantizando que los diseños y promociones se visualicen íntegros sin sufrir recortes ni deformaciones.
+
+
+
