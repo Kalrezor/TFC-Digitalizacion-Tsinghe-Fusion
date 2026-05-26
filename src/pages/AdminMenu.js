@@ -1,11 +1,11 @@
-// Vista: AdminMenu.js
-// Vista de administración del menú para usuarios con rol de administrador.
-// CRUD completo de platos vinculado a Firebase con selectores personalizados.
+// Vista: AdminMenu.js (Fragmento de la Tabla optimizado para legibilidad y holgura)
 
 import React, { useState, useEffect, useRef } from "react";
 import { toastSuccess, toastError } from "../services/ToastService";
 import menuService from "../models/MenuService";
 import "../styles/MinimalStyle.css";
+
+const DEFAULT_PLATE_IMAGE = "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/plate%2FImgNoDisp.png?alt=media&token=67746171-489f-4b93-98dd-d744784fa37f";
 
 const EMPTY_FORM = {
   nombre: "",
@@ -18,6 +18,7 @@ const EMPTY_FORM = {
 };
 
 const AdminMenu = () => {
+  // ... (Mantén toda tu lógica de estados, useEffects y handlers exactamente igual)
   const [plates, setPlates]           = useState([]);
   const [categories, setCategories]   = useState([]);
   const [allAllergens, setAllAllergens] = useState({});
@@ -30,8 +31,6 @@ const AdminMenu = () => {
   const [editingId, setEditingId]     = useState(null);
   const [formData, setFormData]       = useState(EMPTY_FORM);
   const [imagePreview, setImagePreview] = useState(null);
-
-  // Refs y Estados para los Selectores (Formulario y Filtro Tabla)
   const [isOpenCat, setIsOpenCat] = useState(false);
   const [isOpenFilter, setIsOpenFilter] = useState(false);
   const catRef = useRef(null);
@@ -46,7 +45,6 @@ const AdminMenu = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // --- CARGA DE DATOS ---
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -68,7 +66,6 @@ const AdminMenu = () => {
     if (result.success) setPlates(result.data);
   };
 
-  // --- MANEJADORES ---
   const openNew = () => {
     setFormData(EMPTY_FORM);
     setEditingId(null);
@@ -86,16 +83,13 @@ const AdminMenu = () => {
     });
     setEditingId(plate.id);
     setShowForm(true);
-    setImagePreview(plate.imagen);
+    setImagePreview(plate.imagen && plate.imagen.trim() !== "" ? plate.imagen : DEFAULT_PLATE_IMAGE);
     setError(null);
     setSuccess(null);
   };
 
   const [confirmDeletePlate, setConfirmDeletePlate] = useState(null);
-
-  const handleDeleteClick = (plate) => {
-    setConfirmDeletePlate(plate);
-  };
+  const handleDeleteClick = (plate) => setConfirmDeletePlate(plate);
 
   const handleConfirmDelete = async () => {
     if (!confirmDeletePlate) return;
@@ -120,7 +114,6 @@ const AdminMenu = () => {
   };
 
   const handleCancelDelete = () => setConfirmDeletePlate(null);
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name === "precio") {
@@ -169,6 +162,7 @@ const AdminMenu = () => {
 
   return (
     <div className="container" style={{ padding: "24px 0" }}>
+      {/* ... (Mantén tus cabeceras, formularios y filtros superiores exactamente como estaban) ... */}
       <div className="card" style={{ marginBottom: "24px" }}>
         <div className="card-header">
           <h1 style={{ margin: 0 }}>Administración de Menú</h1>
@@ -220,7 +214,7 @@ const AdminMenu = () => {
                   )}
                 </div>
 
-                <div>
+                <div className="form-group">
                   <label style={labelStyle}>Alérgenos</label>
                   <div style={allergenRecuadroStyle}>
                     {Object.values(allAllergens).map(ale => (
@@ -250,7 +244,11 @@ const AdminMenu = () => {
                         }
                       }} />
                       <label htmlFor="img-upload" className="btn btn-secondary" style={{ flex: 1, textAlign: "center" }}>Subir Imagen</label>
-                      {imagePreview && <img src={imagePreview} alt="Preview" style={{ width: "45px", height: "45px", borderRadius: "6px", objectFit: "cover", border: "1px solid var(--gold)" }} />}
+                      {imagePreview ? (
+                        <img src={imagePreview} alt="Preview" style={{ width: "45px", height: "45px", borderRadius: "6px", objectFit: "cover", border: "1px solid var(--gold)" }} />
+                      ) : (
+                        <img src={DEFAULT_PLATE_IMAGE} alt="Default Preview" style={{ width: "45px", height: "45px", borderRadius: "6px", objectFit: "contain", border: "1px solid #eee" }} />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -305,50 +303,117 @@ const AdminMenu = () => {
         </div>
       </div>
 
-      <div className="card" style={{ padding: "22px", overflowX: "auto" }}>
-        <div className="card-header"><h3 style={{ margin: 0 }}>Platos</h3></div>
+      {/* --- SECCIÓN SECCIÓN TABLA REFORMADA --- */}
+      <div className="card" style={{ padding: "26px", overflowX: "auto", borderRadius: "12px" }}>
+        <div className="card-header" style={{ marginBottom: "16px" }}>
+          <h3 style={{ margin: 0 }}>Platos</h3>
+        </div>
         <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff" }}>
           <thead>
-            <tr style={{ background: "var(--sage)", color: "#fff" }}>
-              <th style={th}>Imagen</th>
-              <th style={th}>Nombre</th>
-              <th style={th}>Categoría</th>
-              <th style={th}>Precio</th>
-              <th style={th}>Estado</th>
-              <th style={th}>Alérgenos</th>
-              <th style={th}>Acciones</th>
+            <tr style={{ background: "var(--sage, #222)", color: "#fff", fontSize: "13px", letterSpacing: "0.5px" }}>
+              <th style={{ ...th, padding: "18px 14px" }}>Imagen</th>
+              <th style={{ ...th, padding: "18px 14px" }}>Nombre</th>
+              <th style={{ ...th, padding: "18px 14px" }}>Categoría</th>
+              <th style={{ ...th, padding: "18px 14px" }}>Precio</th>
+              <th style={{ ...th, padding: "18px 14px" }}>Estado</th>
+              <th style={{ ...th, padding: "18px 14px" }}>Alérgenos</th>
+              <th style={{ ...th, padding: "18px 14px", textAlign: "center" }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map(p => (
-              <tr key={p.id} style={{ borderBottom: "1px solid #eee" }}>
-                <td style={td}><img src={p.imagen} alt="" style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "4px" }} /></td>
-                <td style={td}><strong>{p.nombre}</strong></td>
-                <td style={td}>{p.idCategoria}</td>
-                <td style={td}>{parseFloat(p.precio || 0).toFixed(2)} €</td>
-                <td style={td}>
-                  <span style={{
-                    color: p.disponible ? "#2e7d32" : "#DC143C",
-                    fontWeight: "bold",
-                    fontSize: "11px",
-                    background: p.disponible ? "#e8f5e9" : "#ffebee",
-                    padding: "4px 8px",
-                    borderRadius: "12px"
-                  }}>
-                    {p.disponible ? "DISPONIBLE" : "NO DISPONIBLE"}
-                  </span>
-                </td>
-                <td style={td}>
-                  <div style={{ display: "flex", gap: "4px" }}>
-                    {p.alergenos?.map(id => <img key={id} src={allAllergens[id]?.imagen} title={allAllergens[id]?.nombre} style={{ width: "20px" }} alt="" />)}
-                  </div>
-                </td>
-                <td style={td}>
-                  <button onClick={() => openEdit(p)} className="btn btn-secondary" style={{ padding: "6px 10px", fontSize: "12px" }}>Editar</button>
-                  <button onClick={() => handleDeleteClick(p)} className="btn btn-tertiary" style={{ marginLeft: "5px", padding: "6px 10px", fontSize: "12px" }}>Eliminar</button>
-                </td>
-              </tr>
-            ))}
+            {filtered.map(p => {
+              const tableImg = p.imagen && p.imagen.trim() !== "" ? p.imagen : DEFAULT_PLATE_IMAGE;
+
+              return (
+                <tr key={p.id} style={{ borderBottom: "1px solid #f0f0f0", transition: "background 0.2s" }} className="table-row-hover">
+                  {/* Celda Imagen */}
+                  <td style={{ ...td, padding: "20px 14px" }}>
+                    <img 
+                      src={tableImg} 
+                      alt="" 
+                      style={{ 
+                        width: "56px", 
+                        height: "56px", 
+                        objectFit: tableImg === DEFAULT_PLATE_IMAGE ? "contain" : "cover", 
+                        borderRadius: "8px",
+                        background: "#f9f9f9",
+                        border: "1px solid #eaeaea",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.03)"
+                      }} 
+                    />
+                  </td>
+
+                  {/* Celda Nombre */}
+                  <td style={{ ...td, padding: "20px 14px", fontSize: "15px" }}>
+                    <strong style={{ color: "#111" }}>{p.nombre}</strong>
+                  </td>
+
+                  {/* Celda Categoría */}
+                  <td style={{ ...td, padding: "20px 14px", color: "#666", textTransform: "capitalize", fontSize: "14px" }}>
+                    {p.idCategoria}
+                  </td>
+
+                  {/* Celda Precio */}
+                  <td style={{ ...td, padding: "20px 14px", fontWeight: "600", color: "#111", fontSize: "14px" }}>
+                    {parseFloat(p.precio || 0).toFixed(2)} €
+                  </td>
+
+                  {/* Celda Estado (No disponible / Disponible) mas espacioso */}
+                  <td style={{ ...td, padding: "20px 14px" }}>
+                    <span style={{
+                      color: p.disponible ? "#1e4620" : "#721c24",
+                      fontWeight: "700",
+                      fontSize: "11px",
+                      background: p.disponible ? "#e8f5e9" : "#f8d7da",
+                      border: p.disponible ? "1px solid #c3e6cb" : "1px solid #f5c6cb",
+                      padding: "6px 12px",
+                      borderRadius: "20px",
+                      display: "inline-block",
+                      letterSpacing: "0.5px",
+                      textAlign: "center",
+                      whiteSpace: "nowrap"
+                    }}>
+                      {p.disponible ? "DISPONIBLE" : "NO DISPONIBLE"}
+                    </span>
+                  </td>
+
+                  {/* Celda Alérgenos */}
+                  <td style={{ ...td, padding: "20px 14px" }}>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", maxWidth: "120px" }}>
+                      {p.alergenos?.map(id => (
+                        <img 
+                          key={id} 
+                          src={allAllergens[id]?.imagen} 
+                          title={allAllergens[id]?.nombre} 
+                          style={{ width: "22px", height: "22px", objectFit: "contain" }} 
+                          alt="" 
+                        />
+                      ))}
+                    </div>
+                  </td>
+
+                  {/* Celda Acciones arreglada en horizontal sin superponerse */}
+                  <td style={{ ...td, padding: "20px 14px", textAlign: "center" }}>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                      <button 
+                        onClick={() => openEdit(p)} 
+                        className="btn btn-secondary" 
+                        style={{ padding: "8px 14px", fontSize: "13px", fontWeight: "600", margin: 0, borderRadius: "6px", cursor: "pointer" }}
+                      >
+                        Editar
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteClick(p)} 
+                        className="btn btn-tertiary" 
+                        style={{ padding: "8px 14px", fontSize: "13px", fontWeight: "600", margin: 0, borderRadius: "6px", cursor: "pointer", backgroundColor: "#fff5f5", color: "#e53e3e", border: "1px solid #feb2b2" }}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -359,7 +424,7 @@ const AdminMenu = () => {
             ¿Eliminar "{confirmDeletePlate.nombre}"?
             <div style={confirmMeta}>Capacidad: --</div>
           </div>
-          <div style={confirmActions}>
+          <div style={confirmActions} { ...confirmActions }>
             <button onClick={handleConfirmDelete} className="btn btn-primary" disabled={loading}>{loading ? "Eliminando..." : "Confirmar"}</button>
             <button onClick={handleCancelDelete} className="btn btn-secondary">Cancelar</button>
           </div>
@@ -373,18 +438,7 @@ const AdminMenu = () => {
 const labelStyle = { display: "block", color: "var(--text-muted)", fontWeight: "700", marginBottom: "6px", fontSize: "13px" };
 const inputStyle = { width: "100%", padding: "12px 14px", border: "1px solid var(--border-light)", borderRadius: "8px", background: "var(--pearl-light)", boxSizing: "border-box" };
 const customSelectTrigger = { ...inputStyle, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "44px" };
-const megaSelectDropdown = { position: "absolute",
-                             top: "100%", 
-                             left: 0, 
-                             minWidth: "420px", 
-                             zIndex: 100, 
-                             background: "#fff",                             
-                             border: "1px solid var(--border-light)", 
-                             borderRadius: "10px",
-                             marginTop: "8px", 
-                             boxShadow: "0 20px 50px rgba(15, 23, 42, 0.5)", 
-                             padding: "14px" };
-
+const megaSelectDropdown = { position: "absolute", top: "100%", left: 0, minWidth: "420px", zIndex: 100, background: "#fff", border: "1px solid var(--border-light)", borderRadius: "10px", marginTop: "8px", boxShadow: "0 20px 50px rgba(15, 23, 42, 0.5)", padding: "14px" };
 const megaSelectGrid = { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "10px" };
 const megaSelectItem = { padding: "12px", fontSize: "12px", borderRadius: "8px", cursor: "pointer", textAlign: "center", fontWeight: "700", border: "1px solid var(--border-light)" };
 const allergenRecuadroStyle = { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "10px", background: "var(--pearl-light)", padding: "16px", borderRadius: "12px", border: "1px solid var(--border-light)" };
