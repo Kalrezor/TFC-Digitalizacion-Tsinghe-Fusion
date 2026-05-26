@@ -1,11 +1,14 @@
 // Vista: Menu.js
-// Ajuste de imágenes avanzado: Contenedores simétricos y escalado inteligente sin deformación ni desalineación.
+// Ajuste de imágenes avanzado con soporte para imagen predeterminada por defecto.
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../controllers/useAuth";
 import menuService from "../models/MenuService";
 import "../styles/ChineseStyle.css";
+
+// URL global de la imagen por defecto subida a Firebase
+const DEFAULT_PLATE_IMAGE = "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/plate%2FImgNoDisp.png?alt=media&token=67746171-489f-4b93-98dd-d744784fa37f";
 
 const Menu = ({ role: propsRole }) => {
   const navigate = useNavigate();
@@ -83,7 +86,6 @@ const Menu = ({ role: propsRole }) => {
     }
   };
 
-  // Obtiene la lista ordenada exactamente según la estructura de categorías de la carta
   const getFilteredPlatesList = () => {
     const orderedPlates = [];
     
@@ -244,59 +246,63 @@ const Menu = ({ role: propsRole }) => {
                 <div className="category-line-right" style={{ flexGrow: 1 }}></div>
               </div>
               <div className="plates-grid">
-                {categoryPlates.map(plate => (
-                  <div 
-                    key={plate.id} 
-                    className={`plate-card-public ${plate.disponible === false ? 'plate-off' : ''} ${editMode ? 'editable-card' : ''}`}
-                    onClick={() => handlePlateClick(plate)}
-                    style={{ display: "flex", alignItems: "stretch" }} 
-                  >
-                    {/* PERFECCIONADO: Contenedor simétrico con tamaño fijo absoluto para que todos midan idéntico */}
+                {categoryPlates.map(plate => {
+                  // Validación dinámica: si no tiene imagen o está vacía, inyecta la de por defecto
+                  const currentImg = plate.imagen && plate.imagen.trim() !== "" ? plate.imagen : DEFAULT_PLATE_IMAGE;
+
+                  return (
                     <div 
-                      className="plate-card-img" 
-                      style={{ 
-                        display: "flex", 
-                        justifyContent: "center", 
-                        alignItems: "center", 
-                        backgroundColor: "#ffffff", 
-                        overflow: "hidden",
-                        position: "relative",
-                        width: "140px",      
-                        minWidth: "140px",   
-                        height: "100%",     
-                        padding: "8px",   
-                        boxSizing: "border-box"
-                      }}
+                      key={plate.id} 
+                      className={`plate-card-public ${plate.disponible === false ? 'plate-off' : ''} ${editMode ? 'editable-card' : ''}`}
+                      onClick={() => handlePlateClick(plate)}
+                      style={{ display: "flex", alignItems: "stretch" }} 
                     >
-                      <img 
-                        src={plate.imagen} 
-                        alt="" 
+                      <div 
+                        className="plate-card-img" 
                         style={{ 
-                          maxWidth: "100%", 
-                          maxHeight: "100%", 
-                          width: "auto",   
-                          height: "auto",   
-                          objectFit: "contain",
-                          display: "block",
-                          margin: "0 auto" 
-                        }} 
-                      />
-                      {plate.disponible === false && <div className="overlay-sold-out">AGOTADO</div>}
-                    </div>
-                    
-                    <div className="plate-card-info" style={{ flexGrow: 1 }}>
-                      <div className="plate-header">
-                        <h3 className="item-name">{plate.nombre}</h3>
-                        <span className="plate-price">{parseFloat(plate.precio).toFixed(2)} €</span>
+                          display: "flex", 
+                          justifyContent: "center", 
+                          alignItems: "center", 
+                          backgroundColor: "#ffffff", 
+                          overflow: "hidden",
+                          position: "relative",
+                          width: "140px",      
+                          minWidth: "140px",   
+                          height: "100%",     
+                          padding: "8px",   
+                          boxSizing: "border-box"
+                        }}
+                      >
+                        <img 
+                          src={currentImg} 
+                          alt="" 
+                          style={{ 
+                            maxWidth: "100%", 
+                            maxHeight: "100%", 
+                            width: "auto",   
+                            height: "auto",   
+                            objectFit: "contain",
+                            display: "block",
+                            margin: "0 auto" 
+                          }} 
+                        />
+                        {plate.disponible === false && <div className="overlay-sold-out">AGOTADO</div>}
                       </div>
-                      <div className="plate-allergens-icons-row">
-                        {plate.alergenos?.map(aleId => (
-                          <img key={aleId} src={allAllergens[aleId]?.imagen} title={allAllergens[aleId]?.nombre} alt="" />
-                        ))}
+                      
+                      <div className="plate-card-info" style={{ flexGrow: 1 }}>
+                        <div className="plate-header">
+                          <h3 className="item-name">{plate.nombre}</h3>
+                          <span className="plate-price">{parseFloat(plate.precio).toFixed(2)} €</span>
+                        </div>
+                        <div className="plate-allergens-icons-row">
+                          {plate.alergenos?.map(aleId => (
+                            <img key={aleId} src={allAllergens[aleId]?.imagen} title={allAllergens[aleId]?.nombre} alt="" />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           );
@@ -352,7 +358,7 @@ const Menu = ({ role: propsRole }) => {
                 ✕
               </button>
               
-              {/* PERFECCIONADO: Caja de foto del Pop-up con proporciones controladas */}
+              {/* Contenedor Pop-up Inteligente con imagen por defecto reactiva */}
               <div 
                 style={{ 
                   width: "100%", 
@@ -367,7 +373,7 @@ const Menu = ({ role: propsRole }) => {
                 }}
               >
                 <img 
-                  src={selectedPlate.imagen} 
+                  src={selectedPlate.imagen && selectedPlate.imagen.trim() !== "" ? selectedPlate.imagen : DEFAULT_PLATE_IMAGE} 
                   alt={selectedPlate.nombre} 
                   style={{ 
                     maxWidth: "100%", 
