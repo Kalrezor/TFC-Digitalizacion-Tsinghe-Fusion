@@ -1,8 +1,9 @@
 // Vista: UsersView.js
 // Componente para gestionar usuarios (CRUD) - Solo para admin.
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useUsers from '../hooks/useUsers';
+import { toastError } from '../services/ToastService';
 
 const UsersView = () => {
   const { users, loading, error, createUser, updateUser, deleteUser } = useUsers();
@@ -25,13 +26,19 @@ const UsersView = () => {
     setEditingId(user.id);
   };
 
+  useEffect(() => {
+    if (error) {
+      toastError("Error: " + error);
+    }
+  }, [error]);
+
   if (loading) return <div>Cargando...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) return null;
 
   return (
     <div>
       <h2>Gestión de Usuarios</h2>
-      <form onSubmit={handleSubmit}>
+      <form noValidate onSubmit={handleSubmit}>
         <input
           type="email"
           placeholder="Email"

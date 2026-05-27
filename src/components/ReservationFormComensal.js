@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import useAuth from "../hooks/useAuth";
+import { toastError, toastSuccess } from "../services/ToastService";
 import ReservationTableService, {
   RESERVATION_TIMES,
   getShiftFromTime,
@@ -36,6 +37,18 @@ const ReservationFormComensal = () => {
     };
     loadPhone();
   }, [user]);
+
+  useEffect(() => {
+    if (error) {
+      toastError(error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      toastSuccess(success);
+    }
+  }, [success]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,14 +132,7 @@ const ReservationFormComensal = () => {
           padding: "24px",
         }}
       >
-        {error && (
-          <div style={{ color: "#8b0000", marginBottom: "16px" }}>{error}</div>
-        )}
-        {success && (
-          <div style={{ color: "#006400", marginBottom: "16px" }}>{success}</div>
-        )}
-
-        <form onSubmit={handleSubmit}>
+        <form noValidate onSubmit={handleSubmit}>
           <div style={{ display: "grid", gap: "16px" }}>
             <label style={labelStyle}>
               Fecha de reserva
