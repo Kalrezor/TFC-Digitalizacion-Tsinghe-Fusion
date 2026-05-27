@@ -129,7 +129,7 @@ const RestaurantChatbot = ({ user, role, userName, enabled = true }) => {
             )}
           </div>
 
-          <form className="chatbot-form" onSubmit={handleSubmit}>
+          <form noValidate className="chatbot-form" onSubmit={handleSubmit}>
             <input
               type="text"
               value={input}

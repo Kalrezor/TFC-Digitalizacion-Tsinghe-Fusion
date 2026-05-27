@@ -26,7 +26,7 @@ const WelcomePanel = ({ role, userName }) => (
     <div style={{ fontSize: "60px", marginBottom: "16px" }}>
       {role === "admin" ? "🛠️" : "🍽️"}
     </div>
-    <h2 style={{ color: "#DC143C", marginBottom: "8px" }}>
+    <h2 style={{ color: "#050505", marginBottom: "8px" }}>
       {role === "admin"
         ? `Panel de Administración`
         : `¡Bienvenido, ${userName || "Usuario"}!`}
@@ -78,8 +78,8 @@ const WelcomePanel = ({ role, userName }) => (
             key={c.label}
             style={{
               background: "#fff",
-              border: "2px solid #FFD700",
-              borderRadius: "10px",
+              border: "1px solid #050505",
+              borderRadius: 0,
               padding: "20px 24px",
               minWidth: "140px",
               textAlign: "center",
@@ -87,7 +87,7 @@ const WelcomePanel = ({ role, userName }) => (
           >
             <div style={{ fontSize: "32px" }}>{c.emoji}</div>
             <div
-              style={{ fontWeight: "bold", color: "#DC143C", marginTop: "8px" }}
+              style={{ fontWeight: "bold", color: "#050505", marginTop: "8px" }}
             >
               {c.label}
             </div>
@@ -326,7 +326,7 @@ const Dashboard = ({
       <main
         style={{
           flex: 1,
-          background: "#fafaf5",
+          background: "#ffffff",
           overflowY: "auto",
         }}
       >

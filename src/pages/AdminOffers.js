@@ -191,11 +191,11 @@ const AdminOffers = () => {
   };
 
   return (
-    <div style={{ padding: "30px", background: "#fcfcfa", minHeight: "100vh" }}>
+    <div style={{ padding: "30px", background: "#ffffff", minHeight: "100vh" }}>
 
       {/* Cabecera Principal */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h1 style={{ color: "#DC143C", fontSize: "28px", fontWeight: "bold", margin: 0 }}>
+        <h1 style={{ color: "#050505", fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "42px", fontWeight: 400, margin: 0 }}>
           Administración de Ofertas
         </h1>
         <button onClick={openNew} disabled={loading} style={btnMainHeader}>
@@ -205,8 +205,8 @@ const AdminOffers = () => {
 
       {/* Formulario Estructurado */}
       {showForm && (
-        <div style={{ background: "#fff8f2", border: "1px solid #FFD700", borderRadius: "8px", padding: "30px", marginBottom: "35px" }}>
-          <h2 style={{ color: "#DC143C", fontSize: "20px", marginTop: 0, marginBottom: "25px" }}>
+        <div style={{ background: "#ffffff", border: "1px solid #050505", borderRadius: 0, padding: "30px", marginBottom: "35px" }}>
+          <h2 style={{ color: "#050505", fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "30px", fontWeight: 400, marginTop: 0, marginBottom: "25px" }}>
             {editingId ? "Editar Oferta Activa" : "Nueva Oferta"}
           </h2>
           
@@ -235,7 +235,7 @@ const AdminOffers = () => {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingTop: "25px" }}>
                     <input name="active" type="checkbox" id="form-active-chk" checked={formData.active} onChange={handleChange} style={{ width: "16px", height: "16px", cursor: "pointer" }} />
-                    <label htmlFor="form-active-chk" style={{ color: "#8B0000", fontWeight: "bold", cursor: "pointer", fontSize: "14px" }}>Oferta activa</label>
+                    <label htmlFor="form-active-chk" style={{ color: "#050505", fontWeight: 600, cursor: "pointer", fontSize: "14px" }}>Oferta activa</label>
                   </div>
                 </div>
 
@@ -269,7 +269,7 @@ const AdminOffers = () => {
                   </label>
 
                   {formData.imageUrl && (
-                    <div style={{ marginTop: "12px", position: "relative", width: "100%", height: "140px", border: "1px solid #FFD700", borderRadius: "6px", overflow: "hidden", background: "#fff" }}>
+                    <div style={{ marginTop: "12px", position: "relative", width: "100%", height: "140px", border: "1px solid #050505", borderRadius: 0, overflow: "hidden", background: "#fff" }}>
                       <img src={formData.imageUrl} alt="Miniatura subida" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       <button type="button" onClick={handleRemoveImage} style={btnDeleteFloatingImg}>Quitar Foto</button>
                     </div>
@@ -278,7 +278,7 @@ const AdminOffers = () => {
 
                 <div>
                   <label style={labelStyle}>Platos incluidos en la oferta</label>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", maxHeight: "150px", overflowY: "auto", border: "1px solid #FFD700", borderRadius: "6px", padding: "12px", background: "#fff" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", maxHeight: "150px", overflowY: "auto", border: "1px solid #050505", borderRadius: 0, padding: "12px", background: "#fff" }}>
                     {dishes.length === 0 && <span style={{ color: "#888", fontSize: "13px" }}>Cargando platos...</span>}
                     {dishes.map((dish) => {
                       const isChecked = selectedDishes.includes(dish.id);
@@ -289,13 +289,14 @@ const AdminOffers = () => {
                             display:       "flex",
                             alignItems:    "center",
                             gap:           "6px",
-                            background:    isChecked ? "#FFD700" : "#f8f9fa",
+                            background:    isChecked ? "#050505" : "#ffffff",
+                            color:         isChecked ? "#ffffff" : "#050505",
                             padding:       "6px 12px",
-                            borderRadius:  "20px",
+                            borderRadius:  0,
                             cursor:        "pointer",
                             fontSize:      "12px",
                             fontWeight:    isChecked ? "bold" : "normal",
-                            border:        isChecked ? "1px solid #8B0000" : "1px solid #ddd",
+                            border:        "1px solid #050505",
                             transition:    "all 0.1s ease",
                           }}
                         >
@@ -352,16 +353,16 @@ const AdminOffers = () => {
           { label: "Desc. Promedio",   value: offers.length > 0 ? Math.round(offers.reduce((s, o) => s + (o.discount || 0), 0) / offers.length) + "%" : "0%" },
         ].map((s) => (
           <div key={s.label} style={statBox}>
-            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#DC143C" }}>{s.value}</div>
+            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#050505" }}>{s.value}</div>
             <div style={{ fontSize: "12px", color: "#666", marginTop: "2px" }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      {loading && <p style={{ color: "#DC143C", fontWeight: "bold" }}>Cargando ofertas...</p>}
+      {loading && <p style={{ color: "#050505", fontWeight: "bold" }}>Cargando ofertas...</p>}
 
       {!loading && filtered.length === 0 && (
-        <p style={{ textAlign: "center", color: "#999", padding: "40px", border: "1px dashed #ccc", borderRadius: "8px" }}>
+        <p style={{ textAlign: "center", color: "#71717a", padding: "40px", border: "1px dashed #050505", borderRadius: 0 }}>
           No se encontraron ofertas que coincidan.
         </p>
       )}
@@ -374,18 +375,18 @@ const AdminOffers = () => {
             return (
               <div key={offer.id} style={{
                 background:   "#fff",
-                border:       "1px solid " + (enVigor ? "#4CAF50" : offer.active ? "#FFD700" : "#ddd"),
-                borderRadius: "8px",
+                border:       "1px solid #050505",
+                borderRadius: 0,
                 padding:      "20px",
                 position:     "relative",
-                boxShadow:    "0 2px 6px rgba(0,0,0,0.02)"
+                boxShadow:    "none"
               }}>
                 <div style={{ position: "absolute", top: "16px", right: "16px", display: "flex", gap: "6px" }}>
-                  <span style={{ background: offer.active ? "#4CAF50" : "#f44336", color: "#fff", padding: "3px 8px", borderRadius: "4px", fontSize: "11px", fontWeight: "bold" }}>
+                  <span style={{ background: offer.active ? "#050505" : "#ffffff", color: offer.active ? "#fff" : "#050505", border: "1px solid #050505", padding: "3px 8px", borderRadius: 0, fontSize: "11px", fontWeight: "bold" }}>
                     {offer.active ? "Activa" : "Inactiva"}
                   </span>
                   {enVigor && (
-                    <span style={{ background: "#FFD700", color: "#000", padding: "3px 8px", borderRadius: "4px", fontSize: "11px", fontWeight: "bold" }}>
+                    <span style={{ background: "#ffffff", color: "#050505", border: "1px solid #050505", padding: "3px 8px", borderRadius: 0, fontSize: "11px", fontWeight: "bold" }}>
                       En Vigor
                     </span>
                   )}
@@ -393,11 +394,11 @@ const AdminOffers = () => {
 
                 <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
                   {offer.imageUrl ? (
-                    <div style={{ width: "80px", height: "80px", borderRadius: "6px", overflow: "hidden", border: "1px solid #eee", flexShrink: 0 }}>
+                    <div style={{ width: "80px", height: "80px", borderRadius: 0, overflow: "hidden", border: "1px solid #050505", flexShrink: 0 }}>
                       <img src={offer.imageUrl} alt={offer.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     </div>
                   ) : (
-                    <div style={{ background: "#DC143C", color: "#fff", borderRadius: "50%", width: "55px", height: "55px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: "16px", fontWeight: "bold" }}>
+                    <div style={{ background: "#050505", color: "#fff", borderRadius: 0, width: "55px", height: "55px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: "16px", fontWeight: "bold" }}>
                       -{offer.discount}%
                     </div>
                   )}
@@ -417,14 +418,14 @@ const AdminOffers = () => {
                 </div>
 
                 <div style={{ marginTop: "15px", display: "flex", gap: "8px" }}>
-                  <button onClick={() => handleToggleActive(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#f5f5f5", color: "#333", border: "1px solid #ccc" }}>
+                  <button onClick={() => handleToggleActive(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#ffffff", color: "#050505", border: "1px solid #050505" }}>
                     {offer.active ? "Desactivar" : "Activar"}
                   </button>
                   {/* CORREGIDO: Ahora llama correctamente a openEdit(offer) */}
-                  <button onClick={() => openEdit(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#FFD700", color: "#000", border: "1px solid #8B0000" }}>
+                  <button onClick={() => openEdit(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#ffffff", color: "#050505", border: "1px solid #050505" }}>
                     Editar
                   </button>
-                  <button onClick={() => handleDelete(offer.id)} disabled={loading} style={{ ...btnSmallAction, background: "#DC143C", color: "#fff", border: "none" }}>
+                  <button onClick={() => handleDelete(offer.id)} disabled={loading} style={{ ...btnSmallAction, background: "#050505", color: "#fff", border: "1px solid #050505" }}>
                     Eliminar
                   </button>
                 </div>
@@ -439,17 +440,17 @@ const AdminOffers = () => {
 };
 
 // --- ESTILOS COMPONENTES ---
-const labelStyle   = { display: "block", color: "#8B0000", fontWeight: "bold", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" };
-const inputStyle   = { width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", fontSize: "14px", boxSizing: "border-box", background: "#fff" };
+const labelStyle   = { display: "block", color: "#050505", fontWeight: "bold", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.2em" };
+const inputStyle   = { width: "100%", padding: "10px", border: "1px solid #050505", borderRadius: 0, fontSize: "14px", boxSizing: "border-box", background: "#fff", color: "#050505" };
 
 const btnYellowUploadFull = {
   display: "block",
   width: "100%",
   padding: "14px 0",
-  background: "#FFD700",
-  color: "#000",
-  border: "none",
-  borderRadius: "8px",
+  background: "#ffffff",
+  color: "#050505",
+  border: "1px solid #050505",
+  borderRadius: 0,
   cursor: "pointer",
   fontWeight: "bold",
   fontSize: "14px",
@@ -457,19 +458,19 @@ const btnYellowUploadFull = {
   boxSizing: "border-box"
 };
 
-const btnMainHeader   = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "14px" };
-const btnSubmitForm   = { backgroundColor: "#DC143C", color: "#fff", border: "none", padding: "10px 22px", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" };
-const btnSecondary    = { backgroundColor: "#bbb", color: "#fff", border: "none", padding: "10px 22px", borderRadius: "6px", cursor: "pointer" };
-const btnSmallAction  = { padding: "6px 14px", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" };
-const statBox         = { background: "#fff", border: "1px solid #FFD700", borderRadius: "6px", padding: "12px 20px", textAlign: "center", minWidth: "110px" };
+const btnMainHeader   = { backgroundColor: "#050505", color: "#fff", border: "1px solid #050505", padding: "10px 20px", borderRadius: 0, cursor: "pointer", fontWeight: "bold", fontSize: "14px" };
+const btnSubmitForm   = { backgroundColor: "#050505", color: "#fff", border: "1px solid #050505", padding: "10px 22px", borderRadius: 0, cursor: "pointer", fontWeight: "bold" };
+const btnSecondary    = { backgroundColor: "#ffffff", color: "#050505", border: "1px solid #050505", padding: "10px 22px", borderRadius: 0, cursor: "pointer" };
+const btnSmallAction  = { padding: "6px 14px", borderRadius: 0, cursor: "pointer", fontSize: "12px", fontWeight: "bold" };
+const statBox         = { background: "#fff", border: "1px solid #050505", borderRadius: 0, padding: "12px 20px", textAlign: "center", minWidth: "110px" };
 const btnDeleteFloatingImg = {
   position: "absolute",
   top: "8px",
   right: "8px",
-  background: "rgba(220, 20, 60, 0.9)",
+  background: "#050505",
   color: "#fff",
   border: "none",
-  borderRadius: "4px",
+  borderRadius: 0,
   padding: "4px 8px",
   fontSize: "11px",
   cursor: "pointer",

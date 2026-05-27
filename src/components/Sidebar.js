@@ -183,7 +183,7 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "#DC143C";
+                  e.currentTarget.style.color = "#050505";
                 }}
               >
                 Cerrar Sesión
