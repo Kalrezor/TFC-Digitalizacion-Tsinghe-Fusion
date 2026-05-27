@@ -405,15 +405,27 @@ class AuthService {
       );
 
       if (!response.ok) {
-        console.error("Error reseteando contraseña:", response.statusText);
-        return { success: false, error: "Error al resetear la contraseña" };
+        const errorData = await response.json().catch(() => null);
+        console.error(
+          "Error reseteando contraseña:",
+          errorData || response.statusText,
+        );
+        return {
+          success: false,
+          error: errorData?.error || "Error al resetear la contraseña",
+        };
       }
+
+      const data = await response.json().catch(() => ({}));
 
       // El Cloud Function se encarga de eliminar el documento de reset
       // No necesitamos eliminarlo desde el cliente
 
       console.log("✅ Contraseña reseteada exitosamente");
-      return { success: true, message: "Contraseña actualizada exitosamente" };
+      return {
+        success: true,
+        message: data.message || "Contraseña actualizada exitosamente",
+      };
     } catch (error) {
       console.error("❌ Error validando token:", error.message);
       return { success: false, error: error.message };
