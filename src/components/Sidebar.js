@@ -24,6 +24,7 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
           { id: "admin-ofertas", label: "Ofertas", icon: "Oferta" },
           { id: "admin-reservas", label: "Todas las Reservas", icon: "Lista" },
           { id: "split-bill", label: "Dividir Cuenta", icon: "Cuenta" },
+          { id: "chatbot-control", label: "Chatbot", icon: "Chat" },
           { id: "inicio", label: "Configuración de perfil", icon: "Configuración" }
         ]
       : [
