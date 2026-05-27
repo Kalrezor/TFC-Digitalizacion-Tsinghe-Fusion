@@ -2,7 +2,7 @@
 // CRUD completo de ofertas - Corrección del botón Editar y sincronización de datos.
 
 import React, { useState, useEffect } from "react";
-import { toastSuccess, toastError } from "../services/ToastService";
+import { toastSuccess, toastError, toastConfirm } from "../services/ToastService";
 import offerService from "../services/OfferService";
 import menuService  from "../services/MenuService";
 import "../styles/ChineseStyle.css";
@@ -21,8 +21,6 @@ const AdminOffers = () => {
   const [offers, setOffers]           = useState([]);
   const [dishes, setDishes]           = useState([]);
   const [loading, setLoading]         = useState(false);
-  const [error, setError]             = useState(null);
-  const [success, setSuccess]         = useState(null);
   const [searchTerm, setSearchTerm]   = useState("");
   const [filterStatus, setFilter]     = useState("all");
   const [showForm, setShowForm]       = useState(false);
@@ -37,11 +35,10 @@ const AdminOffers = () => {
 
   const loadOffers = async () => {
     setLoading(true);
-    setError(null);
     const result = await offerService.getAllOffers();
     setLoading(false);
     if (result.success) setOffers(result.offers);
-    else setError("Error al cargar las ofertas: " + result.error);
+    else toastError("Error al cargar las ofertas: " + result.error);
   };
 
   const loadDishes = async () => {
@@ -54,8 +51,6 @@ const AdminOffers = () => {
     setSelDishes([]);
     setEditingId(null);
     setShowForm(true);
-    setError(null);
-    setSuccess(null);
   };
 
   // Esta función es clave para que el botón de editar funcione perfectamente
@@ -72,8 +67,6 @@ const AdminOffers = () => {
     setSelDishes(offer.dishIds || []);
     setEditingId(offer.id);
     setShowForm(true);
-    setError(null);
-    setSuccess(null);
   };
 
   const handleChange = (e) => {
@@ -86,7 +79,7 @@ const AdminOffers = () => {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      alert("La imagen supera el límite permitido de 2MB.");
+      toastError("La imagen supera el límite permitido de 2MB.");
       return;
     }
 
@@ -110,17 +103,21 @@ const AdminOffers = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.discount) {
-      setError("El título y el porcentaje de descuento son obligatorios.");
+      toastError("El título y el porcentaje de descuento son obligatorios.");
+      return;
+    }
+    const discount = Number.parseInt(formData.discount, 10);
+    if (Number.isNaN(discount) || discount < 1 || discount > 100) {
+      toastError("El descuento debe estar entre 1 y 100.");
       return;
     }
     if (formData.startDate && formData.endDate && new Date(formData.startDate) >= new Date(formData.endDate)) {
-      setError("La fecha de fin debe ser posterior a la fecha de inicio.");
+      toastError("La fecha de fin debe ser posterior a la fecha de inicio.");
       return;
     }
 
     setLoading(true);
-    setError(null);
-    const payload = { ...formData, discount: parseInt(formData.discount), dishIds: selectedDishes };
+    const payload = { ...formData, discount, dishIds: selectedDishes };
 
     const result = editingId
       ? await offerService.updateOffer(editingId, payload, true)
@@ -128,19 +125,23 @@ const AdminOffers = () => {
 
     setLoading(false);
     if (result.success) {
-      setSuccess(editingId ? "Oferta actualizada con éxito." : "Oferta publicada correctamente.");
+      toastSuccess(editingId ? "Oferta actualizada con éxito." : "Oferta publicada correctamente.");
       setShowForm(false);
       setFormData(EMPTY_FORM);
       setSelDishes([]);
       setEditingId(null);
       loadOffers();
     } else {
-      setError("Error al procesar la solicitud: " + result.error);
+      toastError("Error al procesar la solicitud: " + result.error);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Seguro que deseas eliminar esta oferta?")) return;
+    const confirmed = await toastConfirm("¿Seguro que deseas eliminar esta oferta?", {
+      confirmText: "Eliminar",
+    });
+    if (!confirmed) return;
+
     setLoading(true);
     const result = await offerService.deleteOffer(id, true);
     setLoading(false);
@@ -149,13 +150,16 @@ const AdminOffers = () => {
       loadOffers();
     } else {
       toastError("Error al eliminar: " + result.error);
-      setError("Error al eliminar: " + result.error);
     }
   };
   const handleToggleActive = async (offer) => {
     const result = await offerService.updateOffer(offer.id, { active: !offer.active }, true);
-    if (result.success) loadOffers();
-    else setError("No se pudo cambiar el estado de la oferta.");
+    if (result.success) {
+      toastSuccess(offer.active ? "Oferta desactivada." : "Oferta activada.");
+      loadOffers();
+    } else {
+      toastError("No se pudo cambiar el estado de la oferta.");
+    }
   };
 
   const isEnVigor = (offer) => {
@@ -199,9 +203,6 @@ const AdminOffers = () => {
         </button>
       </div>
 
-      {error   && <div style={alertError}>{error}</div>}
-      {success && <div style={alertSuccess}>{success}</div>}
-
       {/* Formulario Estructurado */}
       {showForm && (
         <div style={{ background: "#fff8f2", border: "1px solid #FFD700", borderRadius: "8px", padding: "30px", marginBottom: "35px" }}>
@@ -209,7 +210,7 @@ const AdminOffers = () => {
             {editingId ? "Editar Oferta Activa" : "Nueva Oferta"}
           </h2>
           
-          <form onSubmit={handleSubmit}>
+          <form noValidate onSubmit={handleSubmit}>
             <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "35px" }}>
               
               {/* Bloque Izquierdo */}
@@ -217,7 +218,7 @@ const AdminOffers = () => {
                 <div>
                   <label style={labelStyle}>Título de la Oferta *</label>
                   <input name="title" value={formData.title} onChange={handleChange}
-                    placeholder="Ej: Descuento Fin de Semana" required style={inputStyle} />
+                    placeholder="Ej: Descuento Fin de Semana" style={inputStyle} />
                 </div>
 
                 <div>
@@ -230,7 +231,7 @@ const AdminOffers = () => {
                   <div>
                     <label style={labelStyle}>Descuento (%) *</label>
                     <input name="discount" type="number" min="1" max="100" value={formData.discount}
-                      onChange={handleChange} placeholder="Ej: 20" required style={inputStyle} />
+                      onChange={handleChange} placeholder="Ej: 20" style={inputStyle} />
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingTop: "25px" }}>
                     <input name="active" type="checkbox" id="form-active-chk" checked={formData.active} onChange={handleChange} style={{ width: "16px", height: "16px", cursor: "pointer" }} />
@@ -461,9 +462,6 @@ const btnSubmitForm   = { backgroundColor: "#DC143C", color: "#fff", border: "no
 const btnSecondary    = { backgroundColor: "#bbb", color: "#fff", border: "none", padding: "10px 22px", borderRadius: "6px", cursor: "pointer" };
 const btnSmallAction  = { padding: "6px 14px", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold" };
 const statBox         = { background: "#fff", border: "1px solid #FFD700", borderRadius: "6px", padding: "12px 20px", textAlign: "center", minWidth: "110px" };
-const alertError      = { background: "#ffebee", border: "1px solid #c62828", padding: "12px", borderRadius: "6px", marginBottom: "16px", color: "#c62828", fontSize: "14px" };
-const alertSuccess    = { background: "#e8f5e9", border: "1px solid #2e7d32", padding: "12px", borderRadius: "6px", marginBottom: "16px", color: "#2e7d32", fontSize: "14px" };
-
 const btnDeleteFloatingImg = {
   position: "absolute",
   top: "8px",

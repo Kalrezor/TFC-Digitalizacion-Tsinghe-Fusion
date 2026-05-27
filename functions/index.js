@@ -564,6 +564,98 @@ exports.sendVerificationEmail = onRequest(
     }
   },
 );
+
+exports.sendPasswordResetEmail = onRequest(
+  {
+    region: "us-central1",
+    cors: "*",
+    invoker: "public",
+  },
+  async (req, res) => {
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Metodo no permitido" });
+      return;
+    }
+
+    try {
+      const { email, token, displayName } = req.body;
+
+      if (!email || !token) {
+        res.status(400).json({ error: "Email y token son obligatorios" });
+        return;
+      }
+
+      const name = displayName || String(email).split("@")[0];
+
+      const emailHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            ${EMAIL_STYLES}
+          </style>
+        </head>
+        <body style="${EMAIL_INLINE.body}">
+          <div class="container" style="${EMAIL_INLINE.container}">
+            <div class="header" style="${EMAIL_INLINE.header}">
+              <h1 style="${EMAIL_INLINE.title}">Tsinghe Cocina Fusión</h1>
+            </div>
+            <div class="content" style="${EMAIL_INLINE.content}">
+              <h2 style="${EMAIL_INLINE.subtitle}">Recuperación de contraseña</h2>
+              <p style="${EMAIL_INLINE.paragraph}">Hola ${name},</p>
+              <p style="${EMAIL_INLINE.paragraph}">Hemos recibido una solicitud para restablecer tu contraseña.</p>
+
+              <div class="info-box" style="${EMAIL_INLINE.panel}">
+                <p style="${EMAIL_INLINE.paragraph}"><strong>Tu token de recuperación es:</strong></p>
+                <p style="${EMAIL_INLINE.paragraph} font-size: 18px; letter-spacing: 0.15em;"><strong>${token}</strong></p>
+              </div>
+
+              <p style="${EMAIL_INLINE.paragraph}">Copia este token y pégalo en la página de recuperación de contraseña. El token expira en 15 minutos.</p>
+
+              <p class="muted" style="${EMAIL_INLINE.muted} margin-top: 24px;">
+                Si no solicitaste este cambio, puedes ignorar este mensaje.
+              </p>
+            </div>
+            <div class="footer" style="${EMAIL_INLINE.footer}">
+              <p style="${EMAIL_INLINE.footerText}">© 2026 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      await transporter.sendMail({
+        from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
+        to: email,
+        subject: "Recuperación de contraseña - Tsinghe Cocina Fusión",
+        html: emailHtml,
+      });
+
+      logger.info("EMAIL DE RECUPERACIÓN enviado:", { to: email, name, token });
+
+      res.status(200).json({
+        success: true,
+        message: "Token de recuperación enviado a " + email,
+      });
+    } catch (error) {
+      logger.error("Error enviando email de recuperación:", error);
+      res.status(500).json({
+        error: "Error al enviar el email: " + error.message,
+      });
+    }
+  },
+);
+
   /*            
               <div class="token-box">
                 <div class="label">Tu Token:</div>
