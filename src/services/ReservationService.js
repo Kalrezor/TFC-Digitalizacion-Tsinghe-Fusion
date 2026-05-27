@@ -106,11 +106,19 @@ class ReservationService {
           where("tableId", "==", tableId),
           where("reservationDate", "==", date),
           where("reservationTime", "==", time),
-          where("status", "!=", "cancelada"),
         ),
       );
 
-      return !querySnapshot.empty;
+      let conflict = false;
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.status === "cancelada") {
+          return;
+        }
+        conflict = true;
+      });
+
+      return conflict;
     } catch (error) {
       console.error("Error verificando conflicto:", error);
       return false;
@@ -314,29 +322,42 @@ class ReservationService {
 
   // Obtener mesas disponibles para una fecha y hora
   async getAvailableTables(date, time) {
+    if (!date || !time) {
+      return { success: false, error: "Fecha y hora de reserva requeridas" };
+    }
+
     try {
       // Obtener todas las mesas
       const tablesSnap = await getDocs(collection(db, "tables"));
       const allTables = [];
       tablesSnap.forEach((doc) => {
-        if (doc.data().active) {
-          allTables.push({ id: doc.id, ...doc.data() });
+        const data = doc.data();
+        if (data.active !== false && data.available !== false) {
+          allTables.push({ id: doc.id, ...data });
         }
       });
 
-      // Obtener mesas reservadas
+      // Obtener mesas reservadas para esa fecha y hora
       const reservationsSnap = await getDocs(
         query(
           collection(db, "reservations"),
           where("reservationDate", "==", date),
           where("reservationTime", "==", time),
-          where("status", "!=", "cancelada"),
         ),
       );
 
       const reservedTableIds = new Set();
       reservationsSnap.forEach((doc) => {
-        reservedTableIds.add(doc.data().tableId);
+        const reservationData = doc.data();
+        if (reservationData.status === "cancelada") {
+          return;
+        }
+        const reservedIds = Array.isArray(reservationData.tableIds)
+          ? reservationData.tableIds
+          : reservationData.tableId
+          ? [reservationData.tableId]
+          : [];
+        reservedIds.forEach((id) => reservedTableIds.add(id));
       });
 
       // Filtrar mesas disponibles

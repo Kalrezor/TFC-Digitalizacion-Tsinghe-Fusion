@@ -130,20 +130,16 @@ const buildReservationPayload = ({
 class ReservationTableService {
   async getReservationsByDate(date, includeCanceled = false) {
     try {
-      const filters = [where("reservationDate", "==", date)];
-      if (!includeCanceled) {
-        filters.push(where("status", "!=", RESERVATION_STATUS.CANCELED));
-      }
       const querySnapshot = await getDocs(
-        query(collection(db, "reservations"), ...filters),
+        query(collection(db, "reservations"), where("reservationDate", "==", date)),
       );
 
       const reservations = [];
       querySnapshot.forEach((doc) => {
-        reservations.push({
-          id: doc.id,
-          ...normalizeReservation(doc.data()),
-        });
+        const reservation = normalizeReservation(doc.data());
+        if (includeCanceled || reservation.status !== RESERVATION_STATUS.CANCELED) {
+          reservations.push({ id: doc.id, ...reservation });
+        }
       });
 
       return { success: true, reservations };
@@ -179,24 +175,20 @@ class ReservationTableService {
     }
 
     try {
-      const filters = [
-        where("reservationDate", ">=", fromDate),
-        where("reservationDate", "<=", toDate),
-      ];
-      if (!includeCanceled) {
-        filters.push(where("status", "!=", RESERVATION_STATUS.CANCELED));
-      }
-
       const querySnapshot = await getDocs(
-        query(collection(db, "reservations"), ...filters),
+        query(
+          collection(db, "reservations"),
+          where("reservationDate", ">=", fromDate),
+          where("reservationDate", "<=", toDate),
+        ),
       );
 
       const reservations = [];
       querySnapshot.forEach((doc) => {
-        reservations.push({
-          id: doc.id,
-          ...normalizeReservation(doc.data()),
-        });
+        const reservation = normalizeReservation(doc.data());
+        if (includeCanceled || reservation.status !== RESERVATION_STATUS.CANCELED) {
+          reservations.push({ id: doc.id, ...reservation });
+        }
       });
 
       return { success: true, reservations };
@@ -244,17 +236,20 @@ class ReservationTableService {
       if (date) {
         filters.push(where("reservationDate", "==", date));
       }
-      if (!includeCanceled) {
-        filters.push(where("status", "!=", RESERVATION_STATUS.CANCELED));
-      }
 
       const querySnapshot = await getDocs(
-        query(collection(db, "reservations"), ...filters),
+        filters.length > 0
+          ? query(collection(db, "reservations"), ...filters)
+          : collection(db, "reservations"),
       );
 
       const reservations = [];
       querySnapshot.forEach((doc) => {
         const reservation = normalizeReservation(doc.data());
+        if (!includeCanceled && reservation.status === RESERVATION_STATUS.CANCELED) {
+          return;
+        }
+
         const tableIds = Array.isArray(reservation.tableIds)
           ? reservation.tableIds
           : reservation.tableId
