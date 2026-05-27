@@ -64,9 +64,16 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
         } else {
           setSelectedTable(null);
         }
+      } else {
+        setAvailableTables([]);
+        setSelectedTable(null);
+        setError(result.error || "No se pudieron cargar las mesas disponibles.");
       }
     } catch (err) {
       console.error("Error cargando mesas:", err);
+      setAvailableTables([]);
+      setSelectedTable(null);
+      setError(err.message || "Error cargando mesas disponibles.");
     }
   }, [formData.reservationDate, formData.reservationTime, formData.numberOfPeople]);
 

@@ -214,8 +214,8 @@ const Home = () => {
       {/* SECCIÓN HERO */}
       <section className="home-hero editorial-frame">
         <div className="home-hero-copy">
-          <p className="editorial-kicker">Cocina fusion · Madrid</p>
-          <h1 className="home-title editorial-serif">Tsinghe Cocina Fusion</h1>
+          <p className="editorial-kicker">Cocina fusión · Madrid</p>
+          <h1 className="home-title editorial-serif">Tsinghe Cocina Fusión</h1>
           <p className="home-lede">
             Una experiencia de mesa serena, precisa y contemporánea, donde la
             cocina china se presenta con ritmo editorial y producto cuidado.
@@ -270,10 +270,10 @@ const Home = () => {
         <div className="editorial-grid-3">
           <article className="editorial-cell">
             <p className="editorial-kicker">Producto</p>
-            <h3>Origen y precision</h3>
+            <h3>Origen y precisión</h3>
             <p>
-              Recetas de inspiracion china preparadas con ingredientes cuidados
-              y una presentacion limpia.
+              Recetas de inspiración china preparadas con ingredientes cuidados
+              y una presentación limpia.
             </p>
           </article>
 
@@ -389,7 +389,7 @@ const Home = () => {
             </p>
             <div className="home-actions">
               <button onClick={goToMenu} className="editorial-button">
-                Ver menu
+                Ver menú
               </button>
             </div>
           </article>
@@ -581,7 +581,7 @@ const Home = () => {
       )}
 
       <footer className="editorial-footer editorial-ui">
-        © 2026 Tsinghe Cocina Fusion. Todos los derechos reservados.
+        © 2026 Tsinghe Cocina Fusión. Todos los derechos reservados.
       </footer>
     </div>
   );
