@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import ReservationService from "../services/ReservationService";
+import { toastError, toastInfo, toastSuccess } from "../services/ToastService";
 import "../styles/ChineseStyle.css";
 
 const getBestFitTables = (tables, people) => {
@@ -104,6 +105,30 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
       loadAvailableTables();
     }
   }, [formData.reservationDate, formData.reservationTime, loadAvailableTables]);
+
+  useEffect(() => {
+    if (error) {
+      toastError(error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      toastSuccess("Reserva creada exitosamente.");
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (mergingInfo?.needsMerging) {
+      toastInfo(mergingInfo.message);
+    }
+  }, [mergingInfo]);
+
+  useEffect(() => {
+    if (availableTables.length === 0 && formData.reservationDate && formData.reservationTime) {
+      toastInfo("No hay mesas disponibles para la fecha y hora seleccionadas.");
+    }
+  }, [availableTables.length, formData.reservationDate, formData.reservationTime]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -210,38 +235,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
       <div className="reservation-form-card">
         <h2>📅 Nueva Reserva</h2>
 
-        {error && <div className="error-message error-box">❌ {error}</div>}
-        {success && (
-          <div className="success-message success-box">
-            ✅ ¡Reserva creada exitosamente!
-          </div>
-        )}
-
-        {/* ✨ NUEVO: Advertencia de fusión cuando > 4 personas */}
-        {mergingInfo?.needsMerging && (
-          <div style={{
-            background: "#fff3cd",
-            border: "1px solid #ffc107",
-            borderRadius: "8px",
-            padding: "12px",
-            marginBottom: "15px",
-            color: "#856404"
-          }}>
-            <strong>⚠️ {mergingInfo.message}</strong>
-            <p style={{ margin: "8px 0 0 0", fontSize: "0.9em" }}>
-              Se necesitarán {mergingInfo.suggestedTableCount} mesa{mergingInfo.suggestedTableCount > 1 ? 's' : ''} para {formData.numberOfPeople} comensales.
-              {mergingInfo.canMerge && " ✅ Hay mesas disponibles."}
-              {!mergingInfo.canMerge && ` ❌ Solo hay ${mergingInfo.availableTablesCount} mesa${mergingInfo.availableTablesCount > 1 ? 's' : ''}.`}
-            </p>
-            {mergingInfo.requiresAdmin && (
-              <p style={{ margin: "8px 0 0 0", fontSize: "0.9em" }}>
-                Un administrador fusionará las mesas en la vista de plano de mesas.
-              </p>
-            )}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="reservation-form">
+        <form noValidate onSubmit={handleSubmit} className="reservation-form">
           {/* Fecha */}
           <div className="form-group">
             <label htmlFor="reservationDate">Fecha</label>
@@ -353,11 +347,6 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
           </button>
         </form>
 
-        {availableTables.length === 0 && formData.reservationDate && formData.reservationTime && (
-          <div className="info-message">
-            ℹ️ No hay mesas disponibles para la fecha y hora seleccionadas
-          </div>
-        )}
       </div>
     </div>
   );

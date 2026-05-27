@@ -22,7 +22,6 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [step, setStep] = useState(isGoogleSetup ? 2 : 1);
-  const [message, setMessage] = useState("");
 
   const validateEmail = (emailValue) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,11 +46,11 @@ const ForgotPassword = () => {
     try {
       await AuthService.requestPasswordReset(emailValue);
       setStep(2);
-      setMessage("Token enviado a tu email");
+      //setMessage("Token enviado a tu email");
       toastSuccess("Token enviado a tu email");
     } catch (err) {
       setStep(2);
-      setMessage("Token enviado a tu email");
+      //setMessage("Token enviado a tu email");
       toastInfo("Si hay una cuenta registrada, recibirás el token en tu email.");
     } finally {
       setLoading(false);
@@ -149,7 +148,7 @@ const ForgotPassword = () => {
       if (result.success) {
         sessionStorage.removeItem("googlePasswordSetupPending");
         toastSuccess("Contraseña actualizada exitosamente");
-        setMessage("Contraseña actualizada exitosamente");
+        //setMessage("Contraseña actualizada exitosamente");
         setTimeout(() => {
           navigate(isGoogleSetup ? "/dashboard" : "/login");
         }, 2000);
@@ -180,18 +179,6 @@ const ForgotPassword = () => {
               : "Ingresa el token y tu nueva contraseña"}
           </p>
         </div>
-
-        {message && (
-          <div className="success-message">
-            ✓ {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
 
         {step === 1 && (
           <form noValidate onSubmit={handleRequestToken} style={{ marginBottom: "20px" }}>
@@ -309,7 +296,6 @@ const ForgotPassword = () => {
                   setNewPassword("");
                   setConfirmPassword("");
                   setError(null);
-                  setMessage("");
                 }}
                 style={{
                   background: "none",

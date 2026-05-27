@@ -4,6 +4,7 @@ import { auth, db } from '../firebaseConfig';
 import { useAuth } from '../control/AuthContext';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import AdminMenuView from './AdminMenuView';
+import { toastConfirm } from '../../services/ToastService';
 import '../styles/AdminView.css';
 
 export default function AdminView() {
@@ -64,7 +65,7 @@ export default function AdminView() {
   };
 
   const eliminarReserva = async (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar esta reserva?')) {
+    if (await toastConfirm('¿Estás seguro de que deseas eliminar esta reserva?', { confirmText: "Eliminar" })) {
       try {
         await deleteDoc(doc(db, 'reservas', id));
         setReservas(reservas.filter(r => r.id !== id));

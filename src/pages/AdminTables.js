@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import tableService from "../services/TableService";
-import { toastSuccess, toastError } from "../services/ToastService";
+import { toastSuccess, toastError, toastInput } from "../services/ToastService";
 import { db } from "../firebase";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 
@@ -146,7 +146,11 @@ const AdminTables = ({ userId, userRole }) => {
     }
 
     // Solicitar PIN
-    const confirmPass = prompt("⚠️ Mesa FUSIONADA. Ingresa PIN de 4 dígitos:");
+    const confirmPass = await toastInput("Mesa fusionada. Ingresa PIN de 4 dígitos:", {
+      inputType: "password",
+      maxLength: 4,
+      placeholder: "PIN",
+    });
     if (!confirmPass) return;
 
     // Validar PIN
@@ -192,7 +196,11 @@ const AdminTables = ({ userId, userRole }) => {
       return;
     }
 
-    const confirmPass = prompt("⚠️ Mesa ocupada. Ingresa PIN de 4 dígitos:");
+    const confirmPass = await toastInput("Mesa ocupada. Ingresa PIN de 4 dígitos:", {
+      inputType: "password",
+      maxLength: 4,
+      placeholder: "PIN",
+    });
     if (!confirmPass) return;
 
     if (confirmPass.trim() !== dbPin) {
@@ -269,12 +277,14 @@ const AdminTables = ({ userId, userRole }) => {
     // Validar PIN actual
     if (!currentPinInput || currentPinInput.trim() !== dbPin) {
       setPinError("PIN actual incorrecto");
+      toastError("PIN actual incorrecto");
       return;
     }
 
     // Validar nuevo PIN (4 dígitos)
     if (!newPin || !/^\d{4}$/.test(newPin)) {
       setPinError("El nuevo PIN debe ser 4 dígitos numéricos");
+      toastError("El nuevo PIN debe ser 4 dígitos numéricos");
       return;
     }
 
@@ -288,6 +298,7 @@ const AdminTables = ({ userId, userRole }) => {
 
       setPinSuccess(true);
       setPinError(null);
+      toastSuccess("PIN actualizado correctamente");
       setCurrentPinInput("");
       setNewPin("");
       
@@ -299,6 +310,7 @@ const AdminTables = ({ userId, userRole }) => {
     } catch (error) {
       console.error("Error cambiando PIN:", error);
       setPinError("Error al cambiar PIN: " + error.message);
+      toastError("Error al cambiar PIN: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -450,18 +462,6 @@ const AdminTables = ({ userId, userRole }) => {
         <div style={pinSettingsStyle}>
           <h3>🔐 Cambiar PIN de Seguridad</h3>
           
-          {pinError && (
-            <div style={{ background: "#ffebee", padding: "10px", borderRadius: "4px", marginBottom: "10px", color: "#c62828" }}>
-              {pinError}
-            </div>
-          )}
-          
-          {pinSuccess && (
-            <div style={{ background: "#e8f5e9", padding: "10px", borderRadius: "4px", marginBottom: "10px", color: "#2e7d32" }}>
-              ✅ PIN actualizado correctamente
-            </div>
-          )}
-
           <input
             type="password"
             placeholder="PIN Actual (4 dígitos)"

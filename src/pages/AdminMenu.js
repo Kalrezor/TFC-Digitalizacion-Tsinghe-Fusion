@@ -46,6 +46,19 @@ const AdminMenu = () => {
   }, []);
 
   useEffect(() => {
+    if (error) {
+      toastError(error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      toastSuccess(success);
+    }
+  }, [success]);
+
+  // --- CARGA DE DATOS ---
+  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       const [resAllergens, resCats, resPlates] = await Promise.all([
@@ -173,16 +186,13 @@ const AdminMenu = () => {
         </div>
       </div>
 
-      {error && <div style={alertError}>{error}</div>}
-      {success && <div style={alertSuccess}>{success}</div>}
-
       {showForm && (
         <div className="card" style={{ marginBottom: "24px" }}>
           <div className="card-header">
             <h3>{editingId ? "Editar Plato" : "Nuevo Plato"}</h3>
           </div>
           <div style={{ padding: "22px" }}>
-            <form onSubmit={handleSubmit}>
+            <form noValidate onSubmit={handleSubmit}>
               <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <div className="form-group">
                   <label>Nombre del Plato *</label>
@@ -205,7 +215,7 @@ const AdminMenu = () => {
                       <div style={megaSelectGrid}>
                         {categories.map((cat) => (
                           <div key={cat.id} onClick={() => { setFormData(p => ({ ...p, idCategoria: cat.id })); setIsOpenCat(false); }}
-                            style={{ ...megaSelectItem, backgroundColor: formData.idCategoria === cat.id ? "#DC143C" : "transparent", color: formData.idCategoria === cat.id ? "#fff" : "#333" }}>
+                            style={{ ...megaSelectItem, backgroundColor: formData.idCategoria === cat.id ? "#050505" : "transparent", color: formData.idCategoria === cat.id ? "#fff" : "#050505" }}>
                             {cat.nombre.toUpperCase()}
                           </div>
                         ))}
@@ -219,7 +229,7 @@ const AdminMenu = () => {
                   <div style={allergenRecuadroStyle}>
                     {Object.values(allAllergens).map(ale => (
                       <div key={ale.id} onClick={() => handleAlergenoToggle(ale.id)}
-                        style={{ ...allergenItem, border: formData.alergenos.includes(ale.id) ? "2px solid #DC143C" : "1px solid #eee", background: formData.alergenos.includes(ale.id) ? "#fff1f1" : "transparent" }}>
+                        style={{ ...allergenItem, border: "1px solid #050505", background: formData.alergenos.includes(ale.id) ? "#050505" : "#ffffff", color: formData.alergenos.includes(ale.id) ? "#ffffff" : "#050505" }}>
                         <img src={ale.imagen} alt="" style={{ width: "30px", height: "30px" }} />
                         <span style={{ fontSize: "9px" }}>{ale.nombre}</span>
                       </div>
@@ -253,10 +263,10 @@ const AdminMenu = () => {
                   </div>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "var(--pearl-light)", padding: "12px", borderRadius: "6px", border: "1px solid var(--border-light)", width: "fit-content" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "#ffffff", padding: "12px", borderRadius: 0, border: "1px solid #050505", width: "fit-content" }}>
                   <label style={{ marginBottom: 0, fontWeight: 700 }}>Disponible?</label>
                   <input name="disponible" type="checkbox" checked={formData.disponible} onChange={handleChange} style={{ width: "18px", height: "18px", cursor: "pointer" }} />
-                  <span style={{ fontWeight: "bold", color: formData.disponible ? "var(--emerald)" : "#DC143C", fontSize: "13px" }}>
+                  <span style={{ fontWeight: "bold", color: "#050505", fontSize: "13px" }}>
                     {formData.disponible ? "SÍ" : "NO"}
                   </span>
                 </div>
@@ -287,12 +297,12 @@ const AdminMenu = () => {
               <div style={megaSelectDropdown}>
                 <div style={megaSelectGrid}>
                   <div onClick={() => { setFilterCat("all"); setIsOpenFilter(false); }}
-                    style={{ ...megaSelectItem, backgroundColor: filterCat === "all" ? "#DC143C" : "transparent", color: filterCat === "all" ? "#fff" : "#333" }}>
+                    style={{ ...megaSelectItem, backgroundColor: filterCat === "all" ? "#050505" : "transparent", color: filterCat === "all" ? "#fff" : "#050505" }}>
                     TODAS
                   </div>
                   {categories.map((cat) => (
                     <div key={cat.id} onClick={() => { setFilterCat(cat.id); setIsOpenFilter(false); }}
-                      style={{ ...megaSelectItem, backgroundColor: filterCat === cat.id ? "#DC143C" : "transparent", color: filterCat === cat.id ? "#fff" : "#333" }}>
+                      style={{ ...megaSelectItem, backgroundColor: filterCat === cat.id ? "#050505" : "transparent", color: filterCat === cat.id ? "#fff" : "#050505" }}>
                       {cat.nombre.toUpperCase()}
                     </div>
                   ))}
@@ -419,7 +429,7 @@ const AdminMenu = () => {
       </div>
 
       {confirmDeletePlate && (
-        <div className="card" style={{ padding: "18px", background: "var(--pearl-light)", border: "1px solid var(--border-light)", marginTop: "16px" }}>
+        <div className="card" style={{ padding: "18px", background: "#ffffff", border: "1px solid #050505", marginTop: "16px" }}>
           <div style={confirmText}>
             ¿Eliminar "{confirmDeletePlate.nombre}"?
             <div style={confirmMeta}>Capacidad: --</div>
@@ -435,20 +445,29 @@ const AdminMenu = () => {
 };
 
 // --- ESTILOS ---
-const labelStyle = { display: "block", color: "var(--text-muted)", fontWeight: "700", marginBottom: "6px", fontSize: "13px" };
-const inputStyle = { width: "100%", padding: "12px 14px", border: "1px solid var(--border-light)", borderRadius: "8px", background: "var(--pearl-light)", boxSizing: "border-box" };
+const labelStyle = { display: "block", color: "#050505", fontWeight: "700", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.2em" };
+const inputStyle = { width: "100%", padding: "12px 14px", border: "1px solid #050505", borderRadius: 0, background: "#ffffff", color: "#050505", boxSizing: "border-box" };
 const customSelectTrigger = { ...inputStyle, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "44px" };
-const megaSelectDropdown = { position: "absolute", top: "100%", left: 0, minWidth: "420px", zIndex: 100, background: "#fff", border: "1px solid var(--border-light)", borderRadius: "10px", marginTop: "8px", boxShadow: "0 20px 50px rgba(15, 23, 42, 0.5)", padding: "14px" };
+const megaSelectDropdown = { position: "absolute",
+                             top: "100%", 
+                             left: 0, 
+                             minWidth: "420px", 
+                             zIndex: 100, 
+                             background: "#fff",                             
+                             border: "1px solid #050505", 
+                             borderRadius: 0,
+                             marginTop: "8px", 
+                             boxShadow: "none", 
+                             padding: "14px" };
+
 const megaSelectGrid = { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "10px" };
-const megaSelectItem = { padding: "12px", fontSize: "12px", borderRadius: "8px", cursor: "pointer", textAlign: "center", fontWeight: "700", border: "1px solid var(--border-light)" };
-const allergenRecuadroStyle = { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "10px", background: "var(--pearl-light)", padding: "16px", borderRadius: "12px", border: "1px solid var(--border-light)" };
-const allergenItem = { display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", padding: "10px", borderRadius: "8px" };
+const megaSelectItem = { padding: "12px", fontSize: "12px", borderRadius: 0, cursor: "pointer", textAlign: "center", fontWeight: "700", border: "1px solid #050505" };
+const allergenRecuadroStyle = { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "10px", background: "#ffffff", padding: "16px", borderRadius: 0, border: "1px solid #050505" };
+const allergenItem = { display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", padding: "10px", borderRadius: 0 };
 const th = { padding: "14px", textAlign: "left" };
 const td = { padding: "14px", verticalAlign: "middle" };
-const alertError = { background: "#FEF2F2", color: "#991B1B", padding: "12px", marginBottom: "10px", borderRadius: "8px", border: "1px solid #FECACA" };
-const alertSuccess = { background: "#ECFDF5", color: "#14532D", padding: "12px", marginBottom: "10px", borderRadius: "8px", border: "1px solid #A7F3D0" };
-const confirmText = { color: "var(--text-dark)", fontSize: "15px", fontWeight: "700" };
-const confirmMeta = { color: "var(--text-muted)", fontSize: "13px", fontWeight: "400", marginTop: "6px" };
+const confirmText = { color: "#050505", fontSize: "15px", fontWeight: "700" };
+const confirmMeta = { color: "#71717a", fontSize: "13px", fontWeight: "400", marginTop: "6px" };
 const confirmActions = { display: "flex", gap: "10px", flexWrap: "wrap" };
 
 export default AdminMenu;

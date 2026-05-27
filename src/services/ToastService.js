@@ -54,6 +54,160 @@ export const toastInfo = (message) =>
     },
   });
 
+export const toastConfirm = (message, options = {}) =>
+  new Promise((resolve) => {
+    const {
+      confirmText = "Confirmar",
+      cancelText = "Cancelar",
+    } = options;
+
+    toast.custom(
+      (t) => (
+        <div
+          style={{
+            ...baseOptions.style,
+            background: "#fff7ed",
+            color: "#7c2d12",
+            borderColor: "#fed7aa",
+            maxWidth: "360px",
+          }}
+        >
+          <div style={{ marginBottom: "0.75rem" }}>{message}</div>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+            <button
+              type="button"
+              onClick={() => {
+                toast.dismiss(t.id);
+                resolve(false);
+              }}
+              style={{
+                border: "1px solid #fdba74",
+                background: "#fff",
+                color: "#7c2d12",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+                fontWeight: 700,
+                padding: "0.45rem 0.7rem",
+              }}
+            >
+              {cancelText}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                toast.dismiss(t.id);
+                resolve(true);
+              }}
+              style={{
+                border: "1px solid #dc2626",
+                background: "#dc2626",
+                color: "#fff",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+                fontWeight: 700,
+                padding: "0.45rem 0.7rem",
+              }}
+            >
+              {confirmText}
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        ...baseOptions,
+        id: toastId("confirm", message),
+        duration: Infinity,
+      },
+    );
+  });
+
+export const toastInput = (message, options = {}) =>
+  new Promise((resolve) => {
+    const {
+      confirmText = "Confirmar",
+      cancelText = "Cancelar",
+      inputType = "text",
+      placeholder = "",
+      maxLength,
+    } = options;
+    let inputValue = "";
+
+    toast.custom(
+      (t) => (
+        <div
+          style={{
+            ...baseOptions.style,
+            background: "#f8fafc",
+            color: "#0f172a",
+            borderColor: "#cbd5e1",
+            maxWidth: "360px",
+          }}
+        >
+          <div style={{ marginBottom: "0.75rem" }}>{message}</div>
+          <input
+            type={inputType}
+            placeholder={placeholder}
+            maxLength={maxLength}
+            onChange={(event) => {
+              inputValue = event.target.value;
+            }}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              border: "1px solid #cbd5e1",
+              borderRadius: "0.5rem",
+              marginBottom: "0.75rem",
+              padding: "0.55rem 0.7rem",
+            }}
+          />
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+            <button
+              type="button"
+              onClick={() => {
+                toast.dismiss(t.id);
+                resolve(null);
+              }}
+              style={{
+                border: "1px solid #cbd5e1",
+                background: "#fff",
+                color: "#0f172a",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+                fontWeight: 700,
+                padding: "0.45rem 0.7rem",
+              }}
+            >
+              {cancelText}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                toast.dismiss(t.id);
+                resolve(inputValue);
+              }}
+              style={{
+                border: "1px solid #0f172a",
+                background: "#0f172a",
+                color: "#fff",
+                borderRadius: "0.5rem",
+                cursor: "pointer",
+                fontWeight: 700,
+                padding: "0.45rem 0.7rem",
+              }}
+            >
+              {confirmText}
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        ...baseOptions,
+        id: toastId("input", message),
+        duration: Infinity,
+      },
+    );
+  });
+
 export const toastPromise = (promise, messages) =>
   toast.promise(promise, {
     loading: messages.loading,

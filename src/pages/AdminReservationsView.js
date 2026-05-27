@@ -606,7 +606,7 @@ const AdminReservationsView = () => {
 
         <section style={panelStyle}>
           <div style={panelHeaderStyle}>{selectedReservation ? "Editar reserva" : "Crear nueva reserva"}</div>
-          <form onSubmit={handleSaveReservation} style={formStyle}>
+          <form noValidate onSubmit={handleSaveReservation} style={formStyle}>
             <div style={fieldLabelStyle}>
               Buscar cliente (teléfono, nombre o email)
               <input

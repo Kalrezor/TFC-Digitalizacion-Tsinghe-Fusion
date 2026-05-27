@@ -11,6 +11,7 @@ const ALL_OPTIONS = [
   { id: "preview-menu",   label: "Ver Menú",         roles: ["admin", "comensal"] },
   { id: "reservas",       label: "Reservas",         roles: ["comensal"] },
   { id: "split-bill",     label: "Dividir Cuenta",   roles: ["admin", "comensal"] },
+  { id: "chatbot-control", label: "Chatbot",          roles: ["admin"] },
   { id: "admin-menu",     label: "Gestión de Menú",   roles: ["admin"] },
   { id: "admin-mesas",    label: "Gestión de Mesas",  roles: ["admin"] },
   { id: "admin-ofertas",  label: "Gestión de Ofertas",roles: ["admin"] },
