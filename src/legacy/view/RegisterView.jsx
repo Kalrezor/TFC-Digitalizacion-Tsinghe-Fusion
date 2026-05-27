@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
+import { toastError, toastSuccess } from "../../services/ToastService";
 import "../styles/RegisterView.css";
 
 export default function RegisterView({ navegarA }) {
@@ -14,6 +15,18 @@ export default function RegisterView({ navegarA }) {
   const [success, setSuccess] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+
+  useEffect(() => {
+    if (error) {
+      toastError(error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      toastSuccess("Cuenta creada correctamente.");
+    }
+  }, [success]);
 
   const crearUsuarioEnFirestore = async (uid, userData) => {
     try {
@@ -86,7 +99,7 @@ export default function RegisterView({ navegarA }) {
       setConfirmPassword("");
       
       setTimeout(() => {
-        alert("¡Cuenta creada exitosamente! Por favor inicia sesión.");
+        toastSuccess("Cuenta creada exitosamente. Por favor inicia sesión.");
         navegarA('login');
       }, 500);
     } catch (err) {
@@ -127,7 +140,7 @@ export default function RegisterView({ navegarA }) {
       console.log("Cuenta creada con Google:", userCredential.user.email);
       
       setTimeout(() => {
-        alert("¡Bienvenido! Cuenta creada con Google.");
+        toastSuccess("Bienvenido. Cuenta creada con Google.");
       }, 500);
     } catch (err) {
       if (err.code !== 'auth/popup-closed-by-user') {
@@ -148,21 +161,7 @@ export default function RegisterView({ navegarA }) {
             <p className="register-subtitle">Únete a nuestra comunidad</p>
           </div>
 
-          {error && (
-            <div className="alert alert-error">
-              <span className="alert-icon">⚠️</span>
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="alert alert-success">
-              <span className="alert-icon">✓</span>
-              ¡Cuenta creada correctamente!
-            </div>
-          )}
-
-          <form onSubmit={handleRegister} className="register-form">
+          <form noValidate onSubmit={handleRegister} className="register-form">
             <div className="form-group">
               <label htmlFor="nombre" className="form-label">
                 Nombre Completo

@@ -25,7 +25,7 @@ const normalizeRole = (role) => {
   return "comensal";
 };
 
-const RestaurantChatbot = ({ user, role, userName }) => {
+const RestaurantChatbot = ({ user, role, userName, enabled = true }) => {
   const location = useLocation();
   const effectiveRole = useMemo(() => normalizeRole(role), [role]);
   const [isOpen, setIsOpen] = useState(false);
@@ -53,7 +53,7 @@ const RestaurantChatbot = ({ user, role, userName }) => {
     });
   }, [effectiveRole]);
 
-  if (!user || !role) return null;
+  if (!user || !role || !enabled) return null;
 
   const addMessage = (sender, text) => {
     setMessages((prev) => [
@@ -129,7 +129,7 @@ const RestaurantChatbot = ({ user, role, userName }) => {
             )}
           </div>
 
-          <form className="chatbot-form" onSubmit={handleSubmit}>
+          <form noValidate className="chatbot-form" onSubmit={handleSubmit}>
             <input
               type="text"
               value={input}

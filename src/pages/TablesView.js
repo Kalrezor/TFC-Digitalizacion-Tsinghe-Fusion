@@ -1,8 +1,9 @@
 // Vista: TablesView.js
 // Componente para gestionar mesas (CRUD).
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useTables from '../hooks/useTables';
+import { toastError } from '../services/ToastService';
 
 const TablesView = ({ role }) => {
   const { tables, loading, error, createTable, updateTable, deleteTable, loadAvailableTables } = useTables();
@@ -35,8 +36,14 @@ const TablesView = ({ role }) => {
     }
   };
 
+  useEffect(() => {
+    if (error) {
+      toastError("Error: " + error);
+    }
+  }, [error]);
+
   if (loading) return <div>Cargando...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) return null;
 
   return (
     <div>
@@ -45,7 +52,7 @@ const TablesView = ({ role }) => {
         {showAvailable ? 'Mostrar todas' : 'Mostrar disponibles'}
       </button>
       {role === 'admin' && (
-        <form onSubmit={handleSubmit}>
+        <form noValidate onSubmit={handleSubmit}>
           <input
             type="number"
             placeholder="Número de mesa"
