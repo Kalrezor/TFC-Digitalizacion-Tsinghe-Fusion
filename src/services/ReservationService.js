@@ -26,6 +26,55 @@ const generateConfirmationToken = () => {
   return token;
 };
 
+const RESERVATION_STATUS_NOTIFICATION_URL =
+  "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/sendReservationStatusNotification";
+
+const sendReservationStatusNotification = async (reservation, newStatus) => {
+  const recipientEmail = reservation?.userEmail || reservation?.email;
+
+  if (!recipientEmail) {
+    console.warn("⚠️ No hay email de cliente para notificar el cambio de estado.", {
+      reservationId: reservation?.id,
+      newStatus,
+    });
+    return;
+  }
+
+  if (!["confirmada", "cancelada"].includes(newStatus)) {
+    return;
+  }
+
+  try {
+    const response = await fetch(RESERVATION_STATUS_NOTIFICATION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: recipientEmail,
+        newStatus,
+        reservationDetails: {
+          userName: reservation.userName || reservation.name || recipientEmail.split("@")[0],
+          date: reservation.reservationDate || reservation.date || "",
+          time: reservation.reservationTime || reservation.time || "",
+          numberOfPeople: reservation.numberOfPeople ?? reservation.peopleCount ?? "",
+          tableNumber: Array.isArray(reservation.tableIds)
+            ? reservation.tableIds.join(", ")
+            : reservation.tableId || reservation.tableNumber || "Por asignar",
+          tableIds: Array.isArray(reservation.tableIds) ? reservation.tableIds : [],
+          specialRequests: reservation.specialRequests || "",
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("⚠️ Error enviando email de estado de reserva:", response.statusText);
+    }
+  } catch (error) {
+    console.error("⚠️ Error enviando email de estado de reserva:", error);
+  }
+};
+
 class ReservationService {
   // Crear una nueva reserva
   async createReservation(reservationData) {
@@ -236,10 +285,28 @@ class ReservationService {
     try {
       console.log("📝 Actualizando reserva:", reservationId);
 
+      const currentDoc = await getDoc(doc(db, "reservations", reservationId));
+      const currentReservation = currentDoc.exists() ? currentDoc.data() : null;
+
       await updateDoc(doc(db, "reservations", reservationId), {
         ...updates,
         updatedAt: serverTimestamp(),
       });
+
+      if (
+        currentReservation &&
+        updates.status &&
+        currentReservation.status !== updates.status &&
+        ["confirmada", "cancelada"].includes(updates.status)
+      ) {
+        await sendReservationStatusNotification(
+          {
+            ...currentReservation,
+            ...updates,
+          },
+          updates.status,
+        );
+      }
 
       console.log("✅ Reserva actualizada");
       return { success: true };
@@ -254,10 +321,23 @@ class ReservationService {
     try {
       console.log("❌ Cancelando reserva:", reservationId);
 
+      const currentDoc = await getDoc(doc(db, "reservations", reservationId));
+      const currentReservation = currentDoc.exists() ? currentDoc.data() : null;
+
       await updateDoc(doc(db, "reservations", reservationId), {
         status: "cancelada",
         updatedAt: serverTimestamp(),
       });
+
+      if (currentReservation && currentReservation.status !== "cancelada") {
+        await sendReservationStatusNotification(
+          {
+            ...currentReservation,
+            status: "cancelada",
+          },
+          "cancelada",
+        );
+      }
 
       console.log("✅ Reserva cancelada");
       return { success: true };
@@ -270,10 +350,23 @@ class ReservationService {
   // Confirmar reserva
   async confirmReservation(reservationId) {
     try {
+      const currentDoc = await getDoc(doc(db, "reservations", reservationId));
+      const currentReservation = currentDoc.exists() ? currentDoc.data() : null;
+
       await updateDoc(doc(db, "reservations", reservationId), {
         status: "confirmada",
         updatedAt: serverTimestamp(),
       });
+
+      if (currentReservation && currentReservation.status !== "confirmada") {
+        await sendReservationStatusNotification(
+          {
+            ...currentReservation,
+            status: "confirmada",
+          },
+          "confirmada",
+        );
+      }
 
       return { success: true };
     } catch (error) {

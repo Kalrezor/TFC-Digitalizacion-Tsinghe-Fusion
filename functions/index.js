@@ -247,6 +247,59 @@ const buildWelcomeEmailHtml = (name) => `
         </html>
       `;
 
+const buildReservationStatusEmailHtml = ({ name, status, reservationDetails }) => {
+  const title = status === "confirmada"
+    ? "✅ Tu reserva ha sido confirmada"
+    : "❌ Tu reserva ha sido cancelada";
+
+  const statusCopy = status === "confirmada"
+    ? "Tu reserva en Tsinghe Cocina Fusión ha sido confirmada."
+    : "Tu reserva en Tsinghe Cocina Fusión ha sido cancelada.";
+
+  const tableInfo = Array.isArray(reservationDetails.tableIds)
+    ? reservationDetails.tableIds.join(", ")
+    : reservationDetails.tableNumber || "Por asignar";
+
+  return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            ${EMAIL_STYLES}
+          </style>
+        </head>
+        <body style="${EMAIL_INLINE.body}">
+          <div class="container" style="${EMAIL_INLINE.container}">
+            <div class="header" style="${EMAIL_INLINE.header}">
+              <p style="margin: 0 0 14px; color: #050505; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;">Cocina fusion · Madrid</p>
+              <h1 style="${EMAIL_INLINE.title}">${title}</h1>
+            </div>
+            <div class="content" style="${EMAIL_INLINE.content}">
+              <h2 style="${EMAIL_INLINE.subtitle}">Hola ${name}</h2>
+              <p style="${EMAIL_INLINE.paragraph}">${statusCopy}</p>
+
+              <div class="reservation-details" style="${EMAIL_INLINE.panel}">
+                <h3 style="margin: 0 0 12px; color: #050505; font-size: 17px;">Detalles de la reserva</h3>
+                <p style="${EMAIL_INLINE.paragraph}"><strong>Fecha:</strong> ${reservationDetails.date || reservationDetails.reservationDate || "Sin fecha"}</p>
+                <p style="${EMAIL_INLINE.paragraph}"><strong>Hora:</strong> ${reservationDetails.time || reservationDetails.reservationTime || "Sin hora"}</p>
+                <p style="${EMAIL_INLINE.paragraph}"><strong>Personas:</strong> ${reservationDetails.numberOfPeople ?? reservationDetails.peopleCount ?? "Por confirmar"}</p>
+                <p style="${EMAIL_INLINE.paragraph}"><strong>Mesa:</strong> ${tableInfo}</p>
+                ${reservationDetails.specialRequests ? `<p style="${EMAIL_INLINE.paragraph}"><strong>Solicitudes especiales:</strong> ${reservationDetails.specialRequests}</p>` : ""}
+              </div>
+
+              <p style="${EMAIL_INLINE.paragraph}">Si tienes alguna duda, escríbenos y te ayudaremos.</p>
+              <a href="https://digitalizacion-tsinge-fusion.web.app/" style="${EMAIL_INLINE.button}">Visitar restaurante</a>
+            </div>
+            <div class="footer" style="${EMAIL_INLINE.footer}">
+              <p style="${EMAIL_INLINE.footerText}">© 2026 Tsinghe Cocina Fusion. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+};
+
 exports.sendWelcomeEmail = onRequest(
   {
     region: "us-central1",
@@ -302,6 +355,78 @@ exports.sendWelcomeEmail = onRequest(
       res
         .status(500)
         .json({ error: "Error interno al enviar el email: " + error.message });
+    }
+  },
+);
+
+exports.sendReservationStatusNotification = onRequest(
+  {
+    region: "us-central1",
+    cors: "*",
+    invoker: "public",
+  },
+  async (req, res) => {
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      res.status(405).json({ error: "Metodo no permitido" });
+      return;
+    }
+
+    try {
+      const { email, reservationDetails, newStatus } = req.body;
+
+      if (!email || !reservationDetails || !newStatus) {
+        res.status(400).json({
+          error: "Email, detalles de reserva y nuevo estado son obligatorios",
+        });
+        return;
+      }
+
+      if (!["confirmada", "cancelada"].includes(newStatus)) {
+        res.status(400).json({
+          error: "El estado debe ser confirmada o cancelada",
+        });
+        return;
+      }
+
+      const name = reservationDetails.userName || email.split("@")[0];
+      const info = await transporter.sendMail({
+        from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
+        to: email,
+        subject: newStatus === "confirmada"
+          ? "✅ Tu reserva ha sido confirmada"
+          : "❌ Tu reserva ha sido cancelada",
+        html: buildReservationStatusEmailHtml({
+          name,
+          status: newStatus,
+          reservationDetails,
+        }),
+      });
+
+      logger.info("EMAIL DE ESTADO DE RESERVA enviado:", {
+        to: email,
+        status: newStatus,
+        messageId: info.messageId,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Email enviado a " + email,
+        messageId: info.messageId,
+      });
+    } catch (error) {
+      logger.error("Error enviando email de estado de reserva:", error);
+      res.status(500).json({
+        error: "Error interno al enviar el email: " + error.message,
+      });
     }
   },
 );
