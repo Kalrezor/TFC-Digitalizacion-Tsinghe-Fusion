@@ -5,7 +5,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../controllers/useAuth";
 import menuService from "../models/MenuService";
-import "../styles/ChineseStyle.css";
 
 // URL global de la imagen por defecto subida a Firebase
 const DEFAULT_PLATE_IMAGE = "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/plate%2FImgNoDisp.png?alt=media&token=67746171-489f-4b93-98dd-d744784fa37f";

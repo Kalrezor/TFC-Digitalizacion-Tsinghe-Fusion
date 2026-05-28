@@ -4,7 +4,6 @@ import { auth, db } from '../firebaseConfig';
 import { useAuth } from '../control/AuthContext';
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { toastConfirm, toastError, toastSuccess } from '../../services/ToastService';
-import '../styles/ComelView.css';
 
 export default function ComelView() {
   const { currentUser, loading: authLoading } = useAuth();
@@ -129,14 +128,14 @@ export default function ComelView() {
           className={`tab-btn ${activeTab === 'reservas' ? 'active' : ''}`}
           onClick={() => setActiveTab('reservas')}
         >
-          <span className="tab-icon">📅</span>
+          <span className="tab-icon">ðŸ“…</span>
           Mis Reservas
         </button>
         <button
           className={`tab-btn ${activeTab === 'perfil' ? 'active' : ''}`}
           onClick={() => setActiveTab('perfil')}
         >
-          <span className="tab-icon">👤</span>
+          <span className="tab-icon">ðŸ‘¤</span>
           Mi Perfil
         </button>
       </div>
@@ -262,20 +261,20 @@ export default function ComelView() {
                       </div>
                       <div className="reserva-body">
                         <p className="reserva-date">
-                          <span className="date-icon">📅</span>
+                          <span className="date-icon">ðŸ“…</span>
                           {new Date(reserva.fecha).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                         </p>
                         <p className="reserva-time">
-                          <span className="time-icon">🕐</span>
+                          <span className="time-icon">ðŸ•</span>
                           {reserva.hora}
                         </p>
                         <p className="reserva-people">
-                          <span className="people-icon">👥</span>
+                          <span className="people-icon">ðŸ‘¥</span>
                           {reserva.personas} {reserva.personas === 1 ? 'persona' : 'personas'}
                         </p>
                         {reserva.notas && (
                           <p className="reserva-notes">
-                            <span className="note-icon">📝</span>
+                            <span className="note-icon">ðŸ“</span>
                             {reserva.notas}
                           </p>
                         )}
@@ -293,7 +292,7 @@ export default function ComelView() {
                 </div>
               ) : (
                 <div className="empty-state">
-                  <div className="empty-icon">📭</div>
+                  <div className="empty-icon">ðŸ“­</div>
                   <p className="empty-title">No tienes reservas</p>
                   <p className="empty-text">¿Por qué no haces tu primera reserva?</p>
                 </div>
@@ -333,3 +332,4 @@ export default function ComelView() {
     </div>
   );
 }
+

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toastSuccess, toastError } from "../services/ToastService";
 import AuthService from "../services/AuthService";
-import "../styles/MinimalStyle.css";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -36,18 +35,18 @@ const Register = () => {
     const code = error?.code || error?.errorCode || "";
 
     if (code === "auth/weak-password" || message.includes("auth/weak-password")) {
-      return "La contraseÃ±a debe tener al menos 6 caracteres";
+      return "La contraseña debe tener al menos 6 caracteres";
     }
 
     if (
       code === "auth/email-already-in-use" ||
       message.includes("auth/email-already-in-use")
     ) {
-      return "Este email ya estÃ¡ registrado. Â¿Quieres iniciar sesiÃ³n?";
+      return "Este email ya está registrado. ¿Quieres iniciar sesión?";
     }
 
     if (code === "auth/invalid-email" || message.includes("auth/invalid-email")) {
-      return "El email no es vÃ¡lido.";
+      return "El email no es válido.";
     }
 
     return message || "Error al registrarse";
@@ -125,7 +124,7 @@ const Register = () => {
       </video>
       <div className="login-background-overlay" />
       <div className="editorial-auth-card">
-        <div style={{ marginBottom: "28px", textAlign: "center" }}>
+        <div className="editorial-auth-header editorial-auth-header-compact">
           <h1>Crear Cuenta</h1>
           <p>Únete a Tsinghe Cocina Fusión</p>
         </div>
@@ -188,14 +187,13 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary"
-            style={{ width: "100%", marginTop: "10px" }}
+            className="btn-primary btn-full-width btn-with-top-gap"
           >
             {loading ? "Registrando..." : "Registrarse"}
           </button>
         </form>
 
-        <div className="editorial-auth-links" style={{ marginTop: "22px" }}>
+        <div className="editorial-auth-links editorial-auth-links-spaced">
           ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
         </div>
       </div>
@@ -204,3 +202,4 @@ const Register = () => {
 };
 
 export default Register;
+

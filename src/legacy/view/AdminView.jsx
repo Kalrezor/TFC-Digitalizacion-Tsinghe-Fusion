@@ -5,7 +5,6 @@ import { useAuth } from '../control/AuthContext';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import AdminMenuView from './AdminMenuView';
 import { toastConfirm } from '../../services/ToastService';
-import '../styles/AdminView.css';
 
 export default function AdminView() {
   const { currentUser, loading: authLoading } = useAuth();
@@ -92,34 +91,34 @@ export default function AdminView() {
             className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
             onClick={() => setActiveTab('dashboard')}
           >
-            <span className="nav-icon">📊</span>
+            <span className="nav-icon">ðŸ“Š</span>
             Dashboard
           </button>
           <button
             className={`nav-item ${activeTab === 'reservas' ? 'active' : ''}`}
             onClick={() => setActiveTab('reservas')}
           >
-            <span className="nav-icon">📅</span>
+            <span className="nav-icon">ðŸ“…</span>
             Reservas ({reservas.length})
           </button>
           <button
             className={`nav-item ${activeTab === 'usuarios' ? 'active' : ''}`}
             onClick={() => setActiveTab('usuarios')}
           >
-            <span className="nav-icon">👥</span>
+            <span className="nav-icon">ðŸ‘¥</span>
             Usuarios ({usuarios.length})
           </button>
           <button
             className={`nav-item ${activeTab === 'menu' ? 'active' : ''}`}
             onClick={() => setActiveTab('menu')}
           >
-            <span className="nav-icon">🍽️</span>
+            <span className="nav-icon">ðŸ½ï¸</span>
             Gestión de Carta
           </button>
         </nav>
 
         <button className="logout-btn" onClick={handleLogout}>
-          <span className="logout-icon">🚪</span>
+          <span className="logout-icon">ðŸšª</span>
           Cerrar Sesión
         </button>
       </div>
@@ -131,17 +130,17 @@ export default function AdminView() {
             <h2 className="tab-title">Panel de Control</h2>
             <div className="stats-grid">
               <div className="stat-card">
-                <div className="stat-icon stat-icon-1">📅</div>
+                <div className="stat-icon stat-icon-1">ðŸ“…</div>
                 <h3 className="stat-label">Reservas Totales</h3>
                 <p className="stat-value">{stats.totalReservas}</p>
               </div>
               <div className="stat-card">
-                <div className="stat-icon stat-icon-2">👥</div>
+                <div className="stat-icon stat-icon-2">ðŸ‘¥</div>
                 <h3 className="stat-label">Usuarios Registrados</h3>
                 <p className="stat-value">{stats.totalUsuarios}</p>
               </div>
               <div className="stat-card">
-                <div className="stat-icon stat-icon-3">💰</div>
+                <div className="stat-icon stat-icon-3">ðŸ’°</div>
                 <h3 className="stat-label">Ingresos Estimados</h3>
                 <p className="stat-value">${stats.totalIngresos}</p>
               </div>
@@ -206,7 +205,7 @@ export default function AdminView() {
                             className="action-btn delete-btn"
                             onClick={() => eliminarReserva(reserva.id)}
                           >
-                            🗑️ Eliminar
+                            ðŸ—‘ï¸ Eliminar
                           </button>
                         </td>
                       </tr>
@@ -257,3 +256,4 @@ export default function AdminView() {
     </div>
   );
 }
+

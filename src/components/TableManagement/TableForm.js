@@ -123,25 +123,25 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
   if (!isOpen) return null;
 
   return (
-    <div style={styles.overlay}>
-      <div style={styles.modal}>
-        <div style={styles.header}>
-          <h2 style={styles.title}>
+    <div className="table-form-overlay">
+      <div className="table-form-modal">
+        <div className="table-form-header">
+          <h2 className="table-form-title">
             {editingTable ? "Editar Mesa" : "Nueva Mesa"}
           </h2>
           <button
             onClick={onClose}
-            style={styles.closeBtn}
+            className="table-form-close"
             disabled={loading}
           >
             ✕
           </button>
         </div>
 
-        <form noValidate onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>
-              Número de Mesa <span style={styles.required}>*</span>
+        <form noValidate onSubmit={handleSubmit} className="table-form-body">
+          <div className="table-form-group">
+            <label className="table-form-label">
+              Número de Mesa <span className="table-form-required">*</span>
             </label>
             <input
               type="number"
@@ -149,18 +149,15 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
               onChange={(e) =>
                 setFormData({ ...formData, number: e.target.value })
               }
-              style={{
-                ...styles.input,
-                borderColor: errors.number ? "#dc2626" : "#d1d5db",
-              }}
+              className={`table-form-input ${errors.number ? "has-error" : ""}`}
               placeholder="Ej: 1, 2, 3..."
               disabled={loading}
             />
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>
-              Capacidad (personas) <span style={styles.required}>*</span>
+          <div className="table-form-group">
+            <label className="table-form-label">
+              Capacidad (personas) <span className="table-form-required">*</span>
             </label>
             <input
               type="number"
@@ -169,42 +166,39 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
               onChange={(e) =>
                 setFormData({ ...formData, capacity: e.target.value })
               }
-              style={{
-                ...styles.input,
-                borderColor: errors.capacity ? "#dc2626" : "#d1d5db",
-              }}
+              className={`table-form-input ${errors.capacity ? "has-error" : ""}`}
               placeholder="Ej: 2, 4, 6..."
               disabled={loading}
             />
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.checkboxLabel}>
+          <div className="table-form-group">
+            <label className="table-form-checkbox-label">
               <input
                 type="checkbox"
                 checked={formData.available}
                 onChange={(e) =>
                   setFormData({ ...formData, available: e.target.checked })
                 }
-                style={styles.checkbox}
+                className="table-form-checkbox"
                 disabled={loading}
               />
               <span>Mesa disponible</span>
             </label>
           </div>
 
-          <div style={styles.actions}>
+          <div className="table-form-actions">
             <button
               type="button"
               onClick={onClose}
-              style={styles.btnCancel}
+              className="table-form-cancel"
               disabled={loading}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              style={styles.btnSubmit}
+              className="table-form-submit"
               disabled={loading}
             >
               {loading ? "Guardando..." : "Guardar Mesa"}
@@ -214,125 +208,6 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
       </div>
     </div>
   );
-};
-
-const styles = {
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000,
-  },
-  modal: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)",
-    maxWidth: "500px",
-    width: "90%",
-    padding: "24px",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-    borderBottom: "1px solid #e5e7eb",
-    paddingBottom: "12px",
-  },
-  title: {
-    margin: 0,
-    fontSize: "20px",
-    fontWeight: "600",
-    color: "#1f2937",
-  },
-  closeBtn: {
-    background: "none",
-    border: "none",
-    fontSize: "24px",
-    cursor: "pointer",
-    color: "#6b7280",
-    padding: 0,
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-  },
-  formGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
-  label: {
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#374151",
-  },
-  required: {
-    color: "#dc2626",
-  },
-  input: {
-    padding: "10px 12px",
-    border: "1px solid #d1d5db",
-    borderRadius: "6px",
-    fontSize: "14px",
-    fontFamily: "inherit",
-    transition: "border-color 0.2s",
-  },
-  errorText: {
-    fontSize: "12px",
-    color: "#dc2626",
-    margin: 0,
-  },
-  checkboxLabel: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    fontSize: "14px",
-    color: "#374151",
-    cursor: "pointer",
-  },
-  checkbox: {
-    width: "18px",
-    height: "18px",
-    cursor: "pointer",
-  },
-  actions: {
-    display: "flex",
-    gap: "12px",
-    justifyContent: "flex-end",
-    marginTop: "20px",
-    paddingTop: "12px",
-    borderTop: "1px solid #e5e7eb",
-  },
-  btnCancel: {
-    padding: "10px 16px",
-    border: "1px solid #d1d5db",
-    borderRadius: "6px",
-    backgroundColor: "white",
-    color: "#374151",
-    fontSize: "14px",
-    fontWeight: "500",
-    cursor: "pointer",
-    transition: "all 0.2s",
-  },
-  btnSubmit: {
-    padding: "10px 16px",
-    border: "none",
-    borderRadius: "6px",
-    backgroundColor: "#059669",
-    color: "white",
-    fontSize: "14px",
-    fontWeight: "500",
-    cursor: "pointer",
-    transition: "all 0.2s",
-  },
 };
 
 export default TableForm;

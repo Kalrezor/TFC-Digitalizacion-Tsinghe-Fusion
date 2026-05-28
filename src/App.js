@@ -56,16 +56,9 @@ const normalizeChatbotRole = (role) => (role === "admin" ? "admin" : "comensal")
 
 // ── Pantalla de Carga ────────────────────────────────────────────────────────
 const LoadingScreen = () => (
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      minHeight: "60vh",
-    }}
-  >
-    <div style={{ textAlign: "center" }}>
-      <div style={{ fontSize: "16px", color: "#000000", fontWeight: "600" }}>
+  <div className="app-loading-screen">
+    <div className="app-loading-content">
+      <div className="app-loading-text">
         Cargando autenticación...
       </div>
     </div>

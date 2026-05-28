@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { toastError, toastSuccess } from "../../services/ToastService";
-import "../styles/ForgotPasswordView.css";
 
 export default function ForgotPasswordView({ navegarA }) {
   const [email, setEmail] = useState("");
@@ -115,7 +114,7 @@ export default function ForgotPasswordView({ navegarA }) {
 
           {step === "verification" && (
             <div className="verification-container">
-              <div className="verification-icon">📧</div>
+              <div className="verification-icon">ðŸ“§</div>
               <h3 className="verification-title">Email Enviado</h3>
               <p className="verification-text">
                 Hemos enviado un enlace de recuperación a <strong>{email}</strong>
@@ -163,3 +162,4 @@ export default function ForgotPasswordView({ navegarA }) {
     </div>
   );
 }
+
