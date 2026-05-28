@@ -31,7 +31,7 @@ const ReservationsView = ({ role, userId }) => {
       <h2
         className="reservations-view-title"
       >
-        📋 Gestión de Reservas
+        Gestión de Reservas
       </h2>
 
       <div className="reservations-list">
@@ -68,12 +68,12 @@ const ReservationsView = ({ role, userId }) => {
             <div key={res.id} className="reservation-card">
               <div className="reservation-card-content">
                 <h4 className="reservation-card-title">
-                  👤 {res.userName || "Cliente"}
+                  {res.userName || "Cliente"}
                 </h4>
                 <p>
-                  📅 <b>Fecha:</b> {res.reservationDate}
+                  <b>Fecha:</b> {res.reservationDate}
                   <p></p> 
-                  ⌚ <b>Hora</b> {res.reservationTime}
+                  <b>Hora:</b> {res.reservationTime}
                 </p>
 
                 {editingId === res.id ? (
@@ -89,12 +89,12 @@ const ReservationsView = ({ role, userId }) => {
                   </div>
                 ) : (
                   <p>
-                    👥 <b>Personas:</b> {res.numberOfPeople}
+                    <b>Personas:</b> {res.numberOfPeople}
                   </p>
                 )}
 
                 <p>
-                  🪑 <b>Mesa:</b>{" "}
+                  <b>Mesa:</b>{" "}
                   {tableDisplay}
                 </p>
               </div>
@@ -115,7 +115,7 @@ const ReservationsView = ({ role, userId }) => {
                   }
                   className="reservation-action-button reservation-action-button-blue"
                 >
-                  🧩 ASIGNAR / FUSIONAR
+                  ASIGNAR / FUSIONAR
                 </button>
 
                 {editingId === res.id ? (
@@ -123,7 +123,7 @@ const ReservationsView = ({ role, userId }) => {
                     onClick={() => handleEditSave(res.id)}
                     className="reservation-action-button reservation-action-button-green"
                   >
-                    💾 GUARDAR
+                    GUARDAR
                   </button>
                 ) : (
                   <button
@@ -133,7 +133,7 @@ const ReservationsView = ({ role, userId }) => {
                     }}
                     className="reservation-action-button reservation-action-button-yellow"
                   >
-                    ✏️ EDITAR CANTIDAD
+                    EDITAR CANTIDAD
                   </button>
                 )}
 
@@ -143,14 +143,14 @@ const ReservationsView = ({ role, userId }) => {
                   }
                   className="reservation-action-button reservation-action-button-confirm"
                 >
-                  ✅ CONFIRMAR
+                  CONFIRMAR
                 </button>
 
                 <button
                   onClick={() => deleteReservation(res.id)}
                   className="reservation-action-button reservation-action-button-delete"
                 >
-                  🗑️ ELIMINAR
+                  ELIMINAR
                 </button>
               </div>
             </div>

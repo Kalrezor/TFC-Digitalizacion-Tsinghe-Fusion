@@ -647,8 +647,8 @@ const AdminReservationsView = () => {
                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                           <strong style={{ fontSize: 14, color: "#222" }}>{user.name || user.displayName || user.email}</strong>
                           <div style={{ display: "flex", gap: 12, fontSize: 13, color: "#666" }}>
-                            <span>📱 {user.phone || "Sin teléfono"}</span>
-                            <span>✉️ {user.email}</span>
+                            <span>Teléfono: {user.phone || "Sin teléfono"}</span>
+                            <span>Email: {user.email}</span>
                           </div>
                         </div>
                       </button>
@@ -693,9 +693,9 @@ const AdminReservationsView = () => {
             {selectedUser && (
               <div className="admin-reservations-selected-user">
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <div style={{ fontWeight: 700, fontSize: 15 }}>✓ {selectedUser.name || selectedUser.displayName || selectedUser.email}</div>
-                  <div style={{ fontSize: 13, color: "#555" }}>📱 {selectedUser.phone}</div>
-                  <div style={{ fontSize: 13, color: "#666" }}>✉️ {selectedUser.email}</div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{selectedUser.name || selectedUser.displayName || selectedUser.email}</div>
+                  <div style={{ fontSize: 13, color: "#555" }}>Teléfono: {selectedUser.phone}</div>
+                  <div style={{ fontSize: 13, color: "#666" }}>Email: {selectedUser.email}</div>
                 </div>
                 <button
                   type="button"
@@ -815,7 +815,7 @@ const AdminReservationsView = () => {
                     {/* Sugerencia automática */}
                     {formState.peopleCount && availableTables.length > 0 && (
                       <div className="admin-reservations-info-section admin-reservations-suggestion">
-                        <strong>💡 Sugerencia:</strong> {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"} — 
+                        <strong>Sugerencia:</strong> {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"} — 
                         {availableTables.filter(t => t.capacity >= formState.peopleCount).length > 0
                           ? ` Selecciona una mesa con capacidad ≥ ${formState.peopleCount} o fusiona varias.`
                           : " No hay mesa individual que cubra. Considera fusionar varias."}
@@ -838,15 +838,18 @@ const AdminReservationsView = () => {
                           return (
                             <label 
                               key={table.id} 
-                              className="admin-reservations-table-card"
+                              className={`admin-reservations-table-card${selectedTableIds.includes(table.id) ? " selected" : ""}`}
                               style={{
-                                borderColor: isRecommended ? "#10b981" : "#d1d5db",
+                                borderColor: selectedTableIds.includes(table.id) ? "#2563eb" : isRecommended ? "#10b981" : "#d1d5db",
                                 borderWidth: "2px",
-                                backgroundColor: isRecommended ? "#ecfdf5" : "white",
+                                backgroundColor: selectedTableIds.includes(table.id) ? "#eff6ff" : isRecommended ? "#ecfdf5" : "white",
+                                color: selectedTableIds.includes(table.id) ? "#1e3a8a" : "#111827",
+                                cursor: "pointer",
                               }}
                             >
                               <input
                                 type="checkbox"
+                                className="admin-reservations-table-checkbox"
                                 checked={selectedTableIds.includes(table.id)}
                                 onChange={(e) => {
                                   const checked = e.target.checked;
@@ -860,7 +863,7 @@ const AdminReservationsView = () => {
                               <div>
                                 <strong style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                   Mesa {table.number || table.tableNumber || table.id}
-                                  {isRecommended && <span style={{ fontSize: 14, color: "#10b981" }}>✓ Recomendada</span>}
+                                  {isRecommended && <span style={{ fontSize: 14, color: "#10b981" }}>Recomendada</span>}
                                 </strong>
                               </div>
                               <div style={{ fontSize: 13, color: "#6b7280" }}>
@@ -868,7 +871,7 @@ const AdminReservationsView = () => {
                               </div>
                               {isRecommended && (
                                 <div style={{ fontSize: 12, color: "#10b981", marginTop: 6 }}>
-                                  ✓ Cubre {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"}
+                                  Cubre {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"}
                                 </div>
                               )}
                             </label>
