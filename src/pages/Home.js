@@ -110,6 +110,16 @@ const Home = () => {
   const [offers, setOffers] = useState([]);
   const [loadingOffers, setLoadingOffers] = useState(true);
   const [selectedOffer, setSelectedOffer] = useState(null);
+  const [stretchCarouselSlides, setStretchCarouselSlides] = useState({});
+
+  const handleCarouselImageLoad = (index, event) => {
+    const { naturalHeight } = event.target;
+    if (!naturalHeight) return;
+
+    if (naturalHeight < 620) {
+      setStretchCarouselSlides((prev) => ({ ...prev, [index]: true }));
+    }
+  };
 
   // Lógica de validación temporal exacta sanitizada para evitar fallos de zona horaria
   const isEnVigor = (offer) => {
@@ -322,8 +332,8 @@ const Home = () => {
                   <div 
                     style={{ 
                       width: "80%", 
-                      height: "100%", 
-                      minHeight: "260px",
+                      height: "620px", 
+                      minHeight: "620px",
                       display: "flex", 
                       alignItems: "center", 
                       justifyContent: "center",
@@ -335,10 +345,12 @@ const Home = () => {
                     <img
                       src={slide.src}
                       alt={slide.alt}
+                      onLoad={(e) => handleCarouselImageLoad(index, e)}
                       style={{ 
                         width: "100%", 
                         height: "100%", 
-                        objectFit: "cover", 
+                        objectFit: stretchCarouselSlides[index] ? "fill" : "cover", 
+                        objectPosition: "center center",
                         display: "block" 
                       }}
                     />
