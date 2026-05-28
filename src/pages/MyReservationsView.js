@@ -6,42 +6,28 @@ const MyReservationsView = ({ userId }) => {
 
   if (loading) {
     return (
-      <div style={{ padding: "24px", textAlign: "center" }}>
+      <div className="my-reservations-loading">
         Cargando tus reservas...
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "24px", maxWidth: "920px", margin: "0 auto" }}>
-      <h2 style={{ color: "#222", marginBottom: "20px" }}>
+    <div className="my-reservations-page">
+      <h2 className="my-reservations-title">
         Mis Reservas
       </h2>
 
       {error && (
-        <div style={{ color: "#8b0000", marginBottom: "20px" }}>{error}</div>
+        <div className="my-reservations-error">{error}</div>
       )}
 
       {reservations.length === 0 ? (
-        <div
-          style={{
-            background: "#fff9e6",
-            border: "1px solid #ffeeba",
-            padding: "20px",
-            borderRadius: "16px",
-          }}
-        >
+        <div className="my-reservations-empty">
           Aún no tienes reservas. Puedes crear una nueva desde la sección "Reservas".
         </div>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gap: "22px",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            alignItems: "stretch",
-          }}
-        >
+        <div className="my-reservations-grid">
           {reservations
             .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
             .map((reservation) => {
@@ -52,31 +38,31 @@ const MyReservationsView = ({ userId }) => {
                 : [];
 
               return (
-                <div key={reservation.id} style={cardStyle}>
+                <div key={reservation.id} className="my-reservation-card">
                   <div>
-                    <div style={titleRowStyle}>
-                      <h3 style={{ margin: 0, fontSize: "18px" }}>
+                    <div className="my-reservation-title-row">
+                      <h3 className="my-reservation-card-title">
                         Reserva {reservation.id.slice(-6).toUpperCase()}
                       </h3>
                       <span style={statusBadge(reservation.status)}>
                         {reservation.status}
                       </span>
                     </div>
-                    <p style={metaText}>
+                    <p className="my-reservation-meta">
                       <strong>Fecha:</strong> {reservation.date || reservation.reservationDate}
                     </p>
-                    <p style={metaText}>
+                    <p className="my-reservation-meta">
                       <strong>Hora:</strong> {reservation.time || reservation.reservationTime}
                     </p>
-                    <p style={metaText}>
+                    <p className="my-reservation-meta">
                       <strong>Personas:</strong> {reservation.peopleCount || reservation.numberOfPeople}
                     </p>
-                    <p style={metaText}>
+                    <p className="my-reservation-meta">
                       <strong>Mesas:</strong>{" "}
                       {assignedTables.length > 0 ? assignedTables.join(", ") : "Pendiente"}
                     </p>
                     {reservation.specialRequests && (
-                      <p style={metaText}>
+                      <p className="my-reservation-meta">
                         <strong>Solicitudes:</strong> {reservation.specialRequests}
                       </p>
                     )}
@@ -90,25 +76,6 @@ const MyReservationsView = ({ userId }) => {
   );
 };
 
-const cardStyle = {
-  background: "#fff",
-  borderRadius: "20px",
-  padding: "24px",
-  boxShadow: "0 16px 28px rgba(0,0,0,0.08)",
-  minHeight: "220px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-};
-
-const titleRowStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: "12px",
-  marginBottom: "12px",
-};
-
 const statusBadge = (status) => ({
   background: status === "confirmada" ? "#d4edda" : "#fff3cd",
   color: status === "confirmada" ? "#155724" : "#856404",
@@ -117,11 +84,5 @@ const statusBadge = (status) => ({
   fontSize: "12px",
   textTransform: "capitalize",
 });
-
-const metaText = {
-  margin: "6px 0",
-  color: "#555",
-  fontSize: "14px",
-};
 
 export default MyReservationsView;

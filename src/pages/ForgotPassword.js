@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toastSuccess, toastError, toastInfo } from "../services/ToastService";
 import AuthService from "../services/AuthService";
-import "../styles/MinimalStyle.css";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -318,3 +317,4 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
+

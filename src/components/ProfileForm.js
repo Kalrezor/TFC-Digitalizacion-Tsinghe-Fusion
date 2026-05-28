@@ -4,30 +4,6 @@ import { auth, db } from "../firebase";
 import { updateProfile } from "firebase/auth";
 import { toastError, toastSuccess } from "../services/ToastService";
 
-const fieldStyle = {
-  display: "block",
-  width: "100%",
-  padding: "12px 14px",
-  border: "1px solid #e5e7eb",
-  borderRadius: "6px",
-  marginBottom: "12px",
-  fontSize: "14px",
-  color: "#111",
-  background: "#fff",
-};
-
-const labelStyle = { fontSize: "12px", color: "#050505", fontWeight: 700, marginBottom: "6px" };
-
-const cardStyle = {
-  background: "#fff",
-  border: "1px solid #e5e7eb",
-  borderRadius: "10px",
-  padding: "24px",
-  maxWidth: "720px",
-  margin: "24px auto",
-  boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
-};
-
 const ProfileForm = ({ userId }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -100,46 +76,38 @@ const ProfileForm = ({ userId }) => {
   };
 
   return (
-    <div style={cardStyle}>
-      <h2 style={{ color: "#050505", marginBottom: "12px" }}>Configuración de perfil</h2>
+    <div className="profile-form-card">
+      <h2 className="profile-form-title">Configuración de perfil</h2>
 
       {loading ? (
-        <div style={{ color: "#888" }}>Cargando perfil...</div>
+        <div className="profile-form-loading">Cargando perfil...</div>
       ) : (
         <form noValidate onSubmit={handleSave}>
-          <div style={{ marginBottom: "10px" }}>
-            <label style={labelStyle}>Nombre</label>
+          <div className="profile-form-group">
+            <label className="profile-form-label">Nombre</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Tu nombre"
-              style={fieldStyle}
+              className="profile-form-field"
             />
           </div>
 
-          <div style={{ marginBottom: "10px" }}>
-            <label style={labelStyle}>Teléfono</label>
+          <div className="profile-form-group">
+            <label className="profile-form-label">Teléfono</label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Tu teléfono"
-              style={fieldStyle}
+              className="profile-form-field"
             />
           </div>
 
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <div className="profile-form-actions">
             <button
               type="submit"
               disabled={saving}
-              style={{
-                background: "#050505",
-                color: "#fff",
-                border: "none",
-                padding: "10px 16px",
-                borderRadius: "6px",
-                cursor: saving ? "not-allowed" : "pointer",
-                fontWeight: 700,
-              }}
+              className="profile-form-submit"
             >
               {saving ? "Guardando..." : "Guardar"}
             </button>

@@ -6,7 +6,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import ReservationService from "../services/ReservationService";
 import UserService from "../services/UserService";
 import { toastError, toastInfo, toastSuccess } from "../services/ToastService";
-import "../styles/ChineseStyle.css";
 
 const AdminReservationForm = ({ onReservationCreated }) => {
   const [formData, setFormData] = useState({
@@ -300,7 +299,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
   return (
     <div className="reservation-form-container">
       <div className="reservation-form-card">
-        <h2>📅 Crear Reserva para Usuario</h2>
+        <h2>ðŸ“… Crear Reserva para Usuario</h2>
 
         <form noValidate onSubmit={handleSubmit} className="reservation-form">
           {/* Seleccionar Usuario - Con búsqueda en tiempo real */}
@@ -568,24 +567,3 @@ const AdminReservationForm = ({ onReservationCreated }) => {
 };
 
 export default AdminReservationForm;
-
-/*
-{/* Mesas disponibles }
-          /*{availableTables.length > 0 && (
-            <div className="form-group">
-              <label htmlFor="selectedTable">Mesa disponible</label>
-              <select
-                id="selectedTable"
-                value={selectedTable || ""}
-                onChange={(e) => setSelectedTable(e.target.value)}
-                required
-              >
-                {availableTables.map((table) => (
-                  <option key={table.id} value={table.id}>
-                    Mesa {table.tableNumber} - Capacidad: {table.capacity}{" "}
-                    personas
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}*/

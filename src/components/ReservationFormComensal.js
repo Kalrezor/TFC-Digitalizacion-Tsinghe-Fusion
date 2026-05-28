@@ -119,22 +119,15 @@ const ReservationFormComensal = () => {
   const maxDateString = maxDate.toISOString().split("T")[0];
 
   return (
-    <div style={{ padding: "24px", width: "100%", maxWidth: "900px", margin: "0 auto" }}>
-      <h2 style={{ color: "#222", marginBottom: "14px" }}>
+    <div className="comensal-reservation-form">
+      <h2 className="comensal-reservation-title">
         Crear reserva
       </h2>
 
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: "18px",
-          boxShadow: "0 12px 24px rgba(0,0,0,0.08)",
-          padding: "24px",
-        }}
-      >
+      <div className="comensal-reservation-card">
         <form noValidate onSubmit={handleSubmit}>
-          <div style={{ display: "grid", gap: "16px" }}>
-            <label style={labelStyle}>
+          <div className="comensal-reservation-grid">
+            <label className="comensal-reservation-label">
               Fecha de reserva
               <input
                 type="date"
@@ -142,17 +135,17 @@ const ReservationFormComensal = () => {
                 onChange={(e) => setDate(e.target.value)}
                 min={today}
                 max={maxDateString}
-                style={inputStyle}
+                className="comensal-reservation-input"
                 required
               />
             </label>
 
-            <label style={labelStyle}>
+            <label className="comensal-reservation-label">
               Hora
               <select
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                style={inputStyle}
+                className="comensal-reservation-input"
                 required
               >
                 <option value="">Selecciona un horario</option>
@@ -173,8 +166,8 @@ const ReservationFormComensal = () => {
               </select>
             </label>
 
-            <div style={{ display: "flex", gap: "16px", alignItems: "flex-end" }}>
-              <label style={{ ...labelStyle, flex: 1 }}>
+            <div className="comensal-reservation-row">
+              <label className="comensal-reservation-label comensal-reservation-flex">
                 Personas
                 <input
                   type="number"
@@ -182,34 +175,34 @@ const ReservationFormComensal = () => {
                   min={1}
                   max={10}
                   onChange={(e) => setPeopleCount(Number(e.target.value))}
-                  style={inputStyle}
+                  className="comensal-reservation-input"
                   required
                 />
               </label>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "12px", color: "#666", marginBottom: "4px" }}>
+              <div className="comensal-reservation-flex">
+                <div className="comensal-reservation-detected-label">
                   Turno detectado
                 </div>
-                <div style={pillStyle}>{shift || "Selecciona hora"}</div>
+                <div className="comensal-reservation-pill">{shift || "Selecciona hora"}</div>
               </div>
             </div>
 
-            <label style={labelStyle}>
+            <label className="comensal-reservation-label">
               Solicitudes especiales (opcional)
               <textarea
                 value={specialRequests}
                 onChange={(e) => setSpecialRequests(e.target.value)}
                 rows={4}
-                style={{ ...inputStyle, resize: "vertical", minHeight: "100px" }}
+                className="comensal-reservation-input comensal-reservation-textarea"
                 placeholder="Ej: mesa tranquila, alergias, cumpleaños..."
               />
             </label>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ color: "#444", fontSize: "14px" }}>
+            <div className="comensal-reservation-footer">
+              <div className="comensal-reservation-profile-phone">
                 Teléfono en tu perfil: <strong>{profilePhone || "no disponible"}</strong>
               </div>
-              <button type="submit" disabled={loading} style={submitStyle}>
+              <button type="submit" disabled={loading} className="comensal-reservation-submit">
                 {loading ? "Creando reserva..." : "Solicitar reserva"}
               </button>
             </div>
@@ -218,42 +211,6 @@ const ReservationFormComensal = () => {
       </div>
     </div>
   );
-};
-
-const labelStyle = {
-  display: "flex",
-  flexDirection: "column",
-  fontSize: "14px",
-  color: "#333",
-  gap: "10px",
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "12px 14px",
-  borderRadius: "10px",
-  border: "1px solid #dcdcdc",
-  fontSize: "14px",
-  outline: "none",
-};
-
-const submitStyle = {
-  background: "#18c618",
-  color: "#fff",
-  border: "none",
-  padding: "12px 20px",
-  borderRadius: "12px",
-  cursor: "pointer",
-  fontWeight: "bold",
-};
-
-const pillStyle = {
-  padding: "10px 12px",
-  borderRadius: "999px",
-  border: "1px solid #ddd",
-  background: "#fafafa",
-  color: "#333",
-  textTransform: "capitalize",
 };
 
 export default ReservationFormComensal;

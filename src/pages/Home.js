@@ -8,7 +8,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import useAuth from "../hooks/useAuth";
 import menuService from "../models/MenuService"; 
-import "../styles/MinimalStyle.css";
 
 const OfferCard = ({ offer, onSelect }) => {
   const imagenUrl = offer.imageUrl || ""; 
@@ -588,3 +587,4 @@ const Home = () => {
 };
 
 export default Home;
+

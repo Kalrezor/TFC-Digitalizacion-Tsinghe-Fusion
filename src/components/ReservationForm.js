@@ -1,11 +1,10 @@
 // Componente: ReservationForm.js
 // Formulario para crear/editar reservas
-// ✨ Detecta automáticamente cuando hay > 4 comensales y sugiere fusión de mesas
+// Detecta automáticamente cuando hay > 4 comensales y sugiere fusión de mesas
 
 import React, { useState, useEffect, useCallback } from "react";
 import ReservationService from "../services/ReservationService";
 import { toastError, toastInfo, toastSuccess } from "../services/ToastService";
-import "../styles/ChineseStyle.css";
 
 const getBestFitTables = (tables, people) => {
   const guests = Number(people) || 1;
@@ -165,7 +164,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
       return;
     }
 
-    // ✨ NUEVO: Si > 4 personas y no hay mesas disponibles, mostrar error
+    // NUEVO: Si > 4 personas y no hay mesas disponibles, mostrar error
     if (formData.numberOfPeople > 4 && mergingInfo && !mergingInfo.canMerge) {
       setError(`No hay suficientes mesas disponibles. Se necesitan ${mergingInfo.suggestedTableCount} mesas pero solo hay ${mergingInfo.availableTablesCount}.`);
       return;
@@ -184,7 +183,6 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
         numberOfPeople: formData.numberOfPeople,
         specialRequests: formData.specialRequests,
         status: "pendiente",
-        // ✨ NUEVO: Agregar flag si necesita fusión
         needsMerging: mergingInfo?.needsMerging || false,
         suggestedTableCount: mergingInfo?.suggestedTableCount || 1,
       };
@@ -233,7 +231,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
   return (
     <div className="reservation-form-container">
       <div className="reservation-form-card">
-        <h2>📅 Nueva Reserva</h2>
+        <h2>ðŸ“… Nueva Reserva</h2>
 
         <form noValidate onSubmit={handleSubmit} className="reservation-form">
           {/* Fecha */}
@@ -353,3 +351,4 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
 };
 
 export default ReservationForm;
+

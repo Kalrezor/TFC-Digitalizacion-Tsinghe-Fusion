@@ -21,24 +21,20 @@ const ReservationsView = ({ role, userId }) => {
 
   if (loading)
     return (
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <div className="reservations-loading">
         Cargando reservas...
       </div>
     );
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
+    <div className="reservations-view">
       <h2
-        style={{
-          color: "#DC143C",
-          borderBottom: "2px solid #FFD700",
-          paddingBottom: "10px",
-        }}
+        className="reservations-view-title"
       >
         📋 Gestión de Reservas
       </h2>
 
-      <div style={{ display: "grid", gap: "15px", marginTop: "20px" }}>
+      <div className="reservations-list">
         {reservations.map((res) => {
           const reservationTableIds = Array.isArray(res.tableIds)
             ? res.tableIds
@@ -69,9 +65,9 @@ const ReservationsView = ({ role, userId }) => {
                 : "Pendiente";
 
           return (
-            <div key={res.id} style={resCard}>
-              <div style={{ flex: 2 }}>
-                <h4 style={{ margin: "0 0 10px 0" }}>
+            <div key={res.id} className="reservation-card">
+              <div className="reservation-card-content">
+                <h4 className="reservation-card-title">
                   👤 {res.userName || "Cliente"}
                 </h4>
                 <p>
@@ -81,14 +77,14 @@ const ReservationsView = ({ role, userId }) => {
                 </p>
 
                 {editingId === res.id ? (
-                  <div style={{ margin: "10px 0" }}>
+                  <div className="reservation-edit-field">
                     <input
                       type="number"
                       value={editData.numPeople}
                       onChange={(e) =>
                         setEditData({ ...editData, numPeople: e.target.value })
                       }
-                      style={{ width: "60px", padding: "5px" }}
+                      className="reservation-edit-input"
                     />
                   </div>
                 ) : (
@@ -103,7 +99,7 @@ const ReservationsView = ({ role, userId }) => {
                 </p>
               </div>
 
-              <div style={actionButtonsGroup}>
+              <div className="reservation-actions-group">
                 <button
                   type="button"
                   onClick={() =>
@@ -117,7 +113,7 @@ const ReservationsView = ({ role, userId }) => {
                       },
                     })
                   }
-                  style={btnBlue}
+                  className="reservation-action-button reservation-action-button-blue"
                 >
                   🧩 ASIGNAR / FUSIONAR
                 </button>
@@ -125,7 +121,7 @@ const ReservationsView = ({ role, userId }) => {
                 {editingId === res.id ? (
                   <button
                     onClick={() => handleEditSave(res.id)}
-                    style={btnGreen}
+                    className="reservation-action-button reservation-action-button-green"
                   >
                     💾 GUARDAR
                   </button>
@@ -135,7 +131,7 @@ const ReservationsView = ({ role, userId }) => {
                       setEditingId(res.id);
                       setEditData({ numPeople: res.numberOfPeople });
                     }}
-                    style={btnYellow}
+                    className="reservation-action-button reservation-action-button-yellow"
                   >
                     ✏️ EDITAR CANTIDAD
                   </button>
@@ -145,14 +141,14 @@ const ReservationsView = ({ role, userId }) => {
                   onClick={() =>
                     updateReservation(res.id, { status: "confirmada" })
                   }
-                  style={btnConfirm}
+                  className="reservation-action-button reservation-action-button-confirm"
                 >
                   ✅ CONFIRMAR
                 </button>
 
                 <button
                   onClick={() => deleteReservation(res.id)}
-                  style={btnDelete}
+                  className="reservation-action-button reservation-action-button-delete"
                 >
                   🗑️ ELIMINAR
                 </button>
@@ -163,58 +159,6 @@ const ReservationsView = ({ role, userId }) => {
       </div>
     </div>
   );
-};
-
-const resCard = {
-  padding: "20px",
-  border: "1px solid #ddd",
-  borderRadius: "12px",
-  display: "flex",
-  justifyContent: "space-between",
-  background: "#fff",
-};
-const actionButtonsGroup = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "8px",
-  minWidth: "200px",
-};
-const btnBlue = {
-  background: "#007bff",
-  color: "white",
-  border: "none",
-  padding: "10px",
-  cursor: "pointer",
-  borderRadius: "6px",
-  fontWeight: "bold",
-};
-const btnGreen = {
-  background: "#28a745",
-  color: "white",
-  border: "none",
-  padding: "10px",
-  borderRadius: "6px",
-};
-const btnYellow = {
-  background: "#FFD700",
-  border: "none",
-  padding: "10px",
-  borderRadius: "6px",
-  fontWeight: "bold",
-};
-const btnConfirm = {
-  background: "#f9f9f9",
-  border: "1px solid #28a745",
-  color: "#28a745",
-  padding: "8px",
-  borderRadius: "6px",
-};
-const btnDelete = {
-  background: "transparent",
-  color: "#999",
-  border: "none",
-  fontSize: "12px",
-  cursor: "pointer",
 };
 
 export default ReservationsView;

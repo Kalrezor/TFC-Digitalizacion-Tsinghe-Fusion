@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import chatbotService from "../services/ChatbotService";
-import "../styles/MinimalStyle.css";
 
 const SUPPORT_PHONE =
   process.env.REACT_APP_RESTAURANT_SUPPORT_PHONE || "+34 600 123 456";
@@ -161,3 +160,4 @@ const RestaurantChatbot = ({ user, role, userName, enabled = true }) => {
 };
 
 export default RestaurantChatbot;
+

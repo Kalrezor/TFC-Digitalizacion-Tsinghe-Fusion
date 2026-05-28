@@ -4,7 +4,6 @@ import { db, storage } from '../firebaseConfig';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { toastConfirm, toastError, toastSuccess } from '../../services/ToastService';
-import '../styles/AdminMenuView.css';
 
 export default function AdminMenuView() {
   const [platos, setPlatos] = useState([]);
@@ -118,12 +117,12 @@ export default function AdminMenuView() {
         // Asignar emoji por defecto si no hay imagen
         if (!imagen) {
           const emojiMap = {
-            'Gluten': '🌾',
+            'Gluten': 'ðŸŒ¾',
             'Lácteos': '🥛',
-            'Huevos': '🥚',
-            'Frutos secos': '🥜',
-            'Mariscos': '🦐',
-            'Soja': '🫘'
+            'Huevos': 'ðŸ¥š',
+            'Frutos secos': 'ðŸ¥œ',
+            'Mariscos': 'ðŸ¦',
+            'Soja': 'ðŸ«˜'
           };
           imagen = emojiMap[nombre] || '⚠️';
         }
@@ -138,7 +137,7 @@ export default function AdminMenuView() {
       setAlergenos(alergenosData);
       console.log(`Alérgenos cargados desde colección '${alergenosResult.collectionName}':`, alergenosData.length, alergenosData);
 
-      console.log('🔍 Verificando datos existentes...');
+      console.log('ðŸ” Verificando datos existentes...');
       console.log('📊 Categorías:', categoriasData.length, '📊 Alérgenos:', alergenosData.length);
 
       // Mostrar datos existentes en consola
@@ -168,13 +167,13 @@ export default function AdminMenuView() {
   };
 
   const recargarDatos = async () => {
-    console.log('🔄 Recargando datos manualmente...');
+    console.log('ðŸ”„ Recargando datos manualmente...');
     await cargarDatos();
   };
 
   const verificarColecciones = async () => {
     try {
-      console.log('🔍 Verificando estado de colecciones...');
+      console.log('ðŸ” Verificando estado de colecciones...');
 
       const categorySnap = await getDocs(collection(db, 'category'));
       console.log(`📋 Colección 'category': ${categorySnap.size} documentos`);
@@ -205,10 +204,10 @@ export default function AdminMenuView() {
 
       // Crear categorías de ejemplo en colección 'category'
       const categoriasEjemplo = [
-        { nombre: 'Entrantes', imagen: '🍽️' },
-        { nombre: 'Principales', imagen: '🍖' },
-        { nombre: 'Postres', imagen: '🍰' },
-        { nombre: 'Bebidas', imagen: '🥤' }
+        { nombre: 'Entrantes', imagen: 'ðŸ½ï¸' },
+        { nombre: 'Principales', imagen: 'ðŸ–' },
+        { nombre: 'Postres', imagen: 'ðŸ°' },
+        { nombre: 'Bebidas', imagen: 'ðŸ¥¤' }
       ];
 
       console.log('📝 Creando categorías...');
@@ -219,21 +218,21 @@ export default function AdminMenuView() {
 
       // Crear alergenos de ejemplo en colección 'allergen'
       const alergenosEjemplo = [
-        { nombre: 'Gluten', imagen: '🌾' },
+        { nombre: 'Gluten', imagen: 'ðŸŒ¾' },
         { nombre: 'Lácteos', imagen: '🥛' },
-        { nombre: 'Huevos', imagen: '🥚' },
-        { nombre: 'Frutos secos', imagen: '🥜' },
-        { nombre: 'Mariscos', imagen: '🦐' },
-        { nombre: 'Soja', imagen: '🫘' }
+        { nombre: 'Huevos', imagen: 'ðŸ¥š' },
+        { nombre: 'Frutos secos', imagen: 'ðŸ¥œ' },
+        { nombre: 'Mariscos', imagen: 'ðŸ¦' },
+        { nombre: 'Soja', imagen: 'ðŸ«˜' }
       ];
 
-      console.log('🥜 Creando alergenos...');
+      console.log('ðŸ¥œ Creando alergenos...');
       for (const alergeno of alergenosEjemplo) {
         const docRef = await addDoc(collection(db, 'allergen'), alergeno);
         console.log('✅ Alergeno creado:', alergeno.nombre, 'ID:', docRef.id);
       }
 
-      console.log('🎉 Datos de ejemplo creados correctamente');
+      console.log('ðŸŽ‰ Datos de ejemplo creados correctamente');
       toastSuccess('Datos de ejemplo creados correctamente. Haz clic en "Verificar Datos" para confirmar.');
 
       // No recargar automáticamente, dejar que el usuario verifique manualmente
@@ -646,14 +645,14 @@ export default function AdminMenuView() {
                   onClick={() => eliminarPlato(plato)}
                   title="Eliminar plato"
                 >
-                  🗑️
+                  ðŸ—‘ï¸
                 </button>
               </div>
             </div>
           ))
         ) : (
           <div className="empty-state">
-            <div className="empty-icon">🍽️</div>
+            <div className="empty-icon">ðŸ½ï¸</div>
             <p className="empty-title">No hay platos que coincidan con los filtros</p>
             <p className="empty-text">Limpia los filtros o prueba con otra categoría.</p>
           </div>
@@ -712,3 +711,4 @@ export default function AdminMenuView() {
     </div>
   );
 }
+

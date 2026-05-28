@@ -3,7 +3,6 @@ import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, up
 import { auth, db } from "../firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import { toastError, toastSuccess } from "../../services/ToastService";
-import "../styles/RegisterView.css";
 
 export default function RegisterView({ navegarA }) {
   const [nombre, setNombre] = useState("");
@@ -289,3 +288,4 @@ export default function RegisterView({ navegarA }) {
     </div>
   );
 }
+

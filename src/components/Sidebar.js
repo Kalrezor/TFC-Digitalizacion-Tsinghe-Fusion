@@ -3,7 +3,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/ChineseStyle.css";
 
 const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) => {
   const navigate = useNavigate();
@@ -215,3 +214,4 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
 };
 
 export default Sidebar;
+

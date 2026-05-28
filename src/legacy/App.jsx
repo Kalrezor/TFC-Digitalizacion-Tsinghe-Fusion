@@ -1,4 +1,3 @@
-import './App.css'
 import { useNavigation } from './control/NavigationController'
 import CartaView from './view/CartaView'
 import ReservasView from './view/ReservasView'
