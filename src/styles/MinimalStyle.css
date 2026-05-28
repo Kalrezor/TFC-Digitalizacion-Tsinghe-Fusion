@@ -1788,6 +1788,25 @@ select {
 .admin-menu-card-spaced {
   margin-bottom: 24px;
 }
+.admin-menu-card-spaced .card-header,
+.admin-menu-card .card-header {
+  border-bottom-color: #050505;
+}
+.admin-menu-plates-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+.admin-menu-plates-table th,
+.admin-menu-plates-table td {
+  border: 1px solid #050505;
+}
+.admin-menu-table-row {
+  transition: background 0.2s;
+}
+.admin-menu-table-row:hover {
+  background: #fafafa;
+}
 .admin-menu-heading,
 .admin-menu-intro {
   margin: 0;
