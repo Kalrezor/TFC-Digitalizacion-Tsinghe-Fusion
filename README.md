@@ -1,14 +1,13 @@
-### style: mejoras visuales en el menú lateral de usuario
+### style: mejoras en la vista de reservas y formularios de comensales
 
-Se han realizado los siguientes cambios en la barra lateral para comensales y administradores:
+Se han aplicado los siguientes ajustes en la administración y reserva de mesas:
 
-* **Texto de opciones simplificado:**
-  * Se eliminaron las palabras extra a la izquierda de cada opción, dejando solo el nombre principal de la opción.
-  * Ejemplo: de `VISTA VER INICIO` se dejó `VER INICIO`.
+* **Reserva admin más limpia:**
+  * Se eliminó el icono de check adicional de las mesas recomendadas.
+  * Se quitó el texto con emojis en los detalles de usuario seleccionado.
+  * Se reforzó el estilo visual de selección de mesas con borde y fondo claros.
 
-* **Separadores reducidos:**
-  * Se quitaron las líneas entre cada opción del menú.
-  * Solo se mantiene la línea que separa el nombre/rol del usuario de la lista de opciones.
-
-* **Opción de Cerrar sesión eliminada:**
-  * La opción `Cerrar sesión` fue retirada del menú lateral.
+* **Formulario de comensal libre y sin recuadro estricto:**
+  * El formulario ya no está envuelto en un recuadro pesado, brindando un aspecto más limpio.
+  * El textarea quedó deshabilitado para cambio de tamaño (`resize: none`).
+  * Se añadió espacio inferior extra para que los botones no tapen el contenido en pantallas pequeñas.
