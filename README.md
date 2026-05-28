@@ -1,18 +1,14 @@
-### style: arreglo de estilos en el footer y en el carrusel 
+### style: mejoras visuales en el menú lateral de usuario
 
-Se han realizado los siguientes ajustes visuales en la página principal:
+Se han realizado los siguientes cambios en la barra lateral para comensales y administradores:
 
-* **Footer centrado en Home:**
-  * El texto del footer de la página de inicio ahora está alineado al centro.
+* **Texto de opciones simplificado:**
+  * Se eliminaron las palabras extra a la izquierda de cada opción, dejando solo el nombre principal de la opción.
+  * Ejemplo: de `VISTA VER INICIO` se dejó `VER INICIO`.
 
-* **Carrusel con altura mayor y uniforme:**
-  * Se elevó la altura del carrusel para que el bloque sea más alto y más visible.
-  * El contenedor interno del carrusel ahora tiene una altura fija mayor para mantener consistencia en todas las diapositivas.
+* **Separadores reducidos:**
+  * Se quitaron las líneas entre cada opción del menú.
+  * Solo se mantiene la línea que separa el nombre/rol del usuario de la lista de opciones.
 
-* **Estirado selectivo de imágenes cortas:**
-  * Las imágenes del carrusel que resultan más bajas se detectan por su altura real.
-  * Solo esas imágenes más cortas se estiran para igualar la altura del carrusel.
-  * El resto de las imágenes conserva el estilo original con `object-fit: cover`.
-
-* **Umbral de altura aumentado:**
-  * El criterio para considerar una imagen como “corta” se ajustó a una altura mayor, permitiendo estirar un poco más las imágenes más bajas.
+* **Opción de Cerrar sesión eliminada:**
+  * La opción `Cerrar sesión` fue retirada del menú lateral.
