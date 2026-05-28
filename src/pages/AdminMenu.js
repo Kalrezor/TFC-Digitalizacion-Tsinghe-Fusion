@@ -279,10 +279,11 @@ const AdminMenu = () => {
         </div>
       )}
 
-      <div className="card" style={{ padding: "22px", marginBottom: "24px" }}>
+      <div className="card admin-menu-card admin-menu-filters-card" style={{ padding: "22px", marginBottom: "24px" }}>
         <div className="card-header"><h3 style={{ margin: 0 }}>Filtros</h3></div>
         <div className="admin-menu-filters-row">
           <div className="admin-menu-search-cell">
+            <label className="admin-menu-label">Filtrar por Plato:</label>
             <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar plato..." className="admin-menu-input" />
           </div>
 
@@ -313,11 +314,11 @@ const AdminMenu = () => {
       </div>
 
       {/* --- SECCIÓN SECCIÓN TABLA REFORMADA --- */}
-      <div className="card" style={{ padding: "26px", overflowX: "auto", borderRadius: "12px" }}>
+      <div className="card admin-menu-card admin-menu-plates-card" style={{ padding: "26px", overflowX: "auto", borderRadius: "12px" }}>
         <div className="card-header" style={{ marginBottom: "16px" }}>
           <h3 style={{ margin: 0 }}>Platos</h3>
         </div>
-        <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff" }}>
+        <table className="admin-menu-plates-table">
           <thead>
             <tr style={{ background: "var(--sage, #222)", color: "#fff", fontSize: "13px", letterSpacing: "0.5px" }}>
               <th className="admin-menu-table-header-cell">Imagen</th>
@@ -334,7 +335,7 @@ const AdminMenu = () => {
               const tableImg = p.imagen && p.imagen.trim() !== "" ? p.imagen : DEFAULT_PLATE_IMAGE;
 
               return (
-                <tr key={p.id} style={{ borderBottom: "1px solid #f0f0f0", transition: "background 0.2s" }} className="table-row-hover">
+                <tr key={p.id} className="table-row-hover admin-menu-table-row">
                   {/* Celda Imagen */}
                   <td className="admin-menu-table-cell">
                     <img 
