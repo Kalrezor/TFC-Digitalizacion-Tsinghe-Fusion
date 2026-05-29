@@ -90,8 +90,6 @@ class AuthService {
   // Método para registro con email y contraseña
   async registerWithEmail(email, password, name, phone) {
     try {
-      console.log("🔐 Iniciando registro con email:", email);
-
       // Validar que name no esté vacío
       if (!name || name.trim() === "") {
         throw new Error("El nombre es requerido para el registro");
@@ -109,7 +107,6 @@ class AuthService {
         password,
       );
       const user = userCredential.user;
-      console.log("✅ Usuario creado en Auth:", user.uid);
 
       // 2. Verificar si ya existe documento en Firestore (creado por admin)
       // Si existe, actualizar; si no, crear nuevo
@@ -118,7 +115,6 @@ class AuthService {
 
       if (existingDoc.exists()) {
         // El usuario ya existía (creado por admin), actualizar como verificado
-        console.log("📝 Actualizando documento existente en Firestore");
         await updateDoc(userDocRef, {
           name: name.trim(),
           phone: phone.trim(),
@@ -128,7 +124,6 @@ class AuthService {
         });
       } else {
         // Nuevo usuario, crear documento
-        console.log("📝 Creando nuevo documento en Firestore");
         const userData = {
           email: user.email,
           name: name.trim(),
@@ -140,8 +135,6 @@ class AuthService {
         };
         await setDoc(userDocRef, userData);
       }
-
-      console.log("✅ Documento guardado exitosamente en Firestore");
 
       // Enviar email de bienvenida
       await this.sendWelcomeEmail(user.email, user.displayName || name);
@@ -338,13 +331,9 @@ class AuthService {
   // Método para solicitar reset de contraseña con token
   async requestPasswordReset(email) {
     try {
-      console.log("🔐 Solicitando reset de contraseña para:", email);
-
       // Generar token
       const token = this.generateToken();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // Expira en 15 minutos
-
-      console.log("📧 Enviando email con token...");
 
       // Enviar email con token
       const response = await fetch(
@@ -374,7 +363,6 @@ class AuthService {
         email: email,
       });
 
-      console.log("✅ Email de reset enviado exitosamente");
       return {
         success: true,
         message: `Token enviado a ${email}. Expira en 15 minutos.`,
@@ -388,8 +376,6 @@ class AuthService {
   // Método para validar token y resetear contraseña
   async resetPasswordWithToken(email, token, newPassword) {
     try {
-      console.log("🔐 Validando token para:", email);
-
       // La Cloud Function valida el token y cambia la contraseña con Admin SDK.
       const response = await fetch(
         "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/resetPasswordWithToken",
@@ -421,7 +407,6 @@ class AuthService {
       // El Cloud Function se encarga de eliminar el documento de reset
       // No necesitamos eliminarlo desde el cliente
 
-      console.log("✅ Contraseña reseteada exitosamente");
       return {
         success: true,
         message: data.message || "Contraseña actualizada exitosamente",
@@ -440,11 +425,8 @@ class AuthService {
         return { success: false, error: "No hay usuario autenticado" };
       }
 
-      console.log("🔐 Agregando contraseña al usuario de Google:", user.email);
-
       // Usar updatePassword de Firebase Auth
       await updatePassword(user, password);
-      console.log("✅ Contraseña agregada exitosamente");
 
       // Marcar en Firestore que el usuario ya configuró su contraseña
       await setDoc(
@@ -452,7 +434,6 @@ class AuthService {
         { passwordConfigured: true },
         { merge: true },
       );
-      console.log("✅ Contraseña marcada como configurada en Firestore");
 
       return { success: true, message: "Contraseña creada exitosamente" };
     } catch (error) {

@@ -73,11 +73,9 @@ const AdminReservationsView = () => {
     const tableNumbers = normalized.tableIds
       .map((tableId) => {
         const mapped = tablesById[tableId];
-        console.log(`Para tableId ${tableId}, mapped: ${mapped}`);
         return mapped || tableId;
       })
       .filter(Boolean);
-    console.log(`tableNumbers para reserva ${reservation.id}:`, tableNumbers);
     return {
       ...normalized,
       tableNumbers,
@@ -187,14 +185,11 @@ const AdminReservationsView = () => {
     };
     const loadTables = async () => {
       const result = await TableService.getAllTables();
-      console.log("Resultado de getAllTables:", result);
       if (result.success) {
         const map = {};
         (result.tables || []).forEach((table) => {
           map[table.id] = table.tableNumber || table.number || table.id;
-          console.log(`Mapeando mesa ${table.id} a ${map[table.id]}`);
         });
-        console.log("tablesById:", map);
         setTablesById(map);
         setAllTables(result.tables || []);
       } else {

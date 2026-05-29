@@ -35,7 +35,6 @@ const Login = () => {
       navigate(nextPath ? nextPath : "/home", { replace: true });
     } else {
       toastError(result.error || "Error al iniciar sesión");
-      //setError(result.error || "Error al iniciar sesión");
     }
   };
 
@@ -61,11 +60,9 @@ const Login = () => {
         }
       } else {
         toastError(result.error || "Error al iniciar sesión con Google");
-        //setError(result.error || "Error al iniciar sesión con Google");
       }
     } catch (err) {
       toastError(err.message || "Error inesperado al iniciar sesión");
-      //setError(err.message);
     } finally {
       setLoading(false);
     }

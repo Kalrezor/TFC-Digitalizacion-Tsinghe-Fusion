@@ -55,34 +55,28 @@ const Register = () => {
   const validateForm = () => {
     if (!formData.name.trim() || formData.name.trim().length < 2) {
       toastError("El nombre debe tener al menos 2 caracteres");
-      //setError("El nombre debe tener al menos 2 caracteres");
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toastError("Por favor ingresa un email válido");
-      //setError("Por favor ingresa un email válido");
       return false;
     }
     if (formData.password.length < 6) {
       toastError("La contraseña debe tener al menos 6 caracteres");
-      //setError("La contraseña debe tener al menos 6 caracteres");
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
       toastError("Las contraseñas no coinciden");
-      //setError("Las contraseñas no coinciden");
       return false;
     }
     if (!formData.phone.trim()) {
       toastError("El número de teléfono es obligatorio");
-      //setError("El número de teléfono es obligatorio");
       return false;
     }
     const phoneRegex = /^\+?[0-9\s\-()]{7,15}$/;
     if (!phoneRegex.test(formData.phone.trim())) {
       toastError("Por favor ingresa un número de teléfono válido");
-      //setError("Por favor ingresa un número de teléfono válido");
       return false;
     }
     return true;

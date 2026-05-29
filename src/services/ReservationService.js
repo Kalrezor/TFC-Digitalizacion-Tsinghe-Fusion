@@ -79,8 +79,6 @@ class ReservationService {
   // Crear una nueva reserva
   async createReservation(reservationData) {
     try {
-      console.log("📅 Creando reserva:", reservationData);
-
       // Validar que no exista otra reserva en la misma mesa y hora
       const existingReservation = await this.checkReservationConflict(
         reservationData.tableId,
@@ -138,7 +136,6 @@ class ReservationService {
         // No fallar la creación de reserva si el email falla
       }
 
-      console.log("✅ Reserva creada:", docRef.id);
       return { success: true, reservationId: docRef.id };
     } catch (error) {
       console.error("❌ Error creando reserva:", error.message);
@@ -283,8 +280,6 @@ class ReservationService {
   // Actualizar reserva
   async updateReservation(reservationId, updates) {
     try {
-      console.log("📝 Actualizando reserva:", reservationId);
-
       const currentDoc = await getDoc(doc(db, "reservations", reservationId));
       const currentReservation = currentDoc.exists() ? currentDoc.data() : null;
 
@@ -308,7 +303,6 @@ class ReservationService {
         );
       }
 
-      console.log("✅ Reserva actualizada");
       return { success: true };
     } catch (error) {
       console.error("Error actualizando reserva:", error);
@@ -319,8 +313,6 @@ class ReservationService {
   // Cancelar reserva
   async cancelReservation(reservationId) {
     try {
-      console.log("❌ Cancelando reserva:", reservationId);
-
       const currentDoc = await getDoc(doc(db, "reservations", reservationId));
       const currentReservation = currentDoc.exists() ? currentDoc.data() : null;
 
@@ -339,7 +331,6 @@ class ReservationService {
         );
       }
 
-      console.log("✅ Reserva cancelada");
       return { success: true };
     } catch (error) {
       console.error("Error cancelando reserva:", error);
