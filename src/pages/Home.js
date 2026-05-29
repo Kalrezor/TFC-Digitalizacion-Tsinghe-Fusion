@@ -221,7 +221,7 @@ const Home = () => {
           <p className="editorial-kicker">Cocina fusión · Madrid</p>
           <h1 className="home-title editorial-serif">Tsinghe Cocina Fusión</h1>
           <p className="home-lede">
-            Una experiencia de mesa serena, precisa y contemporánea, donde la
+            Una **EXPERIENCIA** de mesa serena, precisa y contemporánea, donde la
             cocina china se presenta con ritmo editorial y producto cuidado.
           </p>
 
