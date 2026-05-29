@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import "../styles/ChineseStyle.css";
 
 const ConfirmReservation = () => {
   const [searchParams] = useSearchParams();
@@ -119,3 +118,4 @@ const ConfirmReservation = () => {
 };
 
 export default ConfirmReservation;
+

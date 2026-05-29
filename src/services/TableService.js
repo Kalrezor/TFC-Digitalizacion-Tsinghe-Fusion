@@ -116,13 +116,13 @@ class TableService {
 
     return `F${nextNumber}`;
   }
-  // Fusionar multiples mesas para una reserva (SOLO PARA RESERVAS > 4 COMENSALES)
+  // Fusionar múltiples mesas para una reserva (SOLO PARA RESERVAS > 4 COMENSALES)
   async mergeTables(reservationId, tableIds, guestCount) {
     try {
       if (guestCount <= 4) {
         return {
           success: false,
-          error: "La fusion de mesas solo es posible para reservas con mas de 4 comensales",
+          error: "La fusión de mesas solo es posible para reservas con más de 4 comensales",
         };
       }
 
@@ -164,7 +164,6 @@ class TableService {
       );
 
       await Promise.all(updates);
-      console.log(`Mesas fusionadas para reserva ${reservationId}: ${fusionCode}`);
       return {
         success: true,
         message: `${tableIds.length} mesas fusionadas exitosamente (${fusionCode})`,
@@ -215,7 +214,6 @@ class TableService {
       }
 
       await Promise.all(updates);
-      console.log(`${tableIds.length} mesas desvinculadas`);
       return {
         success: true,
         message: `${tableIds.length} mesas desvinculadas exitosamente`,

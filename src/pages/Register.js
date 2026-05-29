@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toastSuccess, toastError } from "../services/ToastService";
 import AuthService from "../services/AuthService";
-import "../styles/MinimalStyle.css";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -36,18 +35,18 @@ const Register = () => {
     const code = error?.code || error?.errorCode || "";
 
     if (code === "auth/weak-password" || message.includes("auth/weak-password")) {
-      return "La contraseÃ±a debe tener al menos 6 caracteres";
+      return "La contraseña debe tener al menos 6 caracteres";
     }
 
     if (
       code === "auth/email-already-in-use" ||
       message.includes("auth/email-already-in-use")
     ) {
-      return "Este email ya estÃ¡ registrado. Â¿Quieres iniciar sesiÃ³n?";
+      return "Este email ya está registrado. ¿Quieres iniciar sesión?";
     }
 
     if (code === "auth/invalid-email" || message.includes("auth/invalid-email")) {
-      return "El email no es vÃ¡lido.";
+      return "El email no es válido.";
     }
 
     return message || "Error al registrarse";
@@ -56,34 +55,28 @@ const Register = () => {
   const validateForm = () => {
     if (!formData.name.trim() || formData.name.trim().length < 2) {
       toastError("El nombre debe tener al menos 2 caracteres");
-      //setError("El nombre debe tener al menos 2 caracteres");
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toastError("Por favor ingresa un email válido");
-      //setError("Por favor ingresa un email válido");
       return false;
     }
     if (formData.password.length < 6) {
       toastError("La contraseña debe tener al menos 6 caracteres");
-      //setError("La contraseña debe tener al menos 6 caracteres");
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
       toastError("Las contraseñas no coinciden");
-      //setError("Las contraseñas no coinciden");
       return false;
     }
     if (!formData.phone.trim()) {
       toastError("El número de teléfono es obligatorio");
-      //setError("El número de teléfono es obligatorio");
       return false;
     }
     const phoneRegex = /^\+?[0-9\s\-()]{7,15}$/;
     if (!phoneRegex.test(formData.phone.trim())) {
       toastError("Por favor ingresa un número de teléfono válido");
-      //setError("Por favor ingresa un número de teléfono válido");
       return false;
     }
     return true;
@@ -125,7 +118,7 @@ const Register = () => {
       </video>
       <div className="login-background-overlay" />
       <div className="editorial-auth-card">
-        <div style={{ marginBottom: "28px", textAlign: "center" }}>
+        <div className="editorial-auth-header editorial-auth-header-compact">
           <h1>Crear Cuenta</h1>
           <p>Únete a Tsinghe Cocina Fusión</p>
         </div>
@@ -188,14 +181,13 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary"
-            style={{ width: "100%", marginTop: "10px" }}
+            className="btn-primary btn-full-width btn-with-top-gap"
           >
             {loading ? "Registrando..." : "Registrarse"}
           </button>
         </form>
 
-        <div className="editorial-auth-links" style={{ marginTop: "22px" }}>
+        <div className="editorial-auth-links editorial-auth-links-spaced">
           ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
         </div>
       </div>
@@ -204,3 +196,4 @@ const Register = () => {
 };
 
 export default Register;
+

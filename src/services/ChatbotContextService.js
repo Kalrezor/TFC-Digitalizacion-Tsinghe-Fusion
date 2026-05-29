@@ -252,7 +252,7 @@ const compactList = (items, formatter, limit = 8) => {
   if (!Array.isArray(items) || items.length === 0) return "Ninguno.";
   const visibleItems = items.slice(0, limit).map(formatter);
   const remaining = items.length - visibleItems.length;
-  return `${visibleItems.join("\n")}${remaining > 0 ? `\n...y ${remaining} mas.` : ""}`;
+  return `${visibleItems.join("\n")}${remaining > 0 ? `\n...y ${remaining} más.` : ""}`;
 };
 
 class ChatbotContextService {
@@ -536,7 +536,7 @@ class ChatbotContextService {
     if (fuzzyIncludes(cleanMessage, ["mesa", "mesas", "libre", "libres", "disponible"]) || lastIntent === "tables") {
       return isAdmin
         ? this.answerAdminTables(cleanMessage, history)
-        : "Para consultar disponibilidad concreta, entra en tu panel y crea una reserva indicando fecha, hora y numero de personas.";
+        : "Para consultar disponibilidad concreta, entra en tu panel y crea una reserva indicando fecha, hora y número de personas.";
     }
 
     if (
@@ -590,7 +590,7 @@ class ChatbotContextService {
       compactList(
         result.offers,
         (offer) =>
-          `- ${offer.title || offer.name || "Oferta"}: ${offer.description || "Sin descripcion"}${offer.discount ? ` (${offer.discount}% descuento)` : ""}`,
+          `- ${offer.title || offer.name || "Oferta"}: ${offer.description || "Sin descripción"}${offer.discount ? ` (${offer.discount}% descuento)` : ""}`,
         8,
       ),
     ].join("\n");
@@ -705,7 +705,7 @@ class ChatbotContextService {
     }
 
     if (!availablePlates.length && requestedTerms.length) {
-      return `No encontre ${requestedTerms.join(", ")} disponibles en la carta ahora mismo. Puedes revisar la carta completa en /menu o consultar con el restaurante.`;
+      return `No encontré ${requestedTerms.join(", ")} disponibles en la carta ahora mismo. Puedes revisar la carta completa en /menu o consultar con el restaurante.`;
     }
     if (!availablePlates.length) return "No hay platos disponibles registrados ahora mismo.";
 
@@ -718,8 +718,8 @@ class ChatbotContextService {
             plate.alergenos
               ?.map((id) => allergens[id]?.nombre)
               .filter(Boolean)
-              .join(", ") || "sin alergenos indicados";
-          return `- ${plate.nombre}: ${plate.precio || "sin precio"} EUR. Alergenos: ${allergenNames}.`;
+              .join(", ") || "sin alérgenos indicados";
+          return `- ${plate.nombre}: ${plate.precio || "sin precio"} EUR. Alérgenos: ${allergenNames}.`;
         },
         10,
       ),

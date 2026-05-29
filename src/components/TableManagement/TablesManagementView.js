@@ -60,45 +60,45 @@ const TablesManagementView = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.title}>Gestión de Mesas</h1>
-        <p style={styles.subtitle}>
+    <div className="tables-management">
+      <div className="tables-management-header">
+        <h1 className="tables-management-title">Gestión de Mesas</h1>
+        <p className="tables-management-subtitle">
           Administra las mesas del restaurante y visualiza su disponibilidad
         </p>
       </div>
 
       {/* Filtros de fecha y turno */}
-      <div style={styles.filters}>
-        <div style={styles.filterGroup}>
-          <label style={styles.filterLabel}>Fecha:</label>
+      <div className="tables-management-filters">
+        <div className="tables-management-filter-group">
+          <label className="tables-management-filter-label">Fecha:</label>
           <input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            style={styles.dateInput}
+            className="tables-management-date-input"
           />
         </div>
-        <div style={styles.filterGroup}>
-          <label style={styles.filterLabel}>Turno:</label>
+        <div className="tables-management-filter-group">
+          <label className="tables-management-filter-label">Turno:</label>
           <select
             value={selectedShift}
             onChange={(e) => setSelectedShift(e.target.value)}
-            style={styles.selectInput}
+            className="tables-management-select-input"
           >
             <option value="comida">Comida</option>
             <option value="cena">Cena</option>
           </select>
         </div>
-        <div style={styles.dateDisplay}>
+        <div className="tables-management-date-display">
           {formatDate(selectedDate)} - {selectedShift === "comida" ? "Comida" : "Cena"}
         </div>
       </div>
 
       {/* Contenido principal */}
-      <div style={styles.content}>
+      <div className="tables-management-content">
         {/* Lista de mesas con CRUD */}
-        <div style={styles.section}>
+        <div className="tables-management-section">
           <TableList
             tables={tables}
             loading={tablesLoading}
@@ -109,7 +109,7 @@ const TablesManagementView = () => {
         </div>
 
         {/* Panel de disponibilidad */}
-        <div style={styles.section}>
+        <div className="tables-management-section">
           <TableAvailabilityPanel
             selectedDate={selectedDate}
             selectedShift={selectedShift}
@@ -127,102 +127,12 @@ const TablesManagementView = () => {
 
       {/* Error global */}
       {tablesError && (
-        <div style={styles.globalError}>
+        <div className="tables-management-error">
           Error cargando mesas: {tablesError}
         </div>
       )}
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: "20px",
-    maxWidth: "1200px",
-    margin: "0 auto",
-    backgroundColor: "#f9fafb",
-    minHeight: "100vh",
-  },
-  header: {
-    marginBottom: "24px",
-    textAlign: "center",
-  },
-  title: {
-    margin: "0 0 8px 0",
-    fontSize: "28px",
-    fontWeight: "700",
-    color: "#1f2937",
-  },
-  subtitle: {
-    margin: 0,
-    fontSize: "16px",
-    color: "#6b7280",
-  },
-  filters: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    padding: "20px",
-    marginBottom: "24px",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-    display: "flex",
-    alignItems: "center",
-    gap: "20px",
-    flexWrap: "wrap",
-  },
-  filterGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
-  filterLabel: {
-    fontSize: "14px",
-    fontWeight: "500",
-    color: "#374151",
-  },
-  dateInput: {
-    padding: "8px 12px",
-    border: "1px solid #d1d5db",
-    borderRadius: "6px",
-    fontSize: "14px",
-    fontFamily: "inherit",
-    minWidth: "140px",
-  },
-  selectInput: {
-    padding: "8px 12px",
-    border: "1px solid #d1d5db",
-    borderRadius: "6px",
-    fontSize: "14px",
-    fontFamily: "inherit",
-    minWidth: "120px",
-    backgroundColor: "white",
-  },
-  dateDisplay: {
-    fontSize: "16px",
-    fontWeight: "600",
-    color: "#1f2937",
-    marginLeft: "auto",
-  },
-  content: {
-    display: "grid",
-    gridTemplateColumns: "1fr",
-    gap: "24px",
-  },
-  section: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    overflow: "hidden",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-  },
-  globalError: {
-    marginTop: "20px",
-    padding: "16px",
-    backgroundColor: "#fee2e2",
-    color: "#7f1d1d",
-    borderRadius: "6px",
-    border: "1px solid #fecaca",
-    textAlign: "center",
-    fontSize: "14px",
-  },
 };
 
 export default TablesManagementView;

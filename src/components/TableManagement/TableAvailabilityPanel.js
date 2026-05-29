@@ -111,16 +111,16 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
 
   if (loading) {
     return (
-      <div style={styles.container}>
-        <div style={styles.loadingMessage}>Cargando disponibilidad...</div>
+      <div className="table-availability-panel">
+        <div className="table-availability-loading">Cargando disponibilidad...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={styles.container}>
-        <div style={styles.loadingMessage}>No se pudo cargar la disponibilidad.</div>
+      <div className="table-availability-panel">
+        <div className="table-availability-loading">No se pudo cargar la disponibilidad.</div>
       </div>
     );
   }
@@ -135,31 +135,31 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
   };
 
   return (
-    <div style={styles.container}>
-      <h3 style={styles.title}>Disponibilidad de Mesas</h3>
+    <div className="table-availability-panel">
+      <h3 className="table-availability-title">Disponibilidad de Mesas</h3>
 
-      <div style={styles.grid}>
+      <div className="table-availability-grid">
         {/* LIBRES */}
-        <div style={styles.section}>
-          <h4 style={{ ...styles.sectionTitle, color: "#10b981" }}>
+        <div className="table-availability-section">
+          <h4 className="table-availability-section-title table-availability-section-title-free">
             ✓ Libres ({activeTables.length})
           </h4>
-          <div style={styles.tableGroup}>
+          <div className="table-availability-table-group">
             {activeTables && activeTables.length > 0 ? (
               activeTables.map((table) => (
-                <div key={table.id} style={styles.tableCard}>
-                  <div style={{ ...styles.tableCardHeader, borderColor: "#10b981" }}>
-                    <span style={styles.tableNumber}>Mesa #{table.tableNumber ?? table.number}</span>
-                    <span style={styles.capacity}>{table.capacity} pax</span>
+                <div key={table.id} className="table-availability-card">
+                  <div className="table-availability-card-header table-availability-card-header-free">
+                    <span className="table-availability-table-number">Mesa #{table.tableNumber ?? table.number}</span>
+                    <span className="table-availability-capacity">{table.capacity} pax</span>
                   </div>
-                  <div style={styles.status}>
-                    <span style={{ ...styles.badge, backgroundColor: "#d1fae5", color: "#065f46" }}>
+                  <div className="table-availability-status">
+                    <span className="table-availability-badge table-availability-badge-free">
                       Disponible
                     </span>
                   </div>
-                  <div style={styles.actions}>
+                  <div className="table-availability-actions">
                     <button
-                      style={styles.occupyButton}
+                      className="table-availability-button table-availability-button-occupy"
                       disabled={Boolean(actionLoading[table.id])}
                       onClick={() => handleOccupyTable(table)}
                     >
@@ -169,47 +169,47 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
                 </div>
               ))
             ) : (
-              <p style={styles.noData}>No hay mesas libres</p>
+              <p className="table-availability-no-data">No hay mesas libres</p>
             )}
           </div>
         </div>
 
         {/* OCUPADAS */}
-        <div style={styles.section}>
-          <h4 style={{ ...styles.sectionTitle, color: "#f59e0b" }}>
+        <div className="table-availability-section">
+          <h4 className="table-availability-section-title table-availability-section-title-busy">
             ⚠ Ocupadas ({reservedTables.length})
           </h4>
-          <div style={styles.tableGroup}>
+          <div className="table-availability-table-group">
             {reservedTables && reservedTables.length > 0 ? (
               reservedTables.map((table) => {
                 const resInfo = getReservationInfo(reservationDetails[table.id]);
                 return (
-                  <div key={table.id} style={styles.tableCard}>
-                    <div style={{ ...styles.tableCardHeader, borderColor: "#f59e0b" }}>
-                      <span style={styles.tableNumber}>Mesa #{table.tableNumber ?? table.number}</span>
-                      <span style={styles.capacity}>{table.capacity} pax</span>
+                  <div key={table.id} className="table-availability-card">
+                    <div className="table-availability-card-header table-availability-card-header-busy">
+                      <span className="table-availability-table-number">Mesa #{table.tableNumber ?? table.number}</span>
+                      <span className="table-availability-capacity">{table.capacity} pax</span>
                     </div>
-                    <div style={styles.status}>
-                      <span style={{ ...styles.badge, backgroundColor: "#fef3c7", color: "#92400e" }}>
+                    <div className="table-availability-status">
+                      <span className="table-availability-badge table-availability-badge-busy">
                         Ocupada
                       </span>
                     </div>
                     {resInfo && (
-                      <div style={styles.resDetails}>
-                        <p style={styles.resDetail}>
+                      <div className="table-availability-res-details">
+                        <p className="table-availability-res-detail">
                           <strong>Hora:</strong> {resInfo.time}
                         </p>
-                        <p style={styles.resDetail}>
+                        <p className="table-availability-res-detail">
                           <strong>Cliente:</strong> {resInfo.customerName}
                         </p>
-                        <p style={styles.resDetail}>
+                        <p className="table-availability-res-detail">
                           <strong>Personas:</strong> {resInfo.numberOfPeople}
                         </p>
                       </div>
                     )}
-                    <div style={styles.actions}>
+                    <div className="table-availability-actions">
                       <button
-                        style={styles.releaseButton}
+                        className="table-availability-button table-availability-button-release"
                         disabled={Boolean(actionLoading[table.id])}
                         onClick={() => handleReleaseTable(table)}
                       >
@@ -220,168 +220,39 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
                 );
               })
             ) : (
-              <p style={styles.noData}>No hay mesas ocupadas</p>
+              <p className="table-availability-no-data">No hay mesas ocupadas</p>
             )}
           </div>
         </div>
 
         {/* INACTIVAS */}
-        <div style={styles.section}>
-          <h4 style={{ ...styles.sectionTitle, color: "#ef4444" }}>
+        <div className="table-availability-section">
+          <h4 className="table-availability-section-title table-availability-section-title-inactive">
             ✗ Inactivas ({inactiveTables.length})
           </h4>
-          <div style={styles.tableGroup}>
+          <div className="table-availability-table-group">
             {inactiveTables && inactiveTables.length > 0 ? (
               inactiveTables.map((table) => (
-                <div key={table.id} style={styles.tableCard}>
-                  <div style={{ ...styles.tableCardHeader, borderColor: "#ef4444" }}>
-                    <span style={styles.tableNumber}>Mesa #{table.tableNumber ?? table.number}</span>
-                    <span style={styles.capacity}>{table.capacity} pax</span>
+                <div key={table.id} className="table-availability-card">
+                  <div className="table-availability-card-header table-availability-card-header-inactive">
+                    <span className="table-availability-table-number">Mesa #{table.tableNumber ?? table.number}</span>
+                    <span className="table-availability-capacity">{table.capacity} pax</span>
                   </div>
-                  <div style={styles.status}>
-                    <span style={{ ...styles.badge, backgroundColor: "#fee2e2", color: "#7f1d1d" }}>
+                  <div className="table-availability-status">
+                    <span className="table-availability-badge table-availability-badge-inactive">
                       No disponible
                     </span>
                   </div>
                 </div>
               ))
             ) : (
-              <p style={styles.noData}>No hay mesas inactivas</p>
+              <p className="table-availability-no-data">No hay mesas inactivas</p>
             )}
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    backgroundColor: "white",
-    borderRadius: "8px",
-    padding: "20px",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-  },
-  title: {
-    margin: "0 0 20px 0",
-    fontSize: "16px",
-    fontWeight: "600",
-    color: "#1f2937",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "20px",
-  },
-  section: {
-    borderRadius: "6px",
-    padding: "16px",
-    backgroundColor: "#f9fafb",
-    border: "1px solid #e5e7eb",
-  },
-  sectionTitle: {
-    margin: "0 0 16px 0",
-    fontSize: "14px",
-    fontWeight: "600",
-  },
-  tableGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-  tableCard: {
-    backgroundColor: "white",
-    borderRadius: "6px",
-    border: "1px solid #e5e7eb",
-    overflow: "hidden",
-  },
-  tableCardHeader: {
-    padding: "12px",
-    borderLeft: "4px solid",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#fafbfc",
-    borderBottom: "1px solid #e5e7eb",
-  },
-  tableNumber: {
-    fontSize: "15px",
-    fontWeight: "600",
-    color: "#1f2937",
-  },
-  capacity: {
-    fontSize: "13px",
-    color: "#6b7280",
-  },
-  status: {
-    padding: "10px 12px",
-    display: "flex",
-    gap: "8px",
-    alignItems: "center",
-  },
-  badge: {
-    display: "inline-block",
-    padding: "4px 8px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    fontWeight: "500",
-  },
-  resDetails: {
-    padding: "10px 12px",
-    backgroundColor: "#fafbfc",
-    borderTop: "1px solid #e5e7eb",
-    fontSize: "12px",
-    color: "#6b7280",
-  },
-  resDetail: {
-    margin: "4px 0",
-    padding: 0,
-  },
-  actions: {
-    padding: "10px 12px 16px",
-    display: "flex",
-    justifyContent: "flex-end",
-  },
-  occupyButton: {
-    backgroundColor: "#10b981",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    padding: "8px 12px",
-    cursor: "pointer",
-    fontWeight: "600",
-  },
-  releaseButton: {
-    backgroundColor: "#ef4444",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    padding: "8px 12px",
-    cursor: "pointer",
-    fontWeight: "600",
-  },
-  noData: {
-    textAlign: "center",
-    color: "#9ca3af",
-    fontSize: "13px",
-    margin: 0,
-    padding: "12px",
-  },
-  loadingMessage: {
-    textAlign: "center",
-    padding: "40px 20px",
-    color: "#6b7280",
-    fontSize: "14px",
-  },
-  errorMessage: {
-    textAlign: "center",
-    padding: "20px",
-    backgroundColor: "#fee2e2",
-    color: "#7f1d1d",
-    borderRadius: "6px",
-    fontSize: "14px",
-    border: "1px solid #fecaca",
-  },
 };
 
 export default TableAvailabilityPanel;

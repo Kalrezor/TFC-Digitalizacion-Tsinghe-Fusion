@@ -6,7 +6,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthService from "../services/AuthService";
 import { toastError, toastSuccess } from "../services/ToastService";
-import "../styles/MinimalStyle.css";
 
 const CompleteProfile = () => {
   const navigate = useNavigate();
@@ -204,3 +203,4 @@ const CompleteProfile = () => {
 };
 
 export default CompleteProfile;
+

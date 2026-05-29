@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { toastSuccess, toastError } from "../services/ToastService";
 import AuthService from "../services/AuthService";
-import "../styles/MinimalStyle.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,7 +35,6 @@ const Login = () => {
       navigate(nextPath ? nextPath : "/home", { replace: true });
     } else {
       toastError(result.error || "Error al iniciar sesión");
-      //setError(result.error || "Error al iniciar sesión");
     }
   };
 
@@ -62,11 +60,9 @@ const Login = () => {
         }
       } else {
         toastError(result.error || "Error al iniciar sesión con Google");
-        //setError(result.error || "Error al iniciar sesión con Google");
       }
     } catch (err) {
       toastError(err.message || "Error inesperado al iniciar sesión");
-      //setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -82,12 +78,12 @@ const Login = () => {
       </video>
       <div className="login-background-overlay" />
       <div className="editorial-auth-card">
-        <div style={{ marginBottom: "32px", textAlign: "center" }}>
+        <div className="editorial-auth-header">
           <h1>Iniciar Sesión</h1>
           <p>Accede a tu cuenta en Tsinghe</p>
         </div>
 
-        <form noValidate onSubmit={handleLoginSubmit} style={{ marginBottom: "24px" }}>
+        <form noValidate onSubmit={handleLoginSubmit} className="editorial-auth-form">
           <div className="form-group">
             <label>Email</label>
             <input
@@ -111,31 +107,22 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="btn btn-primary"
-            style={{ width: "100%" }}
+            className="btn btn-primary btn-full-width"
           >
             {loading ? "Iniciando..." : "Iniciar Sesión"}
           </button>
         </form>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            margin: "24px 0",
-          }}
-        >
-          <div style={{ flex: 1, height: "1px", backgroundColor: "#050505" }} />
+        <div className="editorial-auth-divider">
+          <div />
           <span className="editorial-ui">o</span>
-          <div style={{ flex: 1, height: "1px", backgroundColor: "#050505" }} />
+          <div />
         </div>
 
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="btn btn-secondary"
-          style={{ width: "100%", marginBottom: "24px" }}
+          className="btn btn-secondary btn-full-width editorial-auth-google"
         >
           Continuar con Google
         </button>
@@ -143,7 +130,7 @@ const Login = () => {
         <div className="editorial-auth-links">
           <Link
             to="/forgot-password"
-            style={{ display: "inline-block", marginBottom: "12px" }}
+            className="editorial-auth-forgot-link"
           >
             ¿Olvidaste tu contraseña?
           </Link>
@@ -157,3 +144,4 @@ const Login = () => {
 };
 
 export default Login;
+
