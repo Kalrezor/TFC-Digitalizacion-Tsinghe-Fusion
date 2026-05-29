@@ -5,7 +5,6 @@ import React, { useState, useEffect } from "react";
 import { toastSuccess, toastError, toastConfirm } from "../services/ToastService";
 import offerService from "../services/OfferService";
 import menuService  from "../services/MenuService";
-import "../styles/ChineseStyle.css";
 
 const EMPTY_FORM = {
   title:       "",
@@ -43,7 +42,9 @@ const AdminOffers = () => {
 
   const loadDishes = async () => {
     const result = await menuService.getAllMenus();
-    if (result.success) setDishes(result.menus);
+    if (result.success && result.data) {
+      setDishes(result.data);
+    }
   };
 
   const openNew = () => {
@@ -53,7 +54,6 @@ const AdminOffers = () => {
     setShowForm(true);
   };
 
-  // Esta función es clave para que el botón de editar funcione perfectamente
   const openEdit = (offer) => {
     setFormData({
       title:       offer.title       || "",
@@ -152,6 +152,7 @@ const AdminOffers = () => {
       toastError("Error al eliminar: " + result.error);
     }
   };
+
   const handleToggleActive = async (offer) => {
     const result = await offerService.updateOffer(offer.id, { active: !offer.active }, true);
     if (result.success) {
@@ -164,11 +165,19 @@ const AdminOffers = () => {
 
   const isEnVigor = (offer) => {
     if (!offer.active) return false;
-    const now   = new Date();
-    const start = offer.startDate ? new Date(offer.startDate) : null;
-    const end   = offer.endDate   ? new Date(offer.endDate)   : null;
+    const now = new Date();
+    
+    const parseLocalDate = (dateStr) => {
+      if (!dateStr) return null;
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? null : d;
+    };
+
+    const start = parseLocalDate(offer.startDate);
+    const end = parseLocalDate(offer.endDate);
+    
     if (start && now < start) return false;
-    if (end   && now > end)   return false;
+    if (end && now > end) return false;
     return true;
   };
 
@@ -198,7 +207,7 @@ const AdminOffers = () => {
         <h1 style={{ color: "#050505", fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "42px", fontWeight: 400, margin: 0 }}>
           Administración de Ofertas
         </h1>
-        <button onClick={openNew} disabled={loading} style={btnMainHeader}>
+        <button onClick={openNew} disabled={loading} className="admin-offers-main-button">
           + Nueva Oferta
         </button>
       </div>
@@ -216,22 +225,22 @@ const AdminOffers = () => {
               {/* Bloque Izquierdo */}
               <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
                 <div>
-                  <label style={labelStyle}>Título de la Oferta *</label>
+                  <label className="admin-offers-label">Título de la Oferta *</label>
                   <input name="title" value={formData.title} onChange={handleChange}
-                    placeholder="Ej: Descuento Fin de Semana" style={inputStyle} />
+                    placeholder="Ej: Descuento Fin de Semana" className="admin-offers-input" />
                 </div>
 
                 <div>
-                  <label style={labelStyle}>Descripción</label>
+                  <label className="admin-offers-label">Descripción</label>
                   <textarea name="description" value={formData.description} onChange={handleChange}
-                    rows={4} placeholder="Describe los detalles o condiciones de la oferta..." style={{ ...inputStyle, resize: "none" }} />
+                    rows={4} placeholder="Describe los detalles o condiciones de la oferta..." className="admin-offers-input admin-offers-textarea" />
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                   <div>
-                    <label style={labelStyle}>Descuento (%) *</label>
+                    <label className="admin-offers-label">Descuento (%) *</label>
                     <input name="discount" type="number" min="1" max="100" value={formData.discount}
-                      onChange={handleChange} placeholder="Ej: 20" style={inputStyle} />
+                      onChange={handleChange} placeholder="Ej: 20" className="admin-offers-input" />
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingTop: "25px" }}>
                     <input name="active" type="checkbox" id="form-active-chk" checked={formData.active} onChange={handleChange} style={{ width: "16px", height: "16px", cursor: "pointer" }} />
@@ -241,14 +250,14 @@ const AdminOffers = () => {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
                   <div>
-                    <label style={labelStyle}>Fecha de Inicio</label>
+                    <label className="admin-offers-label">Fecha de Inicio</label>
                     <input name="startDate" type="datetime-local" value={formData.startDate}
-                      onChange={handleChange} style={inputStyle} />
+                      onChange={handleChange} className="admin-offers-input" />
                   </div>
                   <div>
-                    <label style={labelStyle}>Fecha de Fin</label>
+                    <label className="admin-offers-label">Fecha de Fin</label>
                     <input name="endDate" type="datetime-local" value={formData.endDate}
-                      onChange={handleChange} style={inputStyle} />
+                      onChange={handleChange} className="admin-offers-input" />
                   </div>
                 </div>
               </div>
@@ -256,9 +265,9 @@ const AdminOffers = () => {
               {/* Bloque Derecho */}
               <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                 <div>
-                  <label style={labelStyle}>Imagen de la Oferta</label>
+                  <label className="admin-offers-label">Imagen de la Oferta</label>
                   
-                  <label style={btnYellowUploadFull}>
+                  <label className="admin-offers-upload-button">
                     Subir Imagen
                     <input 
                       type="file" 
@@ -271,13 +280,13 @@ const AdminOffers = () => {
                   {formData.imageUrl && (
                     <div style={{ marginTop: "12px", position: "relative", width: "100%", height: "140px", border: "1px solid #050505", borderRadius: 0, overflow: "hidden", background: "#fff" }}>
                       <img src={formData.imageUrl} alt="Miniatura subida" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      <button type="button" onClick={handleRemoveImage} style={btnDeleteFloatingImg}>Quitar Foto</button>
+                      <button type="button" onClick={handleRemoveImage} className="admin-offers-remove-image-button">Quitar Foto</button>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <label style={labelStyle}>Platos incluidos en la oferta</label>
+                  <label className="admin-offers-label">Platos incluidos en la oferta</label>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", maxHeight: "150px", overflowY: "auto", border: "1px solid #050505", borderRadius: 0, padding: "12px", background: "#fff" }}>
                     {dishes.length === 0 && <span style={{ color: "#888", fontSize: "13px" }}>Cargando platos...</span>}
                     {dishes.map((dish) => {
@@ -321,10 +330,10 @@ const AdminOffers = () => {
             </div>
 
             <div style={{ marginTop: "30px", display: "flex", gap: "12px", justifyContent: "flex-end", borderTop: "1px solid #eee", paddingTop: "15px" }}>
-              <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} style={btnSecondary}>
+              <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="admin-offers-secondary-button">
                 Cancelar
               </button>
-              <button type="submit" disabled={loading} style={btnSubmitForm}>
+              <button type="submit" disabled={loading} className="admin-offers-submit-button">
                 {loading ? "Guardando..." : "Guardar Oferta"}
               </button>
             </div>
@@ -335,8 +344,8 @@ const AdminOffers = () => {
       {/* Filtros */}
       <div style={{ display: "flex", gap: "12px", marginBottom: "25px" }}>
         <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar oferta..." style={{ ...inputStyle, maxWidth: "300px" }} />
-        <select value={filterStatus} onChange={(e) => setFilter(e.target.value)} style={{ ...inputStyle, maxWidth: "200px" }}>
+          placeholder="Buscar oferta..." className="admin-offers-input admin-offers-search-input" />
+        <select value={filterStatus} onChange={(e) => setFilter(e.target.value)} className="admin-offers-input admin-offers-filter-select">
           <option value="all">Todas</option>
           <option value="active">Activas</option>
           <option value="inactive">Inactivas</option>
@@ -347,12 +356,12 @@ const AdminOffers = () => {
       {/* Cuadros de Estadísticas */}
       <div style={{ display: "flex", gap: "16px", marginBottom: "30px", flexWrap: "wrap" }}>
         {[
-          { label: "Total Ofertas",    value: offers.length },
+          { label: "Total Ofertas",     value: offers.length },
           { label: "Activas",          value: offers.filter((o) => o.active).length },
           { label: "En Vigor",         value: offers.filter(isEnVigor).length },
           { label: "Desc. Promedio",   value: offers.length > 0 ? Math.round(offers.reduce((s, o) => s + (o.discount || 0), 0) / offers.length) + "%" : "0%" },
         ].map((s) => (
-          <div key={s.label} style={statBox}>
+          <div key={s.label} className="admin-offers-stat-box">
             <div style={{ fontSize: "24px", fontWeight: "bold", color: "#050505" }}>{s.value}</div>
             <div style={{ fontSize: "12px", color: "#666", marginTop: "2px" }}>{s.label}</div>
           </div>
@@ -418,14 +427,13 @@ const AdminOffers = () => {
                 </div>
 
                 <div style={{ marginTop: "15px", display: "flex", gap: "8px" }}>
-                  <button onClick={() => handleToggleActive(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#ffffff", color: "#050505", border: "1px solid #050505" }}>
+                  <button onClick={() => handleToggleActive(offer)} disabled={loading} className="admin-offers-small-action-button admin-offers-small-action-button-light">
                     {offer.active ? "Desactivar" : "Activar"}
                   </button>
-                  {/* CORREGIDO: Ahora llama correctamente a openEdit(offer) */}
-                  <button onClick={() => openEdit(offer)} disabled={loading} style={{ ...btnSmallAction, background: "#ffffff", color: "#050505", border: "1px solid #050505" }}>
+                  <button onClick={() => openEdit(offer)} disabled={loading} className="admin-offers-small-action-button admin-offers-small-action-button-light">
                     Editar
                   </button>
-                  <button onClick={() => handleDelete(offer.id)} disabled={loading} style={{ ...btnSmallAction, background: "#050505", color: "#fff", border: "1px solid #050505" }}>
+                  <button onClick={() => handleDelete(offer.id)} disabled={loading} className="admin-offers-small-action-button admin-offers-small-action-button-dark">
                     Eliminar
                   </button>
                 </div>
@@ -439,42 +447,5 @@ const AdminOffers = () => {
   );
 };
 
-// --- ESTILOS COMPONENTES ---
-const labelStyle   = { display: "block", color: "#050505", fontWeight: "bold", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.2em" };
-const inputStyle   = { width: "100%", padding: "10px", border: "1px solid #050505", borderRadius: 0, fontSize: "14px", boxSizing: "border-box", background: "#fff", color: "#050505" };
-
-const btnYellowUploadFull = {
-  display: "block",
-  width: "100%",
-  padding: "14px 0",
-  background: "#ffffff",
-  color: "#050505",
-  border: "1px solid #050505",
-  borderRadius: 0,
-  cursor: "pointer",
-  fontWeight: "bold",
-  fontSize: "14px",
-  textAlign: "center",
-  boxSizing: "border-box"
-};
-
-const btnMainHeader   = { backgroundColor: "#050505", color: "#fff", border: "1px solid #050505", padding: "10px 20px", borderRadius: 0, cursor: "pointer", fontWeight: "bold", fontSize: "14px" };
-const btnSubmitForm   = { backgroundColor: "#050505", color: "#fff", border: "1px solid #050505", padding: "10px 22px", borderRadius: 0, cursor: "pointer", fontWeight: "bold" };
-const btnSecondary    = { backgroundColor: "#ffffff", color: "#050505", border: "1px solid #050505", padding: "10px 22px", borderRadius: 0, cursor: "pointer" };
-const btnSmallAction  = { padding: "6px 14px", borderRadius: 0, cursor: "pointer", fontSize: "12px", fontWeight: "bold" };
-const statBox         = { background: "#fff", border: "1px solid #050505", borderRadius: 0, padding: "12px 20px", textAlign: "center", minWidth: "110px" };
-const btnDeleteFloatingImg = {
-  position: "absolute",
-  top: "8px",
-  right: "8px",
-  background: "#050505",
-  color: "#fff",
-  border: "none",
-  borderRadius: 0,
-  padding: "4px 8px",
-  fontSize: "11px",
-  cursor: "pointer",
-  fontWeight: "bold"
-};
-
 export default AdminOffers;
+

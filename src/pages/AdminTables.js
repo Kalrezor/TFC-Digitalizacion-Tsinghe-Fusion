@@ -316,71 +316,6 @@ const AdminTables = ({ userId, userRole }) => {
     }
   };
 
-  // --- ESTILOS ---
-  const tableGrid = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
-    gap: "15px",
-  };
-  const tableCard = {
-    padding: "12px",
-    borderRadius: "12px",
-    color: "white",
-    textAlign: "center",
-    display: "flex",
-    flexDirection: "column",
-    minHeight: "140px",
-    cursor: "pointer",
-    position: "relative",
-  };
-  const badgeFusion = {
-    fontSize: "10px",
-    background: "rgba(0,0,0,0.2)",
-    borderRadius: "4px",
-    padding: "3px 6px",
-    marginTop: "5px",
-    fontWeight: "bold",
-  };
-  const fusionCodeStyle = {
-    fontSize: "42px",
-    fontWeight: "900",
-    lineHeight: "1",
-    margin: "12px 0 6px",
-    letterSpacing: "0",
-  };
-  const fusionBanner = {
-    background: "#fffde7",
-    padding: "15px",
-    borderRadius: "12px",
-    border: "2px solid #fbc02d",
-    marginBottom: "20px",
-    textAlign: "center",
-  };
-  const pinSettingsStyle = {
-    background: "#f9f9f9",
-    padding: "15px",
-    border: "1px solid #ddd",
-    borderRadius: "8px",
-    marginBottom: "20px",
-  };
-  const inputStyle = {
-    padding: "8px",
-    margin: "8px 0",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    width: "100%",
-    boxSizing: "border-box",
-  };
-  const buttonStyle = {
-    background: "#2e7d32",
-    color: "white",
-    padding: "10px 20px",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-    marginRight: "10px",
-  };
-
   // Verificar permisos
   if (!isAdmin) {
     return (
@@ -389,7 +324,7 @@ const AdminTables = ({ userId, userRole }) => {
         <p>Solo administradores pueden acceder a esta vista.</p>
         <button 
           onClick={() => navigate("/")}
-          style={{ ...buttonStyle, background: "#1976d2" }}
+          className="admin-tables-button admin-tables-button-blue"
         >
           Volver a Inicio
         </button>
@@ -425,7 +360,7 @@ const AdminTables = ({ userId, userRole }) => {
 
       {/* Banner de Fusión: Solo aparece si vienes de Reservas */}
       {pendingRes && (
-        <div style={fusionBanner}>
+        <div className="admin-tables-fusion-banner">
           <h3>📍 Asignando a: {pendingRes.userName}</h3>
           <p>Selecciona las mesas en el plano y pulsa Vincular</p>
           <button
@@ -459,7 +394,7 @@ const AdminTables = ({ userId, userRole }) => {
       )}
 
       {showPinSettings && (
-        <div style={pinSettingsStyle}>
+        <div className="admin-tables-pin-settings">
           <h3>🔐 Cambiar PIN de Seguridad</h3>
           
           <input
@@ -468,7 +403,7 @@ const AdminTables = ({ userId, userRole }) => {
             value={currentPinInput}
             onChange={(e) => setCurrentPinInput(e.target.value.slice(0, 4))}
             maxLength="4"
-            style={inputStyle}
+            className="admin-tables-input"
           />
           
           <input
@@ -477,14 +412,14 @@ const AdminTables = ({ userId, userRole }) => {
             value={newPin}
             onChange={(e) => setNewPin(e.target.value.slice(0, 4))}
             maxLength="4"
-            style={inputStyle}
+            className="admin-tables-input"
           />
 
           <div style={{ marginTop: "15px" }}>
             <button
               onClick={handleChangePin}
               disabled={loading}
-              style={{ ...buttonStyle, opacity: loading ? 0.6 : 1 }}
+              className="admin-tables-button"
             >
               {loading ? "Guardando..." : "💾 Guardar PIN"}
             </button>
@@ -496,7 +431,7 @@ const AdminTables = ({ userId, userRole }) => {
                 setNewPin("");
                 setPinError(null);
               }}
-              style={{ ...buttonStyle, background: "#757575" }}
+              className="admin-tables-button admin-tables-button-muted"
             >
               Cancelar
             </button>
@@ -504,7 +439,7 @@ const AdminTables = ({ userId, userRole }) => {
         </div>
       )}
 
-      <div style={tableGrid}>
+      <div className="admin-tables-grid">
         {display.map((table) => {
           const tableLabel = table.tableNumber || table.number || table.id;
           const isSelected = selectedMultiple.some(
@@ -527,8 +462,8 @@ const AdminTables = ({ userId, userRole }) => {
             <div
               key={table.id || tableLabel}
               onClick={() => handleTableClick(table)}
+              className="admin-tables-card"
               style={{
-                ...tableCard,
                 background: bgColor,
                 border: isSelected ? "4px solid #333" : "1px solid #ddd",
                 color: bgColor === "#DAA520" ? "black" : "white",
@@ -536,10 +471,10 @@ const AdminTables = ({ userId, userRole }) => {
             >
               <div style={{ flex: 1 }}>
                 <strong>Mesa {tableLabel}</strong>
-                {fusionCode && <div style={fusionCodeStyle}>{fusionCode}</div>}
-                {isReserved && <div style={badgeFusion}>{fusionCode ? "FUSIONADA" : "RESERVADA"}</div>}
-                {isBusy && !isReserved && <div style={badgeFusion}>OCUPADA</div>}
-                {isDisabled && <div style={badgeFusion}>DESACTIVADA</div>}
+                {fusionCode && <div className="admin-tables-fusion-code">{fusionCode}</div>}
+                {isReserved && <div className="admin-tables-status-badge">{fusionCode ? "FUSIONADA" : "RESERVADA"}</div>}
+                {isBusy && !isReserved && <div className="admin-tables-status-badge">OCUPADA</div>}
+                {isDisabled && <div className="admin-tables-status-badge">DESACTIVADA</div>}
               </div>
               <div
                 style={{

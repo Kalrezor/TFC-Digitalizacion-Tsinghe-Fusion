@@ -3,7 +3,6 @@
 
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../styles/MinimalStyle.css";
 
 const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -59,11 +58,10 @@ const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
 
         <div className="editorial-nav-actions">
           {isAuthenticated ? (
-            <div style={{ position: "relative" }}>
+            <div className="editorial-user-menu-wrapper">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="editorial-button"
-                style={{ maxWidth: "190px" }}
+                className="editorial-button editorial-user-button"
               >
                 {userName || user?.displayName || user?.email?.split("@")[0] || "Usuario"}
               </button>
@@ -103,3 +101,4 @@ const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
 };
 
 export default NavigationBar;
+

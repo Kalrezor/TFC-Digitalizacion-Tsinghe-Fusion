@@ -19,9 +19,10 @@ const ALL_OPTIONS = [
 ];
 
 const useDashboard = (role) => {
-  const [selectedOption, setSelectedOption] = useState("inicio");
+  const [selectedOption, setSelectedOption] = useState("preview-inicio");
 
-  // Solo las opciones que corresponden al rol actual
+  // Selección inicial: usar el inicio visual de la app por defecto,
+  // para que recargar el dashboard se comporte como presionar Inicio.
   const availableOptions = useMemo(
     () => ALL_OPTIONS.filter((opt) => opt.roles.includes(role)),
     [role]

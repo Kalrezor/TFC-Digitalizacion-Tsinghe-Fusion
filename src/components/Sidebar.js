@@ -3,7 +3,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/ChineseStyle.css";
 
 const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) => {
   const navigate = useNavigate();
@@ -34,11 +33,6 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
           { id: "reservas", label: "Reservas", icon: "Lista" },
           { id: "split-bill", label: "Dividir Cuenta", icon: "Cuenta" },
         ];
-
-  const handleLogout = async () => {
-    await onLogout();
-    navigate("/login");
-  };
 
   return (
     <>
@@ -129,14 +123,11 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
                           borderLeft: isActive
                             ? "1px solid #050505"
                             : "1px solid transparent",
-                          borderBottom: "1px solid #050505",
                           padding: "18px 28px",
                           textAlign: "left",
                           cursor: "pointer",
                           fontSize: "11px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
+                          display: "block",
                           transition: "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
                           fontWeight: 600,
                           textTransform: "uppercase",
@@ -149,9 +140,6 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
                           if (!isActive) e.currentTarget.style.opacity = "1";
                         }}
                       >
-                        <span style={{ fontSize: "11px", minWidth: "38px" }}>
-                          {option.icon}
-                        </span>
                         {option.label}
                       </button>
                     </li>
@@ -160,35 +148,6 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
               </ul>
             </nav>
 
-            <div style={{ padding: "0 28px" }}>
-              <button
-                onClick={handleLogout}
-                style={{
-                  width: "100%",
-                  background: "transparent",
-                  color: "#050505",
-                  border: "1px solid #050505",
-                  borderRadius: "0",
-                  padding: "14px",
-                  cursor: "pointer",
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  transition: "all 0.45s cubic-bezier(0.16, 1, 0.3, 1)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#050505";
-                  e.currentTarget.style.color = "#fff";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.color = "#050505";
-                }}
-              >
-                Cerrar Sesión
-              </button>
-            </div>
           </>
         )}
       </aside>
@@ -215,3 +174,4 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
 };
 
 export default Sidebar;
+

@@ -1,7 +1,5 @@
 // Modelo: MenuService.js
 // Servicio para gestionar menús en Firestore.
-// Incluye CRUD completo para menús con operaciones admin-only para escritura.
-// Adaptado a las nuevas colecciones: plate, category, allergen.
 
 import {
   collection,
@@ -47,9 +45,9 @@ class MenuService {
     }
   }
 
-  /*Métodos actualizados a la tabla 'PLATE'*/
+  /* Métodos de la tabla 'PLATE' */
 
-  // Obtener todos los plato
+  // Obtener todos los platos
   async getAllPlates() {
     try {
       const querySnapshot = await getDocs(collection(db, "plate"));
@@ -74,7 +72,7 @@ class MenuService {
         return { success: false, error: "Plato no encontrado" };
       }
     } catch (error) {
-      console.error("Error obteniendo plato:", error);
+      console.error("Error obtaining plato:", error);
       return { success: false, error: error.message };
     }
   }
@@ -137,12 +135,27 @@ class MenuService {
       await deleteDoc(doc(db, "plate", id));
       return { success: true };
     } catch (error) {
-      console.error("Error eliminando plato:", error);
+      console.error("Error deleting plato:", error);
       return { success: false, error: error.message };
     }
   }
 
-  /*MÉTODOS DE COMPATIBILIDAD*/
+  /* MÉTODO DE OFERTAS */
+  async getAllOffers() {
+    try {
+      const querySnapshot = await getDocs(collection(db, "offers"));
+      const offers = [];
+      querySnapshot.forEach((doc) => {
+        offers.push({ id: doc.id, ...doc.data() });
+      });
+      return { success: true, data: offers };
+    } catch (error) {
+      console.error("Error obteniendo ofertas desde Firebase:", error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /* MÉTODOS DE COMPATIBILIDAD */
   async getAllMenus() { return this.getAllPlates(); }
   async createMenu(data, isAdmin) { return this.createPlate(data, isAdmin); }
   async updateMenu(id, data, isAdmin) { return this.updatePlate(id, data, isAdmin); }

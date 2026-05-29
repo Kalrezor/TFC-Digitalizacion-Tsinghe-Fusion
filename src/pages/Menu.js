@@ -1,11 +1,13 @@
 // Vista: Menu.js
-// Ajuste de imágenes avanzado: Contenedores simétricos y escalado inteligente sin deformación ni desalineación.
+// Ajuste de imágenes avanzado con soporte para imagen predeterminada por defecto.
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../controllers/useAuth";
 import menuService from "../models/MenuService";
-import "../styles/ChineseStyle.css";
+
+// URL global de la imagen por defecto subida a Firebase
+const DEFAULT_PLATE_IMAGE = "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/plate%2FImgNoDisp.png?alt=media&token=67746171-489f-4b93-98dd-d744784fa37f";
 
 const Menu = ({ role: propsRole }) => {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ const Menu = ({ role: propsRole }) => {
   const [editMode, setEditMode] = useState(false);
   const [selectedAllergens, setSelectedAllergens] = useState([]);
   const [selectedPlate, setSelectedPlate] = useState(null);
+  const menuTopRef = useRef(null);
 
   const currentRole = propsRole || authRole;
   const isAdmin = currentRole === "admin";
@@ -65,7 +68,7 @@ const Menu = ({ role: propsRole }) => {
   const handleDrop = async (e, targetIndex) => {
     if (!editMode) return;
     const sourceIndex = e.dataTransfer.getData("index");
-    if (sourceIndex == targetIndex) return;
+    if (sourceIndex === String(targetIndex)) return;
     const newCategories = [...categories];
     const [removed] = newCategories.splice(sourceIndex, 1);
     newCategories.splice(targetIndex, 0, removed);
@@ -83,7 +86,6 @@ const Menu = ({ role: propsRole }) => {
     }
   };
 
-  // Obtiene la lista ordenada exactamente según la estructura de categorías de la carta
   const getFilteredPlatesList = () => {
     const orderedPlates = [];
     
@@ -129,10 +131,14 @@ const Menu = ({ role: propsRole }) => {
     setSelectedPlate(currentList[nextIndex]);
   };
 
+  const scrollToMenuTop = () => {
+    menuTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   if (loading) return <div className="loading-container"><div className="loading-spinner"></div></div>;
 
   return (
-    <div className="menu-container">
+    <div className="menu-container" ref={menuTopRef}>
       {isAdmin && (
         <div className="admin-edit-toolbar-compact">
           <button 
@@ -162,40 +168,15 @@ const Menu = ({ role: propsRole }) => {
 
       <div className="allergen-filter-wrapper">
         <p className="filter-label">Excluir platos con:</p>
-        <div 
-          className="allergen-filter-grid"
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "nowrap",
-            overflowX: "auto",
-            justifyContent: "center",
-            gap: "8px",
-            padding: "10px 4px",
-            width: "100%"
-          }}
-        >
+        <div className="allergen-filter-grid">
           {Object.values(allAllergens).map(ale => (
             <button 
               key={ale.id}
               className={`allergen-filter-btn ${selectedAllergens.includes(ale.id) ? 'active' : ''}`}
               onClick={() => handleAllergenToggle(ale.id)}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "4px",
-                padding: "6px",
-                aspectRatio: "1 / 1",
-                width: "75px",
-                minWidth: "75px",
-                height: "75px",
-                flexShrink: 0
-              }}
             >
-              <img src={ale.imagen} alt={ale.nombre} style={{ width: "24px", height: "24px", objectFit: "contain" }} />
-              <span style={{ fontSize: "10px", fontWeight: "500", textTransform: "capitalize", textAlign: "center" }}>
+              <img src={ale.imagen} alt={ale.nombre} />
+              <span>
                 {ale.nombre}
               </span>
             </button>
@@ -213,17 +194,29 @@ const Menu = ({ role: propsRole }) => {
             onDrop={(e) => handleDrop(e, index)}
             className={`anchor-wrapper ${editMode ? 'draggable-anchor' : ''}`}
           >
-            <a 
-              href={editMode ? null : `#cat-${cat.id}`} 
-              className="anchor-btn"
-              style={{ display: "inline-flex", alignItems: "center", gap: "10px", padding: "10px 18px" }}
-            >
-              {cat.imagen && <img src={cat.imagen} alt="" style={{ width: "22px", height: "22px", objectFit: "contain" }} />}
-              <span>{cat.nombre.toUpperCase()}</span>
-            </a>
+            {editMode ? (
+              <button type="button" className="anchor-btn menu-anchor-button">
+                {cat.imagen && <img src={cat.imagen} alt="" />}
+                <span>{cat.nombre.toUpperCase()}</span>
+              </button>
+            ) : (
+              <a href={`#cat-${cat.id}`} className="anchor-btn">
+                {cat.imagen && <img src={cat.imagen} alt="" />}
+                <span>{cat.nombre.toUpperCase()}</span>
+              </a>
+            )}
           </div>
         ))}
       </div>
+
+      <button
+        type="button"
+        className="menu-back-to-top"
+        onClick={scrollToMenuTop}
+        aria-label="Volver al inicio de la carta"
+      >
+        ↑
+      </button>
 
       <div className="menu-sections">
         {categories.map((cat) => {
@@ -235,6 +228,12 @@ const Menu = ({ role: propsRole }) => {
           });
 
           if (categoryPlates.length === 0 && !editMode) return null;
+          const plateGridColumns =
+            categoryPlates.length === 1
+              ? 1
+              : categoryPlates.length === 2 || categoryPlates.length === 4
+                ? 2
+                : 3;
 
           return (
             <section key={cat.id} id={`cat-${cat.id}`} className="category-section">
@@ -243,60 +242,39 @@ const Menu = ({ role: propsRole }) => {
                 <h2 className="category-title-text" style={{ margin: 0 }}>{cat.nombre}</h2>
                 <div className="category-line-right" style={{ flexGrow: 1 }}></div>
               </div>
-              <div className="plates-grid">
-                {categoryPlates.map(plate => (
-                  <div 
-                    key={plate.id} 
-                    className={`plate-card-public ${plate.disponible === false ? 'plate-off' : ''} ${editMode ? 'editable-card' : ''}`}
-                    onClick={() => handlePlateClick(plate)}
-                    style={{ display: "flex", alignItems: "stretch" }} 
-                  >
-                    {/* PERFECCIONADO: Contenedor simétrico con tamaño fijo absoluto para que todos midan idéntico */}
+              <div className={`plates-grid plates-grid-cols-${plateGridColumns}`}>
+                {categoryPlates.map(plate => {
+                  // Validación dinámica: si no tiene imagen o está vacía, inyecta la de por defecto
+                  const currentImg = plate.imagen && plate.imagen.trim() !== "" ? plate.imagen : DEFAULT_PLATE_IMAGE;
+
+                  return (
                     <div 
-                      className="plate-card-img" 
-                      style={{ 
-                        display: "flex", 
-                        justifyContent: "center", 
-                        alignItems: "center", 
-                        backgroundColor: "#ffffff", 
-                        overflow: "hidden",
-                        position: "relative",
-                        width: "140px",      
-                        minWidth: "140px",   
-                        height: "100%",     
-                        padding: "8px",   
-                        boxSizing: "border-box"
-                      }}
+                      key={plate.id} 
+                      className={`plate-card-public ${plate.disponible === false ? 'plate-off' : ''} ${editMode ? 'editable-card' : ''}`}
+                      onClick={() => handlePlateClick(plate)}
                     >
-                      <img 
-                        src={plate.imagen} 
-                        alt="" 
-                        style={{ 
-                          maxWidth: "100%", 
-                          maxHeight: "100%", 
-                          width: "auto",   
-                          height: "auto",   
-                          objectFit: "contain",
-                          display: "block",
-                          margin: "0 auto" 
-                        }} 
-                      />
-                      {plate.disponible === false && <div className="overlay-sold-out">AGOTADO</div>}
-                    </div>
-                    
-                    <div className="plate-card-info" style={{ flexGrow: 1 }}>
-                      <div className="plate-header">
-                        <h3 className="item-name">{plate.nombre}</h3>
-                        <span className="plate-price">{parseFloat(plate.precio).toFixed(2)} €</span>
+                      <div className="plate-card-img">
+                        <img 
+                          src={currentImg} 
+                          alt="" 
+                        />
+                        {plate.disponible === false && <div className="overlay-sold-out">AGOTADO</div>}
                       </div>
-                      <div className="plate-allergens-icons-row">
-                        {plate.alergenos?.map(aleId => (
-                          <img key={aleId} src={allAllergens[aleId]?.imagen} title={allAllergens[aleId]?.nombre} alt="" />
-                        ))}
+                      
+                      <div className="plate-card-info" style={{ flexGrow: 1 }}>
+                        <div className="plate-header">
+                          <h3 className="item-name">{plate.nombre}</h3>
+                          <span className="plate-price">{parseFloat(plate.precio).toFixed(2)} €</span>
+                        </div>
+                        <div className="plate-allergens-icons-row">
+                          {plate.alergenos?.map(aleId => (
+                            <img key={aleId} src={allAllergens[aleId]?.imagen} title={allAllergens[aleId]?.nombre} alt="" />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           );
@@ -352,7 +330,7 @@ const Menu = ({ role: propsRole }) => {
                 ✕
               </button>
               
-              {/* PERFECCIONADO: Caja de foto del Pop-up con proporciones controladas */}
+              {/* Contenedor Pop-up Inteligente con imagen por defecto reactiva */}
               <div 
                 style={{ 
                   width: "100%", 
@@ -367,7 +345,7 @@ const Menu = ({ role: propsRole }) => {
                 }}
               >
                 <img 
-                  src={selectedPlate.imagen} 
+                  src={selectedPlate.imagen && selectedPlate.imagen.trim() !== "" ? selectedPlate.imagen : DEFAULT_PLATE_IMAGE} 
                   alt={selectedPlate.nombre} 
                   style={{ 
                     maxWidth: "100%", 

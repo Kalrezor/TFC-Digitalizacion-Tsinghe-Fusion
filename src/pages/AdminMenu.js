@@ -1,11 +1,10 @@
-// Vista: AdminMenu.js
-// Vista de administración del menú para usuarios con rol de administrador.
-// CRUD completo de platos vinculado a Firebase con selectores personalizados.
+// Vista: AdminMenu.js (Fragmento de la Tabla optimizado para legibilidad y holgura)
 
 import React, { useState, useEffect, useRef } from "react";
 import { toastSuccess, toastError } from "../services/ToastService";
 import menuService from "../models/MenuService";
-import "../styles/MinimalStyle.css";
+
+const DEFAULT_PLATE_IMAGE = "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/plate%2FImgNoDisp.png?alt=media&token=67746171-489f-4b93-98dd-d744784fa37f";
 
 const EMPTY_FORM = {
   nombre: "",
@@ -18,6 +17,7 @@ const EMPTY_FORM = {
 };
 
 const AdminMenu = () => {
+  // ... (Mantén toda tu lógica de estados, useEffects y handlers exactamente igual)
   const [plates, setPlates]           = useState([]);
   const [categories, setCategories]   = useState([]);
   const [allAllergens, setAllAllergens] = useState({});
@@ -30,8 +30,6 @@ const AdminMenu = () => {
   const [editingId, setEditingId]     = useState(null);
   const [formData, setFormData]       = useState(EMPTY_FORM);
   const [imagePreview, setImagePreview] = useState(null);
-
-  // Refs y Estados para los Selectores (Formulario y Filtro Tabla)
   const [isOpenCat, setIsOpenCat] = useState(false);
   const [isOpenFilter, setIsOpenFilter] = useState(false);
   const catRef = useRef(null);
@@ -80,7 +78,6 @@ const AdminMenu = () => {
     if (result.success) setPlates(result.data);
   };
 
-  // --- MANEJADORES ---
   const openNew = () => {
     setFormData(EMPTY_FORM);
     setEditingId(null);
@@ -98,16 +95,13 @@ const AdminMenu = () => {
     });
     setEditingId(plate.id);
     setShowForm(true);
-    setImagePreview(plate.imagen);
+    setImagePreview(plate.imagen && plate.imagen.trim() !== "" ? plate.imagen : DEFAULT_PLATE_IMAGE);
     setError(null);
     setSuccess(null);
   };
 
   const [confirmDeletePlate, setConfirmDeletePlate] = useState(null);
-
-  const handleDeleteClick = (plate) => {
-    setConfirmDeletePlate(plate);
-  };
+  const handleDeleteClick = (plate) => setConfirmDeletePlate(plate);
 
   const handleConfirmDelete = async () => {
     if (!confirmDeletePlate) return;
@@ -132,7 +126,6 @@ const AdminMenu = () => {
   };
 
   const handleCancelDelete = () => setConfirmDeletePlate(null);
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name === "precio") {
@@ -181,24 +174,25 @@ const AdminMenu = () => {
 
   return (
     <div className="container" style={{ padding: "24px 0" }}>
-      <div className="card" style={{ marginBottom: "24px" }}>
+      {/* ... (Mantén tus cabeceras, formularios y filtros superiores exactamente como estaban) ... */}
+      <div className="card admin-menu-card-spaced">
         <div className="card-header">
-          <h1 style={{ margin: 0 }}>Administración de Menú</h1>
+          <h1 className="admin-menu-heading">Administración de Menú</h1>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", paddingTop: "16px" }}>
-          <p style={{ margin: 0, color: "var(--text-light)" }}>Gestiona los platos del menú, categoría, alérgenos e imagen desde un panel editorial.</p>
+        <div className="admin-menu-toolbar">
+          <p className="admin-menu-intro">Gestiona los platos del menú, categoría, alérgenos e imagen desde un panel editorial.</p>
           <button onClick={openNew} disabled={loading} className="btn btn-primary">+ Nuevo Plato</button>
         </div>
       </div>
 
       {showForm && (
-        <div className="card" style={{ marginBottom: "24px" }}>
+        <div className="card admin-menu-card-spaced">
           <div className="card-header">
             <h3>{editingId ? "Editar Plato" : "Nuevo Plato"}</h3>
           </div>
-          <div style={{ padding: "22px" }}>
+          <div className="admin-menu-form-shell">
             <form noValidate onSubmit={handleSubmit}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div className="admin-menu-form-stack">
                 <div className="form-group">
                   <label>Nombre del Plato *</label>
                   <input name="nombre" value={formData.nombre} onChange={handleChange} className="form-control" />
@@ -209,18 +203,18 @@ const AdminMenu = () => {
                   <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows={2} className="form-control" />
                 </div>
 
-                <div className="form-group" style={{ position: "relative", display: "inline-block", minWidth: "280px" }} ref={catRef}>
+                <div className="form-group admin-menu-select-group" ref={catRef}>
                   <label>Categoría *</label>
-                  <div onClick={() => setIsOpenCat(!isOpenCat)} style={customSelectTrigger}>
+                  <div onClick={() => setIsOpenCat(!isOpenCat)} className="admin-menu-select-trigger">
                     <span style={{ fontWeight: formData.idCategoria ? "bold" : "normal" }}>{selectedCatName.toUpperCase()}</span>
                     <span>{isOpenCat ? "▲" : "▼"}</span>
                   </div>
                   {isOpenCat && (
-                    <div style={megaSelectDropdown}>
-                      <div style={megaSelectGrid}>
+                    <div className="admin-menu-select-dropdown">
+                      <div className="admin-menu-select-grid">
                         {categories.map((cat) => (
                           <div key={cat.id} onClick={() => { setFormData(p => ({ ...p, idCategoria: cat.id })); setIsOpenCat(false); }}
-                            style={{ ...megaSelectItem, backgroundColor: formData.idCategoria === cat.id ? "#050505" : "transparent", color: formData.idCategoria === cat.id ? "#fff" : "#050505" }}>
+                            className={`admin-menu-select-item ${formData.idCategoria === cat.id ? "is-selected" : ""}`}>
                             {cat.nombre.toUpperCase()}
                           </div>
                         ))}
@@ -229,26 +223,26 @@ const AdminMenu = () => {
                   )}
                 </div>
 
-                <div>
-                  <label style={labelStyle}>Alérgenos</label>
-                  <div style={allergenRecuadroStyle}>
+                <div className="form-group">
+                  <label className="admin-menu-label">Alérgenos</label>
+                  <div className="admin-menu-allergen-grid">
                     {Object.values(allAllergens).map(ale => (
                       <div key={ale.id} onClick={() => handleAlergenoToggle(ale.id)}
-                        style={{ ...allergenItem, border: "1px solid #050505", background: formData.alergenos.includes(ale.id) ? "#050505" : "#ffffff", color: formData.alergenos.includes(ale.id) ? "#ffffff" : "#050505" }}>
-                        <img src={ale.imagen} alt="" style={{ width: "30px", height: "30px" }} />
-                        <span style={{ fontSize: "9px" }}>{ale.nombre}</span>
+                        className={`admin-menu-allergen-item ${formData.alergenos.includes(ale.id) ? "is-selected" : ""}`}>
+                        <img src={ale.imagen} alt="" className="admin-menu-allergen-icon" />
+                        <span className="admin-menu-allergen-name">{ale.nombre}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "end" }}>
+                <div className="admin-menu-form-row">
                   <div>
-                    <label style={labelStyle}>Precio (€) *</label>
-                    <input name="precio" type="text" value={formData.precio} onChange={handleChange} placeholder="0.00" style={inputStyle} />
+                    <label className="admin-menu-label">Precio (€) *</label>
+                    <input name="precio" type="text" value={formData.precio} onChange={handleChange} placeholder="0.00" className="admin-menu-input" />
                   </div>
                   <div>
-                    <label style={labelStyle}>Imagen del Plato</label>
+                    <label className="admin-menu-label">Imagen del Plato</label>
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                       <input type="file" id="img-upload" accept="image/*" style={{ display: "none" }} onChange={(e) => {
                         const file = e.target.files[0];
@@ -259,7 +253,11 @@ const AdminMenu = () => {
                         }
                       }} />
                       <label htmlFor="img-upload" className="btn btn-secondary" style={{ flex: 1, textAlign: "center" }}>Subir Imagen</label>
-                      {imagePreview && <img src={imagePreview} alt="Preview" style={{ width: "45px", height: "45px", borderRadius: 0, objectFit: "cover", border: "1px solid #050505" }} />}
+                      {imagePreview ? (
+                        <img src={imagePreview} alt="Preview" style={{ width: "45px", height: "45px", borderRadius: "6px", objectFit: "cover", border: "1px solid var(--gold)" }} />
+                      ) : (
+                        <img src={DEFAULT_PLATE_IMAGE} alt="Default Preview" style={{ width: "45px", height: "45px", borderRadius: "6px", objectFit: "contain", border: "1px solid #eee" }} />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -281,29 +279,30 @@ const AdminMenu = () => {
         </div>
       )}
 
-      <div className="card" style={{ padding: "22px", marginBottom: "24px" }}>
+      <div className="card admin-menu-card admin-menu-filters-card" style={{ padding: "22px", marginBottom: "24px" }}>
         <div className="card-header"><h3 style={{ margin: 0 }}>Filtros</h3></div>
-        <div style={{ display: "flex", gap: "15px", marginBottom: "20px", alignItems: "flex-end", flexWrap: "wrap" }}>
-          <div style={{ flex: 1, maxWidth: "300px" }}>
-            <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar plato..." style={inputStyle} />
+        <div className="admin-menu-filters-row">
+          <div className="admin-menu-search-cell">
+            <label className="admin-menu-label">Filtrar por Plato:</label>
+            <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Buscar plato..." className="admin-menu-input" />
           </div>
 
-          <div style={{ position: "relative", display: "inline-block", minWidth: "280px" }} ref={filterRef}>
-            <label style={labelStyle}>Filtrar por Categoría:</label>
-            <div onClick={() => setIsOpenFilter(!isOpenFilter)} style={customSelectTrigger}>
+          <div className="admin-menu-select-group" ref={filterRef}>
+            <label className="admin-menu-label">Filtrar por Categoría:</label>
+            <div onClick={() => setIsOpenFilter(!isOpenFilter)} className="admin-menu-select-trigger">
               <span style={{ fontWeight: filterCat === "all" ? "normal" : "bold" }}>{filterCatName.toUpperCase()}</span>
               <span>{isOpenFilter ? "▲" : "▼"}</span>
             </div>
             {isOpenFilter && (
-              <div style={megaSelectDropdown}>
-                <div style={megaSelectGrid}>
+              <div className="admin-menu-select-dropdown">
+                <div className="admin-menu-select-grid">
                   <div onClick={() => { setFilterCat("all"); setIsOpenFilter(false); }}
-                    style={{ ...megaSelectItem, backgroundColor: filterCat === "all" ? "#050505" : "transparent", color: filterCat === "all" ? "#fff" : "#050505" }}>
+                    className={`admin-menu-select-item ${filterCat === "all" ? "is-selected" : ""}`}>
                     TODAS
                   </div>
                   {categories.map((cat) => (
                     <div key={cat.id} onClick={() => { setFilterCat(cat.id); setIsOpenFilter(false); }}
-                      style={{ ...megaSelectItem, backgroundColor: filterCat === cat.id ? "#050505" : "transparent", color: filterCat === cat.id ? "#fff" : "#050505" }}>
+                      className={`admin-menu-select-item ${filterCat === cat.id ? "is-selected" : ""}`}>
                       {cat.nombre.toUpperCase()}
                     </div>
                   ))}
@@ -314,62 +313,128 @@ const AdminMenu = () => {
         </div>
       </div>
 
-      <div className="card" style={{ padding: "22px", overflowX: "auto" }}>
-        <div className="card-header"><h3 style={{ margin: 0 }}>Platos</h3></div>
-        <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff" }}>
+      {/* --- SECCIÓN SECCIÓN TABLA REFORMADA --- */}
+      <div className="card admin-menu-card admin-menu-plates-card" style={{ padding: "26px", overflowX: "auto", borderRadius: "12px" }}>
+        <div className="card-header" style={{ marginBottom: "16px" }}>
+          <h3 style={{ margin: 0 }}>Platos</h3>
+        </div>
+        <table className="admin-menu-plates-table">
           <thead>
-            <tr style={{ background: "#050505", color: "#fff" }}>
-              <th style={th}>Imagen</th>
-              <th style={th}>Nombre</th>
-              <th style={th}>Categoría</th>
-              <th style={th}>Precio</th>
-              <th style={th}>Estado</th>
-              <th style={th}>Alérgenos</th>
-              <th style={th}>Acciones</th>
+            <tr style={{ background: "var(--sage, #222)", color: "#fff", fontSize: "13px", letterSpacing: "0.5px" }}>
+              <th className="admin-menu-table-header-cell">Imagen</th>
+              <th className="admin-menu-table-header-cell">Nombre</th>
+              <th className="admin-menu-table-header-cell">Categoría</th>
+              <th className="admin-menu-table-header-cell">Precio</th>
+              <th className="admin-menu-table-header-cell">Estado</th>
+              <th className="admin-menu-table-header-cell">Alérgenos</th>
+              <th className="admin-menu-table-header-cell admin-menu-table-header-cell-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map(p => (
-              <tr key={p.id} style={{ borderBottom: "1px solid #050505" }}>
-                <td style={td}><img src={p.imagen} alt="" style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: 0 }} /></td>
-                <td style={td}><strong>{p.nombre}</strong></td>
-                <td style={td}>{p.idCategoria}</td>
-                <td style={td}>{parseFloat(p.precio || 0).toFixed(2)} €</td>
-                <td style={td}>
-                  <span style={{
-                    color: p.disponible ? "#fff" : "#050505",
-                    fontWeight: "bold",
-                    fontSize: "11px",
-                    background: p.disponible ? "#050505" : "#ffffff",
-                    padding: "4px 8px",
-                    borderRadius: 0,
-                    border: "1px solid #050505",
-                  }}>
-                    {p.disponible ? "DISPONIBLE" : "NO DISPONIBLE"}
-                  </span>
-                </td>
-                <td style={td}>
-                  <div style={{ display: "flex", gap: "4px" }}>
-                    {p.alergenos?.map(id => <img key={id} src={allAllergens[id]?.imagen} title={allAllergens[id]?.nombre} style={{ width: "20px" }} alt="" />)}
-                  </div>
-                </td>
-                <td style={td}>
-                  <button onClick={() => openEdit(p)} className="btn btn-secondary" style={{ padding: "6px 10px", fontSize: "12px" }}>Editar</button>
-                  <button onClick={() => handleDeleteClick(p)} className="btn btn-tertiary" style={{ marginLeft: "5px", padding: "6px 10px", fontSize: "12px" }}>Eliminar</button>
-                </td>
-              </tr>
-            ))}
+            {filtered.map(p => {
+              const tableImg = p.imagen && p.imagen.trim() !== "" ? p.imagen : DEFAULT_PLATE_IMAGE;
+
+              return (
+                <tr key={p.id} className="table-row-hover admin-menu-table-row">
+                  {/* Celda Imagen */}
+                  <td className="admin-menu-table-cell">
+                    <img 
+                      src={tableImg} 
+                      alt="" 
+                      style={{ 
+                        width: "56px", 
+                        height: "56px", 
+                        objectFit: tableImg === DEFAULT_PLATE_IMAGE ? "contain" : "cover", 
+                        borderRadius: "8px",
+                        background: "#f9f9f9",
+                        border: "1px solid #eaeaea",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.03)"
+                      }} 
+                    />
+                  </td>
+
+                  {/* Celda Nombre */}
+                  <td className="admin-menu-table-cell admin-menu-table-cell-name">
+                    <strong style={{ color: "#111" }}>{p.nombre}</strong>
+                  </td>
+
+                  {/* Celda Categoría */}
+                  <td className="admin-menu-table-cell admin-menu-table-cell-category">
+                    {p.idCategoria}
+                  </td>
+
+                  {/* Celda Precio */}
+                  <td className="admin-menu-table-cell admin-menu-table-cell-price">
+                    {parseFloat(p.precio || 0).toFixed(2)} €
+                  </td>
+
+                  {/* Celda Estado (No disponible / Disponible) mas espacioso */}
+                  <td className="admin-menu-table-cell">
+                    <span style={{
+                      color: p.disponible ? "#1e4620" : "#721c24",
+                      fontWeight: "700",
+                      fontSize: "11px",
+                      background: p.disponible ? "#e8f5e9" : "#f8d7da",
+                      border: p.disponible ? "1px solid #c3e6cb" : "1px solid #f5c6cb",
+                      padding: "6px 12px",
+                      borderRadius: "20px",
+                      display: "inline-block",
+                      letterSpacing: "0.5px",
+                      textAlign: "center",
+                      whiteSpace: "nowrap"
+                    }}>
+                      {p.disponible ? "DISPONIBLE" : "NO DISPONIBLE"}
+                    </span>
+                  </td>
+
+                  {/* Celda Alérgenos */}
+                  <td className="admin-menu-table-cell">
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", maxWidth: "120px" }}>
+                      {p.alergenos?.map(id => (
+                        <img 
+                          key={id} 
+                          src={allAllergens[id]?.imagen} 
+                          title={allAllergens[id]?.nombre} 
+                          style={{ width: "22px", height: "22px", objectFit: "contain" }} 
+                          alt="" 
+                        />
+                      ))}
+                    </div>
+                  </td>
+
+                  {/* Celda Acciones arreglada en horizontal sin superponerse */}
+                  <td className="admin-menu-table-cell admin-menu-table-cell-actions">
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                      <button 
+                        onClick={() => openEdit(p)} 
+                        className="btn btn-secondary" 
+                        style={{ padding: "8px 14px", fontSize: "13px", fontWeight: "600", margin: 0, borderRadius: "6px", cursor: "pointer" }}
+                      >
+                        Editar
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteClick(p)} 
+                        className="btn btn-tertiary" 
+                        style={{ padding: "8px 14px", fontSize: "13px", fontWeight: "600", margin: 0, borderRadius: "6px", cursor: "pointer", backgroundColor: "#fff5f5", color: "#e53e3e", border: "1px solid #feb2b2" }}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {confirmDeletePlate && (
         <div className="card" style={{ padding: "18px", background: "#ffffff", border: "1px solid #050505", marginTop: "16px" }}>
-          <div style={confirmText}>
+          <div className="admin-menu-confirm-text">
             ¿Eliminar "{confirmDeletePlate.nombre}"?
-            <div style={confirmMeta}>Capacidad: --</div>
+            <div className="admin-menu-confirm-meta">Capacidad: --</div>
           </div>
-          <div style={confirmActions}>
+          <div className="admin-menu-confirm-actions">
             <button onClick={handleConfirmDelete} className="btn btn-primary" disabled={loading}>{loading ? "Eliminando..." : "Confirmar"}</button>
             <button onClick={handleCancelDelete} className="btn btn-secondary">Cancelar</button>
           </div>
@@ -378,31 +443,5 @@ const AdminMenu = () => {
     </div>
   );
 };
-
-// --- ESTILOS ---
-const labelStyle = { display: "block", color: "#050505", fontWeight: "700", marginBottom: "6px", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.2em" };
-const inputStyle = { width: "100%", padding: "12px 14px", border: "1px solid #050505", borderRadius: 0, background: "#ffffff", color: "#050505", boxSizing: "border-box" };
-const customSelectTrigger = { ...inputStyle, cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "44px" };
-const megaSelectDropdown = { position: "absolute",
-                             top: "100%", 
-                             left: 0, 
-                             minWidth: "420px", 
-                             zIndex: 100, 
-                             background: "#fff",                             
-                             border: "1px solid #050505", 
-                             borderRadius: 0,
-                             marginTop: "8px", 
-                             boxShadow: "none", 
-                             padding: "14px" };
-
-const megaSelectGrid = { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "10px" };
-const megaSelectItem = { padding: "12px", fontSize: "12px", borderRadius: 0, cursor: "pointer", textAlign: "center", fontWeight: "700", border: "1px solid #050505" };
-const allergenRecuadroStyle = { display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "10px", background: "#ffffff", padding: "16px", borderRadius: 0, border: "1px solid #050505" };
-const allergenItem = { display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", padding: "10px", borderRadius: 0 };
-const th = { padding: "14px", textAlign: "left" };
-const td = { padding: "14px", verticalAlign: "middle" };
-const confirmText = { color: "#050505", fontSize: "15px", fontWeight: "700" };
-const confirmMeta = { color: "#71717a", fontSize: "13px", fontWeight: "400", marginTop: "6px" };
-const confirmActions = { display: "flex", gap: "10px", flexWrap: "wrap" };
 
 export default AdminMenu;

@@ -58,6 +58,55 @@ const parseTimeToMinutes = (timeString) => {
   return hours * 60 + minutes;
 };
 
+const RESERVATION_STATUS_NOTIFICATION_URL =
+  "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/sendReservationStatusNotification";
+
+const sendReservationStatusNotification = async (reservation, newStatus) => {
+  const recipientEmail = reservation?.userEmail || reservation?.email;
+
+  if (!recipientEmail) {
+    console.warn("⚠️ No hay email de cliente para notificar el cambio de estado.", {
+      reservationId: reservation?.id,
+      newStatus,
+    });
+    return;
+  }
+
+  if (!["confirmada", "cancelada"].includes(newStatus)) {
+    return;
+  }
+
+  try {
+    const response = await fetch(RESERVATION_STATUS_NOTIFICATION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: recipientEmail,
+        newStatus,
+        reservationDetails: {
+          userName: reservation.userName || reservation.name || recipientEmail.split("@")[0],
+          date: reservation.reservationDate || reservation.date || "",
+          time: reservation.reservationTime || reservation.time || "",
+          numberOfPeople: reservation.numberOfPeople ?? reservation.peopleCount ?? "",
+          tableNumber: Array.isArray(reservation.tableIds)
+            ? reservation.tableIds.join(", ")
+            : reservation.tableId || "Por asignar",
+          tableIds: Array.isArray(reservation.tableIds) ? reservation.tableIds : [],
+          specialRequests: reservation.specialRequests || "",
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("⚠️ Error enviando email de estado de reserva:", response.statusText);
+    }
+  } catch (error) {
+    console.error("⚠️ Error enviando email de estado de reserva:", error);
+  }
+};
+
 export const getShiftFromTime = (time) => {
   if (RESERVATION_TIMES[RESERVATION_SHIFTS.COMIDA].includes(time)) {
     return RESERVATION_SHIFTS.COMIDA;
@@ -130,20 +179,16 @@ const buildReservationPayload = ({
 class ReservationTableService {
   async getReservationsByDate(date, includeCanceled = false) {
     try {
-      const filters = [where("reservationDate", "==", date)];
-      if (!includeCanceled) {
-        filters.push(where("status", "!=", RESERVATION_STATUS.CANCELED));
-      }
       const querySnapshot = await getDocs(
-        query(collection(db, "reservations"), ...filters),
+        query(collection(db, "reservations"), where("reservationDate", "==", date)),
       );
 
       const reservations = [];
       querySnapshot.forEach((doc) => {
-        reservations.push({
-          id: doc.id,
-          ...normalizeReservation(doc.data()),
-        });
+        const reservation = normalizeReservation(doc.data());
+        if (includeCanceled || reservation.status !== RESERVATION_STATUS.CANCELED) {
+          reservations.push({ id: doc.id, ...reservation });
+        }
       });
 
       return { success: true, reservations };
@@ -179,24 +224,20 @@ class ReservationTableService {
     }
 
     try {
-      const filters = [
-        where("reservationDate", ">=", fromDate),
-        where("reservationDate", "<=", toDate),
-      ];
-      if (!includeCanceled) {
-        filters.push(where("status", "!=", RESERVATION_STATUS.CANCELED));
-      }
-
       const querySnapshot = await getDocs(
-        query(collection(db, "reservations"), ...filters),
+        query(
+          collection(db, "reservations"),
+          where("reservationDate", ">=", fromDate),
+          where("reservationDate", "<=", toDate),
+        ),
       );
 
       const reservations = [];
       querySnapshot.forEach((doc) => {
-        reservations.push({
-          id: doc.id,
-          ...normalizeReservation(doc.data()),
-        });
+        const reservation = normalizeReservation(doc.data());
+        if (includeCanceled || reservation.status !== RESERVATION_STATUS.CANCELED) {
+          reservations.push({ id: doc.id, ...reservation });
+        }
       });
 
       return { success: true, reservations };
@@ -244,17 +285,20 @@ class ReservationTableService {
       if (date) {
         filters.push(where("reservationDate", "==", date));
       }
-      if (!includeCanceled) {
-        filters.push(where("status", "!=", RESERVATION_STATUS.CANCELED));
-      }
 
       const querySnapshot = await getDocs(
-        query(collection(db, "reservations"), ...filters),
+        filters.length > 0
+          ? query(collection(db, "reservations"), ...filters)
+          : collection(db, "reservations"),
       );
 
       const reservations = [];
       querySnapshot.forEach((doc) => {
         const reservation = normalizeReservation(doc.data());
+        if (!includeCanceled && reservation.status === RESERVATION_STATUS.CANCELED) {
+          return;
+        }
+
         const tableIds = Array.isArray(reservation.tableIds)
           ? reservation.tableIds
           : reservation.tableId
@@ -425,7 +469,28 @@ class ReservationTableService {
     payload.updatedAt = serverTimestamp();
 
     try {
+      const currentDoc = await getDoc(doc(db, "reservations", reservationId));
+      const currentReservation = currentDoc.exists()
+        ? normalizeReservation(currentDoc.data())
+        : null;
+
       await updateDoc(doc(db, "reservations", reservationId), payload);
+
+      if (
+        currentReservation &&
+        payload.status &&
+        currentReservation.status !== payload.status &&
+        [RESERVATION_STATUS.CONFIRMED, RESERVATION_STATUS.CANCELED].includes(payload.status)
+      ) {
+        await sendReservationStatusNotification(
+          {
+            ...currentReservation,
+            ...payload,
+          },
+          payload.status,
+        );
+      }
+
       return { success: true };
     } catch (error) {
       console.error("Error actualizando reserva:", error);

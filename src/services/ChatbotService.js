@@ -159,8 +159,8 @@ const buildSystemInstruction = ({ role, userName, userEmail, locationPath, fireb
     return [
       ...baseRules,
       "Rol: administrador.",
-      "Puede recibir orientacion sobre consultas internas, reservas, mesas, usuarios y datos operativos.",
-      "Aun siendo admin, no reveles claves, tokens ni configuracion sensible.",
+      "Puede recibir orientación sobre consultas internas, reservas, mesas, usuarios y datos operativos.",
+      "Aun siendo admin, no reveles claves, tokens ni configuración sensible.",
       "Si faltan datos reales, indica que necesitas conectarte a la base de datos o consultar la pantalla correspondiente.",
     ].join("\n");
   }

@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import useTablesByDateAndShift from "../hooks/useTablesByDateAndShift";
 import UserService from "../services/UserService";
@@ -73,11 +73,9 @@ const AdminReservationsView = () => {
     const tableNumbers = normalized.tableIds
       .map((tableId) => {
         const mapped = tablesById[tableId];
-        console.log(`Para tableId ${tableId}, mapped: ${mapped}`);
         return mapped || tableId;
       })
       .filter(Boolean);
-    console.log(`tableNumbers para reserva ${reservation.id}:`, tableNumbers);
     return {
       ...normalized,
       tableNumbers,
@@ -187,14 +185,11 @@ const AdminReservationsView = () => {
     };
     const loadTables = async () => {
       const result = await TableService.getAllTables();
-      console.log("Resultado de getAllTables:", result);
       if (result.success) {
         const map = {};
         (result.tables || []).forEach((table) => {
           map[table.id] = table.tableNumber || table.number || table.id;
-          console.log(`Mapeando mesa ${table.id} a ${map[table.id]}`);
         });
-        console.log("tablesById:", map);
         setTablesById(map);
         setAllTables(result.tables || []);
       } else {
@@ -428,26 +423,26 @@ const AdminReservationsView = () => {
   }, [selectedReservation]);
 
   return (
-    <div style={containerStyle}>
-      <header style={headerStyle}>
+    <div className="admin-reservations">
+      <header className="admin-reservations-header">
         <div>
-          <h1 style={titleStyle}>Administración de reservas</h1>
-          <p style={subtitleStyle}>
+          <h1 className="admin-reservations-title">Administración de reservas</h1>
+          <p className="admin-reservations-subtitle">
             Gestiona reservas, actualiza estados y asigna mesas desde una vista unificada.
           </p>
         </div>
       </header>
 
-      <div style={gridStyle}>
-        <section style={panelStyle}>
-          <div style={panelHeaderStyle}>Filtros</div>
-          <div style={filtersGridStyle}>
-            <label style={fieldLabelStyle}>
+      <div className="admin-reservations-grid">
+        <section className="admin-reservations-panel">
+          <div className="admin-reservations-panel-title">Filtros</div>
+          <div className="admin-reservations-filters-grid">
+            <label className="admin-reservations-field-label">
               Filtrar por
               <select
                 value={filterMode}
                 onChange={(e) => setFilterMode(e.target.value)}
-                style={inputStyle}
+                className="admin-reservations-input"
               >
                 <option value="turno">Turno</option>
                 <option value="dia">Día</option>
@@ -456,34 +451,34 @@ const AdminReservationsView = () => {
               </select>
             </label>
             {filterMode !== "cliente" ? (
-              <label style={fieldLabelStyle}>
+              <label className="admin-reservations-field-label">
                 Fecha inicio
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 />
               </label>
             ) : null}
             {filterMode === "rango" ? (
-              <label style={fieldLabelStyle}>
+              <label className="admin-reservations-field-label">
                 Fecha fin
                 <input
                   type="date"
                   value={selectedEndDate}
                   onChange={(e) => setSelectedEndDate(e.target.value)}
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 />
               </label>
             ) : null}
             {filterMode === "turno" ? (
-              <label style={fieldLabelStyle}>
+              <label className="admin-reservations-field-label">
                 Turno
                 <select
                   value={selectedShift}
                   onChange={(e) => setSelectedShift(e.target.value)}
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 >
                   <option value={RESERVATION_SHIFTS.COMIDA}>Comida</option>
                   <option value={RESERVATION_SHIFTS.CENA}>Cena</option>
@@ -491,23 +486,23 @@ const AdminReservationsView = () => {
               </label>
             ) : null}
             {filterMode === "cliente" ? (
-              <label style={fieldLabelStyle}>
+              <label className="admin-reservations-field-label">
                 Buscar por nombre o teléfono
                 <input
                   type="text"
                   value={searchClientTerm}
                   onChange={(e) => setSearchClientTerm(e.target.value)}
                   placeholder="Ej. Juan García / +34 600 123 456"
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 />
               </label>
             ) : null}
-            <label style={fieldLabelStyle}>
+            <label className="admin-reservations-field-label">
               Estado
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                style={inputStyle}
+                className="admin-reservations-input"
               >
                 <option value="">Todos</option>
                 {statusOptions.map((status) => (
@@ -520,27 +515,27 @@ const AdminReservationsView = () => {
           </div>
         </section>
 
-        <section style={panelStyle}>
-          <div style={panelHeaderRowStyle}>
-            <div style={panelHeaderStyle}>Listado de reservas</div>
-            <div style={panelHeaderMetaStyle}>
+        <section className="admin-reservations-panel">
+          <div className="admin-reservations-panel-header-row">
+            <div className="admin-reservations-panel-title">Listado de reservas</div>
+            <div className="admin-reservations-panel-meta">
               {filterMode === "turno" && (
-                <span style={panelHeaderMetaItemStyle}>
+                <span className="admin-reservations-panel-meta-item">
                   {totalPeopleInReservations} / {availableSeats}
                 </span>
               )}
-              <span style={panelHeaderMetaItemStyle}>
+              <span className="admin-reservations-panel-meta-item">
                 Aforo {aforo}
               </span>
             </div>
           </div>
           {loadingReservations ? (
-            <div style={infoTextStyle}>Cargando reservas...</div>
+            <div className="admin-reservations-info-text">Cargando reservas...</div>
           ) : reservationError ? (
-            <div style={errorTextStyle}>{reservationError}</div>
+            <div className="admin-reservations-error-text">{reservationError}</div>
           ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={tableStyle}>
+            <div className="admin-reservations-table-scroll">
+              <table className="admin-reservations-table">
                 <thead>
                   <tr>
                     <th>Cliente</th>
@@ -569,7 +564,7 @@ const AdminReservationsView = () => {
                           <select
                             value={normalized.status}
                             onChange={(e) => handleReservationStatusChange(reservation.id, e.target.value)}
-                            style={statusSelectStyle}
+                            className="admin-reservations-status-select"
                           >
                             {statusOptions.map((status) => (
                               <option key={status} value={status}>
@@ -583,7 +578,7 @@ const AdminReservationsView = () => {
                           <button
                             type="button"
                             onClick={() => selectReservation(normalized)}
-                            style={actionButtonStyle}
+                            className="admin-reservations-action-button"
                           >
                             Seleccionar
                           </button>
@@ -593,7 +588,7 @@ const AdminReservationsView = () => {
                   })}
                   {reservations.length === 0 && (
                     <tr>
-                      <td colSpan="9" style={emptyRowStyle}>
+                      <td colSpan="9" className="admin-reservations-empty">
                         No hay reservas para este filtro.
                       </td>
                     </tr>
@@ -604,10 +599,10 @@ const AdminReservationsView = () => {
           )}
         </section>
 
-        <section style={panelStyle}>
-          <div style={panelHeaderStyle}>{selectedReservation ? "Editar reserva" : "Crear nueva reserva"}</div>
-          <form noValidate onSubmit={handleSaveReservation} style={formStyle}>
-            <div style={fieldLabelStyle}>
+        <section className="admin-reservations-panel">
+          <div className="admin-reservations-panel-title">{selectedReservation ? "Editar reserva" : "Crear nueva reserva"}</div>
+          <form noValidate onSubmit={handleSaveReservation} className="admin-reservations-form">
+            <div className="admin-reservations-field-label">
               Buscar cliente (teléfono, nombre o email)
               <input
                 type="text"
@@ -621,12 +616,12 @@ const AdminReservationsView = () => {
                   }
                 }}
                 placeholder="Ej. +34 600 123 456 / Juan García / juan@email.com"
-                style={inputStyle}
+                className="admin-reservations-input"
               />
             </div>
 
             {searchPhone && (
-              <div style={searchResultsStyle}>
+              <div className="admin-reservations-search-results">
                 {filteredUsers.length > 0 ? (
                   <>
                     <div style={{ fontSize: 12, color: "#666", marginBottom: 6 }}>
@@ -642,20 +637,20 @@ const AdminReservationsView = () => {
                           setManualPhone(user.phone || "");
                           setSearchPhone("");
                         }}
-                        style={searchResultButtonStyle}
+                        className="admin-reservations-search-result"
                       >
                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                           <strong style={{ fontSize: 14, color: "#222" }}>{user.name || user.displayName || user.email}</strong>
                           <div style={{ display: "flex", gap: 12, fontSize: 13, color: "#666" }}>
-                            <span>📱 {user.phone || "Sin teléfono"}</span>
-                            <span>✉️ {user.email}</span>
+                            <span>Teléfono: {user.phone || "Sin teléfono"}</span>
+                            <span>Email: {user.email}</span>
                           </div>
                         </div>
                       </button>
                     ))}
                   </>
                 ) : (
-                  <div style={emptyRowStyle}>
+                  <div className="admin-reservations-empty">
                     <div>No se encontraron usuarios.</div>
                     <div style={{ fontSize: 12, marginTop: 6, color: "#888" }}>Puedes crear la reserva manualmente con nombre y teléfono.</div>
                   </div>
@@ -663,8 +658,8 @@ const AdminReservationsView = () => {
               </div>
             )}
 
-            <div style={fieldRowStyle}>
-              <label style={fieldLabelStyle}>
+            <div className="admin-reservations-field-row">
+              <label className="admin-reservations-field-label">
                 Nombre del cliente
                 <input
                   type="text"
@@ -673,10 +668,10 @@ const AdminReservationsView = () => {
                     setManualName(e.target.value);
                     if (selectedUser) setSelectedUser(null);
                   }}
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 />
               </label>
-              <label style={fieldLabelStyle}>
+              <label className="admin-reservations-field-label">
                 Teléfono del cliente
                 <input
                   type="text"
@@ -685,17 +680,17 @@ const AdminReservationsView = () => {
                     setManualPhone(e.target.value);
                     if (selectedUser) setSelectedUser(null);
                   }}
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 />
               </label>
             </div>
 
             {selectedUser && (
-              <div style={selectedUserCardStyle}>
+              <div className="admin-reservations-selected-user">
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <div style={{ fontWeight: 700, fontSize: 15 }}>✓ {selectedUser.name || selectedUser.displayName || selectedUser.email}</div>
-                  <div style={{ fontSize: 13, color: "#555" }}>📱 {selectedUser.phone}</div>
-                  <div style={{ fontSize: 13, color: "#666" }}>✉️ {selectedUser.email}</div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{selectedUser.name || selectedUser.displayName || selectedUser.email}</div>
+                  <div style={{ fontSize: 13, color: "#555" }}>Teléfono: {selectedUser.phone}</div>
+                  <div style={{ fontSize: 13, color: "#666" }}>Email: {selectedUser.email}</div>
                 </div>
                 <button
                   type="button"
@@ -704,29 +699,29 @@ const AdminReservationsView = () => {
                     setManualName("");
                     setManualPhone("");
                   }}
-                  style={secondaryButtonStyle}
+                  className="admin-reservations-secondary-button"
                 >
                   Cambiar cliente
                 </button>
               </div>
             )}
 
-            <div style={fieldRowStyle}>
-              <label style={fieldLabelStyle}>
+            <div className="admin-reservations-field-row">
+              <label className="admin-reservations-field-label">
                 Fecha
                 <input
                   type="date"
                   value={formState.date}
                   onChange={(e) => setFormState({ ...formState, date: e.target.value })}
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 />
               </label>
-              <label style={fieldLabelStyle}>
+              <label className="admin-reservations-field-label">
                 Hora
                 <select
                   value={formState.time}
                   onChange={(e) => setFormState({ ...formState, time: e.target.value })}
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 >
                   <option value="">Selecciona una hora</option>
                   <optgroup label="Comida">
@@ -747,23 +742,23 @@ const AdminReservationsView = () => {
               </label>
             </div>
 
-            <div style={fieldRowStyle}>
-              <label style={fieldLabelStyle}>
+            <div className="admin-reservations-field-row">
+              <label className="admin-reservations-field-label">
                 Personas
                 <input
                   type="number"
                   min="1"
                   value={formState.peopleCount}
                   onChange={(e) => setFormState({ ...formState, peopleCount: Number(e.target.value) })}
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 />
               </label>
-              <label style={fieldLabelStyle}>
+              <label className="admin-reservations-field-label">
                 Estado
                 <select
                   value={formState.status}
                   onChange={(e) => setFormState({ ...formState, status: e.target.value })}
-                  style={inputStyle}
+                  className="admin-reservations-input"
                 >
                   {statusOptions.map((status) => (
                     <option key={status} value={status}>
@@ -774,55 +769,55 @@ const AdminReservationsView = () => {
               </label>
             </div>
 
-            <label style={fieldLabelStyle}>
+            <label className="admin-reservations-field-label">
               Solicitudes especiales
               <textarea
                 rows={4}
                 value={formState.specialRequests}
                 onChange={(e) => setFormState({ ...formState, specialRequests: e.target.value })}
-                style={{ ...inputStyle, minHeight: 100 }}
+                className="admin-reservations-input admin-reservations-textarea"
               />
             </label>
 
-            <div style={buttonRowStyle}>
-              <button type="submit" style={primaryButtonStyle} disabled={formLoading}>
+            <div className="admin-reservations-button-row">
+              <button type="submit" className="admin-reservations-primary-button" disabled={formLoading}>
                 {selectedReservation ? "Guardar cambios" : "Crear reserva"}
               </button>
-              <button type="button" style={secondaryButtonStyle} onClick={resetForm} disabled={formLoading}>
+              <button type="button" className="admin-reservations-secondary-button" onClick={resetForm} disabled={formLoading}>
                 Limpiar
               </button>
             </div>
           </form>
         </section>
 
-        <section style={panelStyle}>
-          <div style={panelHeaderStyle}>Asignar mesas</div>
+        <section className="admin-reservations-panel">
+          <div className="admin-reservations-panel-title">Asignar mesas</div>
           {selectedReservation ? (
             <>
-              <div style={infoSectionStyle}>
+              <div className="admin-reservations-info-section">
                 <strong>Reserva:</strong> {selectedReservation.userName || "Cliente"} — {selectedReservation.date} {selectedReservation.time}
               </div>
-              <div style={infoSectionStyle}>
+              <div className="admin-reservations-info-section">
                 <strong>Mesas asignadas:</strong>{" "}
                 {activeAssignedTableIds.length > 0 ? activeAssignedTableIds.join(", ") : "Sin mesas asignadas"}
               </div>
-              <div style={{ marginBottom: 16 }}>
-                <div style={subHeaderStyle}>Mesas disponibles</div>
+              <div className="admin-reservations-spaced-block">
+                <div className="admin-reservations-subheader">Mesas disponibles</div>
                 {availableTables.length === 0 ? (
-                  <div style={emptyRowStyle}>No hay mesas disponibles para esta fecha/hora.</div>
+                  <div className="admin-reservations-empty">No hay mesas disponibles para esta fecha/hora.</div>
                 ) : (
                   <>
                     {/* Sugerencia automática */}
                     {formState.peopleCount && availableTables.length > 0 && (
-                      <div style={{ ...infoSectionStyle, backgroundColor: "#fef3c7", borderLeft: "4px solid #f59e0b" }}>
-                        <strong>💡 Sugerencia:</strong> {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"} — 
+                      <div className="admin-reservations-info-section admin-reservations-suggestion">
+                        <strong>Sugerencia:</strong> {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"} — 
                         {availableTables.filter(t => t.capacity >= formState.peopleCount).length > 0
                           ? ` Selecciona una mesa con capacidad ≥ ${formState.peopleCount} o fusiona varias.`
                           : " No hay mesa individual que cubra. Considera fusionar varias."}
                       </div>
                     )}
                     
-                    <div style={tableGridStyle}>
+                    <div className="admin-reservations-table-grid">
                       {availableTables
                         .sort((a, b) => {
                           // Ordenar: primero las recomendadas (capacity >= peopleCount), luego otras
@@ -838,15 +833,18 @@ const AdminReservationsView = () => {
                           return (
                             <label 
                               key={table.id} 
+                              className={`admin-reservations-table-card${selectedTableIds.includes(table.id) ? " selected" : ""}`}
                               style={{
-                                ...tableCardStyle,
-                                borderColor: isRecommended ? "#10b981" : "#d1d5db",
+                                borderColor: selectedTableIds.includes(table.id) ? "#2563eb" : isRecommended ? "#10b981" : "#d1d5db",
                                 borderWidth: "2px",
-                                backgroundColor: isRecommended ? "#ecfdf5" : "white",
+                                backgroundColor: selectedTableIds.includes(table.id) ? "#eff6ff" : isRecommended ? "#ecfdf5" : "white",
+                                color: selectedTableIds.includes(table.id) ? "#1e3a8a" : "#111827",
+                                cursor: "pointer",
                               }}
                             >
                               <input
                                 type="checkbox"
+                                className="admin-reservations-table-checkbox"
                                 checked={selectedTableIds.includes(table.id)}
                                 onChange={(e) => {
                                   const checked = e.target.checked;
@@ -860,7 +858,7 @@ const AdminReservationsView = () => {
                               <div>
                                 <strong style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                   Mesa {table.number || table.tableNumber || table.id}
-                                  {isRecommended && <span style={{ fontSize: 14, color: "#10b981" }}>✓ Recomendada</span>}
+                                  {isRecommended && <span style={{ fontSize: 14, color: "#10b981" }}>Recomendada</span>}
                                 </strong>
                               </div>
                               <div style={{ fontSize: 13, color: "#6b7280" }}>
@@ -868,7 +866,7 @@ const AdminReservationsView = () => {
                               </div>
                               {isRecommended && (
                                 <div style={{ fontSize: 12, color: "#10b981", marginTop: 6 }}>
-                                  ✓ Cubre {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"}
+                                  Cubre {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"}
                                 </div>
                               )}
                             </label>
@@ -878,12 +876,12 @@ const AdminReservationsView = () => {
                   </>
                 )}
               </div>
-              <div style={buttonRowStyle}>
+              <div className="admin-reservations-button-row">
                 <button
                   type="button"
                   onClick={handleAssignTables}
                   disabled={assignmentLoading || selectedTableIds.length === 0}
-                  style={primaryButtonStyle}
+                  className="admin-reservations-primary-button"
                 >
                   {assignmentLoading ? "Guardando..." : "Asignar mesas"}
                 </button>
@@ -891,243 +889,19 @@ const AdminReservationsView = () => {
                   type="button"
                   onClick={handleUnassignTables}
                   disabled={assignmentLoading || activeAssignedTableIds.length === 0}
-                  style={secondaryButtonStyle}
+                  className="admin-reservations-secondary-button"
                 >
                   Desasignar todas
                 </button>
               </div>
             </>
           ) : (
-            <div style={emptyRowStyle}>Selecciona una reserva para administrar las mesas asignadas.</div>
+            <div className="admin-reservations-empty">Selecciona una reserva para administrar las mesas asignadas.</div>
           )}
         </section>
       </div>
     </div>
   );
-};
-
-const containerStyle = {
-  padding: 24,
-};
-
-const headerStyle = {
-  marginBottom: 24,
-};
-
-const titleStyle = {
-  fontSize: 32,
-  margin: 0,
-  color: "#222",
-};
-
-const subtitleStyle = {
-  marginTop: 8,
-  color: "#555",
-  lineHeight: 1.5,
-};
-
-const gridStyle = {
-  display: "grid",
-  gap: 24,
-  gridTemplateColumns: "1fr",
-};
-
-const panelStyle = {
-  background: "#fff",
-  borderRadius: 20,
-  boxShadow: "0 14px 32px rgba(0,0,0,0.08)",
-  padding: 22,
-};
-
-const panelHeaderStyle = {
-  marginBottom: 0,
-  fontSize: 18,
-  fontWeight: 700,
-  color: "#222",
-};
-
-const panelHeaderRowStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: 12,
-  marginBottom: 18,
-};
-
-const panelHeaderMetaStyle = {
-  display: "flex",
-  gap: 12,
-  alignItems: "center",
-  flexWrap: "wrap",
-};
-
-const panelHeaderMetaItemStyle = {
-  fontSize: 14,
-  color: "#555",
-  fontWeight: 600,
-};
-
-const filtersGridStyle = {
-  display: "grid",
-  gap: 16,
-  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-};
-
-const fieldRowStyle = {
-  display: "grid",
-  gap: 16,
-  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-};
-
-const fieldLabelStyle = {
-  display: "grid",
-  gap: 10,
-  fontSize: 14,
-  color: "#333",
-};
-
-const inputStyle = {
-  width: "100%",
-  borderRadius: 12,
-  border: "1px solid #d8d8d8",
-  padding: "12px 14px",
-  fontSize: 14,
-};
-
-const tableStyle = {
-  width: "100%",
-  borderCollapse: "collapse",
-};
-
-const statusSelectStyle = {
-  borderRadius: 10,
-  border: "1px solid #d8d8d8",
-  padding: "8px 10px",
-  width: "100%",
-  fontSize: 13,
-};
-
-const actionButtonStyle = {
-  appearance: "none",
-  border: "none",
-  background: "#DC143C",
-  color: "#fff",
-  borderRadius: 10,
-  padding: "8px 12px",
-  cursor: "pointer",
-};
-//crear reserva: botón verde
-const primaryButtonStyle = {
-  appearance: "none",
-  border: "none",
-  background: "#21840a",
-  color: "#fff",
-  borderRadius: 12,
-  padding: "12px 18px",
-  cursor: "pointer",
-  fontWeight: 700,
-};
-
-const secondaryButtonStyle = {
-  appearance: "none",
-  border: "1px solid #dcdcdc",
-  background: "#fafafa",
-  color: "#333",
-  borderRadius: 12,
-  padding: "12px 18px",
-  cursor: "pointer",
-};
-
-const buttonRowStyle = {
-  display: "flex",
-  gap: 12,
-  flexWrap: "wrap",
-  marginTop: 8,
-};
-
-const infoTextStyle = {
-  color: "#555",
-};
-
-const errorTextStyle = {
-  color: "#8b0000",
-};
-
-const emptyRowStyle = {
-  padding: 18,
-  color: "#666",
-  textAlign: "center",
-};
-
-const searchResultsStyle = {
-  display: "grid",
-  gap: 10,
-  marginTop: 12,
-  padding: "12px",
-  background: "#f9fafb",
-  borderRadius: 12,
-  border: "1px solid #eee",
-  maxHeight: "400px",
-  overflowY: "auto",
-};
-
-const searchResultButtonStyle = {
-  textAlign: "left",
-  background: "#f8fafb",
-  border: "1px solid #ddd",
-  borderRadius: 12,
-  padding: "12px 14px",
-  cursor: "pointer",
-  display: "grid",
-  gap: 4,
-  transition: "all 0.2s ease",
-  "&:hover": {
-    background: "#e8f2ff",
-    borderColor: "#DC143C",
-  },
-};
-
-const selectedUserCardStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "16px 18px",
-  borderRadius: 14,
-  border: "2px solid #DC143C",
-  background: "#fff5f7",
-  gap: 14,
-  boxShadow: "0 2px 8px rgba(220, 20, 60, 0.08)",
-};
-
-const infoSectionStyle = {
-  marginBottom: 12,
-  color: "#444",
-};
-
-const subHeaderStyle = {
-  marginBottom: 10,
-  fontWeight: 700,
-  color: "#222",
-};
-
-const tableGridStyle = {
-  display: "grid",
-  gap: 12,
-  gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-};
-
-const tableCardStyle = {
-  borderRadius: 14,
-  border: "1px solid #e5e7eb",
-  background: "#f8f9ff",
-  padding: 14,
-  display: "grid",
-  gap: 8,
-};
-
-const formStyle = {
-  display: "grid",
-  gap: 16,
 };
 
 export default AdminReservationsView;

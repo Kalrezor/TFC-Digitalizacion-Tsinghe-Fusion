@@ -18,13 +18,12 @@ import Home from "./Home";
 import ProfileForm from "../components/ProfileForm";
 import Menu from "./Menu";
 import SplitBillForm from "../components/SplitBillForm";
-import "../styles/ChineseStyle.css";
 
 // Pantalla de bienvenida segun rol
 const WelcomePanel = ({ role, userName }) => (
   <div style={{ padding: "40px 20px", textAlign: "center" }}>
     <div style={{ fontSize: "60px", marginBottom: "16px" }}>
-      {role === "admin" ? "🛠️" : "🍽️"}
+      {role === "admin" ? "ðŸ› ï¸" : "ðŸ½ï¸"}
     </div>
     <h2 style={{ color: "#050505", marginBottom: "8px" }}>
       {role === "admin"
@@ -63,13 +62,13 @@ const WelcomePanel = ({ role, userName }) => (
         {[
           { emoji: "🍜", label: "Menú", desc: "Platos, precios y alérgenos" },
           {
-            emoji: "🪑",
+            emoji: "ðŸª‘",
             label: "Mesas",
             desc: "Mesas reales con estado en tiempo real",
           },
-          { emoji: "🏷️", label: "Ofertas", desc: "Promociones y descuentos" },
+          { emoji: "ðŸ·ï¸", label: "Ofertas", desc: "Promociones y descuentos" },
           {
-            emoji: "📋",
+            emoji: "ðŸ“‹",
             label: "Reservas",
             desc: "Todas las reservas del restaurante",
           },
@@ -244,13 +243,7 @@ const renderContent = (
     case "admin-reservas":
       return <AdminReservationsView />;
     case "admin-crear-reserva":
-      return (
-        <AdminReservationForm
-          onReservationCreated={() => {
-            // Podría hacer algo aquí si quiere
-          }}
-        />
-      );
+      return <AdminReservationForm onReservationCreated={() => {}} />;
 
     default:
       return (
@@ -263,12 +256,12 @@ const renderContent = (
 
 // Iconos para el sidebar
 const ICONS = {
-  inicio: "🏠",
-  reservas: "📅",
-  "admin-menu": "🍜",
-  "admin-mesas": "🪑",
-  "admin-ofertas": "🏷️",
-  "admin-reservas": "📋",
+  inicio: "ðŸ ",
+  reservas: "ðŸ“…",
+  "admin-menu": "ðŸœ",
+  "admin-mesas": "ðŸª‘",
+  "admin-ofertas": "ðŸ·ï¸",
+  "admin-reservas": "ðŸ“‹",
 };
 
 void ICONS;
@@ -345,3 +338,4 @@ const Dashboard = ({
 };
 
 export default Dashboard;
+
