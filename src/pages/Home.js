@@ -135,11 +135,6 @@ const Home = () => {
 
     const start = parseLocalDate(offer.startDate);
     const end = parseLocalDate(offer.endDate);
-    
-    console.log(`[Validando Oferta: ${offer.title}]`);
-    console.log("-> Hora actual del cliente:", now.toLocaleString());
-    if (start) console.log("-> Fecha Inicio:", start.toLocaleString(), " | ¿Válida aún?:", now >= start);
-    if (end) console.log("-> Fecha Fin:", end.toLocaleString(), " | ¿Expirada?:", now > end);
 
     if (start && now < start) return false;
     if (end && now > end) return false;

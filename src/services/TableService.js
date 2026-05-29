@@ -164,7 +164,6 @@ class TableService {
       );
 
       await Promise.all(updates);
-      console.log(`Mesas fusionadas para reserva ${reservationId}: ${fusionCode}`);
       return {
         success: true,
         message: `${tableIds.length} mesas fusionadas exitosamente (${fusionCode})`,
@@ -215,7 +214,6 @@ class TableService {
       }
 
       await Promise.all(updates);
-      console.log(`${tableIds.length} mesas desvinculadas`);
       return {
         success: true,
         message: `${tableIds.length} mesas desvinculadas exitosamente`,

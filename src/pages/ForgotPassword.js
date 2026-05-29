@@ -38,18 +38,14 @@ const ForgotPassword = () => {
     return message || "Error inesperado";
   };
 
-  //eliminamos todos los setError
-
   const requestToken = async (emailValue) => {
     setLoading(true);
     try {
       await AuthService.requestPasswordReset(emailValue);
       setStep(2);
-      //setMessage("Token enviado a tu email");
       toastSuccess("Token enviado a tu email");
     } catch (err) {
       setStep(2);
-      //setMessage("Token enviado a tu email");
       toastInfo("Si hay una cuenta registrada, recibirás el token en tu email.");
     } finally {
       setLoading(false);
@@ -70,13 +66,11 @@ const ForgotPassword = () => {
 
     if (!email.trim()) {
       toastError("Por favor ingresa tu email");
-      //setError("Por favor ingresa tu email");
       return;
     }
 
     if (!validateEmail(email)) {
       toastError("Por favor ingresa un email válido");
-      //setError("Por favor ingresa un email válido");
       return;
     }
 
@@ -89,51 +83,43 @@ const ForgotPassword = () => {
 
     if (!isGoogleSetup && !token.trim()) {
       toastError("Ingresa el token recibido en tu email");
-      //setError("Ingresa el token recibido en tu email");
       return;
     }
 
     if (!isGoogleSetup && token.length !== 3) {
       toastError("El token debe tener exactamente 3 caracteres");
-      //setError("El token debe tener exactamente 3 caracteres");
       return;
     }
 
     if (isGoogleSetup) {
       if (!phone.trim()) {
         toastError("El número de teléfono es obligatorio");
-        //setError("El número de teléfono es obligatorio");
         return;
       }
       const phoneRegex = /^\+?[0-9\s\-\(\)]{7,15}$/;
       if (!phoneRegex.test(phone.trim())) {
         toastError("Por favor ingresa un número de teléfono válido");
-        //setError("Por favor ingresa un número de teléfono válido");
         return;
       }
     }
 
     if (!newPassword) {
       toastError("Ingresa una nueva contraseña");
-      //setError("Ingresa una nueva contraseña");
       return;
     }
 
     if (newPassword.length < 6) {
       toastError("La contraseña debe tener al menos 6 caracteres");
-      //setError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
 
     if (!confirmPassword) {
       toastError("Confirma tu nueva contraseña");
-      //setError("Confirma tu nueva contraseña");
       return;
     }
 
     if (newPassword !== confirmPassword) {
       toastError("Las contraseñas no coinciden");
-      //setError("Las contraseñas no coinciden");
       return;
     }
 
@@ -147,17 +133,14 @@ const ForgotPassword = () => {
       if (result.success) {
         sessionStorage.removeItem("googlePasswordSetupPending");
         toastSuccess("Contraseña actualizada exitosamente");
-        //setMessage("Contraseña actualizada exitosamente");
         setTimeout(() => {
           navigate(isGoogleSetup ? "/dashboard" : "/login");
         }, 2000);
       } else {
         toastError(getPasswordErrorMessage(result));
-        //setError(result.error || "Error al resetear la contraseña");
       }
     } catch (err) {
       toastError(getPasswordErrorMessage(err));
-      //setError(err.message || "Error inesperado");
     } finally {
       setLoading(false);
     }

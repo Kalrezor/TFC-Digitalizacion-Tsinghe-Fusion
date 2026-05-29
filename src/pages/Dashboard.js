@@ -243,13 +243,7 @@ const renderContent = (
     case "admin-reservas":
       return <AdminReservationsView />;
     case "admin-crear-reserva":
-      return (
-        <AdminReservationForm
-          onReservationCreated={() => {
-            // Podría hacer algo aquí si quiere
-          }}
-        />
-      );
+      return <AdminReservationForm onReservationCreated={() => {}} />;
 
     default:
       return (
