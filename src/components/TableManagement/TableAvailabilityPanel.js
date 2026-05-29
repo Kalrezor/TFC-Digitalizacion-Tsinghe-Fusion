@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import useTablesByDateAndShift from "../../hooks/useTablesByDateAndShift";
 import ReservationTableService from "../../services/ReservationTableService";
+import { toastError, toastSuccess } from "../../services/ToastService";
 
 const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
   const { active: activeTables = [], reserved: reservedTables = [], inactive: inactiveTables = [], loading, error, refetch } = useTablesByDateAndShift(selectedDate, selectedShift);
@@ -13,6 +14,24 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
     setActionMessage("");
     setActionError("");
   };
+
+  useEffect(() => {
+    if (actionMessage) {
+      toastSuccess(actionMessage);
+    }
+  }, [actionMessage]);
+
+  useEffect(() => {
+    if (actionError) {
+      toastError(actionError);
+    }
+  }, [actionError]);
+
+  useEffect(() => {
+    if (error) {
+      toastError("Error: " + error);
+    }
+  }, [error]);
 
   // Cargar detalles de reservas para mesas ocupadas
   useEffect(() => {
@@ -101,7 +120,7 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
   if (error) {
     return (
       <div style={styles.container}>
-        <div style={styles.errorMessage}>Error: {error}</div>
+        <div style={styles.loadingMessage}>No se pudo cargar la disponibilidad.</div>
       </div>
     );
   }
@@ -118,8 +137,6 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
   return (
     <div style={styles.container}>
       <h3 style={styles.title}>Disponibilidad de Mesas</h3>
-      {actionMessage && <div style={styles.successBanner}>{actionMessage}</div>}
-      {actionError && <div style={styles.errorBanner}>{actionError}</div>}
 
       <div style={styles.grid}>
         {/* LIBRES */}
@@ -342,22 +359,6 @@ const styles = {
     padding: "8px 12px",
     cursor: "pointer",
     fontWeight: "600",
-  },
-  successBanner: {
-    marginBottom: "16px",
-    padding: "12px 16px",
-    backgroundColor: "#d1fae5",
-    color: "#065f46",
-    borderRadius: "6px",
-    border: "1px solid #10b981",
-  },
-  errorBanner: {
-    marginBottom: "16px",
-    padding: "12px 16px",
-    backgroundColor: "#fee2e2",
-    color: "#7f1d1d",
-    borderRadius: "6px",
-    border: "1px solid #fca5a5",
   },
   noData: {
     textAlign: "center",

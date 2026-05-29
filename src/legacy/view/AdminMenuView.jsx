@@ -3,6 +3,7 @@ import { useAuth } from '../control/AuthContext';
 import { db, storage } from '../firebaseConfig';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { toastConfirm, toastError, toastSuccess } from '../../services/ToastService';
 import '../styles/AdminMenuView.css';
 
 export default function AdminMenuView() {
@@ -72,6 +73,12 @@ export default function AdminMenuView() {
       setLoadError('Debes iniciar sesión para cargar datos.');
     }
   }, [authLoading, currentUser]);
+
+  useEffect(() => {
+    if (loadError) {
+      toastError('Error al cargar datos: ' + loadError);
+    }
+  }, [loadError]);
 
   const cargarDatos = async () => {
     try {
@@ -227,14 +234,14 @@ export default function AdminMenuView() {
       }
 
       console.log('🎉 Datos de ejemplo creados correctamente');
-      alert('✅ Datos de ejemplo creados correctamente. Haz clic en "🔍 Verificar Datos" para confirmar.');
+      toastSuccess('Datos de ejemplo creados correctamente. Haz clic en "Verificar Datos" para confirmar.');
 
       // No recargar automáticamente, dejar que el usuario verifique manualmente
       // await cargarDatos();
 
     } catch (error) {
       console.error('❌ Error al crear datos de ejemplo:', error);
-      alert('Error al crear datos de ejemplo: ' + error.message);
+      toastError('Error al crear datos de ejemplo: ' + error.message);
     }
   };
 
@@ -297,12 +304,12 @@ export default function AdminMenuView() {
     e.preventDefault();
 
     if (!formData.nombre || !formData.idCategoria || !formData.descripcion || !formData.precio) {
-      alert('Por favor completa todos los campos obligatorios');
+      toastError('Por favor completa todos los campos obligatorios');
       return;
     }
 
     if (formData.precio <= 0) {
-      alert('El precio debe ser mayor a 0');
+      toastError('El precio debe ser mayor a 0');
       return;
     }
 
@@ -343,11 +350,11 @@ export default function AdminMenuView() {
 
       // Resetear formulario
       resetForm();
-      alert(editingPlato ? 'Plato actualizado correctamente' : 'Plato creado correctamente');
+      toastSuccess(editingPlato ? 'Plato actualizado correctamente' : 'Plato creado correctamente');
 
     } catch (error) {
       console.error('Error al guardar plato:', error);
-      alert('Error al guardar el plato');
+      toastError('Error al guardar el plato');
     } finally {
       setUploading(false);
     }
@@ -382,7 +389,7 @@ export default function AdminMenuView() {
   };
 
   const eliminarPlato = async (plato) => {
-    if (!window.confirm(`¿Estás seguro de que deseas eliminar "${plato.nombre}"?`)) {
+    if (!(await toastConfirm(`¿Estás seguro de que deseas eliminar "${plato.nombre}"?`, { confirmText: "Eliminar" }))) {
       return;
     }
 
@@ -396,11 +403,11 @@ export default function AdminMenuView() {
       await deleteDoc(doc(db, 'plate', plato.id));
 
       setPlatos(platos.filter(p => p.id !== plato.id));
-      alert('Plato eliminado correctamente');
+      toastSuccess('Plato eliminado correctamente');
 
     } catch (error) {
       console.error('Error al eliminar plato:', error);
-      alert('Error al eliminar el plato');
+      toastError('Error al eliminar el plato');
     }
   };
 
@@ -457,14 +464,10 @@ export default function AdminMenuView() {
         </div>
       </div>
 
-      {loadError && (
-        <div className="data-error">Error al cargar datos: {loadError}</div>
-      )}
-
       {/* FORMULARIO */}
       {showForm && (
         <div className="form-container">
-          <form onSubmit={handleSubmit} className="plato-form">
+          <form noValidate onSubmit={handleSubmit} className="plato-form">
             <div className="form-grid">
               <div className="form-group">
                 <label htmlFor="nombre">Nombre del Plato *</label>

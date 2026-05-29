@@ -87,12 +87,6 @@ const Login = () => {
           <p>Accede a tu cuenta en Tsinghe</p>
         </div>
 
-        {error && (
-          <div className="error-message" style={{ marginBottom: "16px" }}>
-            {error}
-          </div>
-        )}
-
         <form noValidate onSubmit={handleLoginSubmit} style={{ marginBottom: "24px" }}>
           <div className="form-group">
             <label>Email</label>

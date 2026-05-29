@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -32,6 +32,27 @@ import AdminOffers from "./pages/AdminOffers";
 
 import { Toaster } from "react-hot-toast";
 import "./styles/MinimalStyle.css";
+
+const CHATBOT_SETTINGS_KEY = "tsinghe-chatbot-settings";
+const DEFAULT_CHATBOT_SETTINGS = {
+  comensal: true,
+  admin: true,
+};
+
+const getChatbotSettings = () => {
+  try {
+    const storedSettings = localStorage.getItem(CHATBOT_SETTINGS_KEY);
+    if (!storedSettings) return DEFAULT_CHATBOT_SETTINGS;
+    return {
+      ...DEFAULT_CHATBOT_SETTINGS,
+      ...JSON.parse(storedSettings),
+    };
+  } catch (error) {
+    return DEFAULT_CHATBOT_SETTINGS;
+  }
+};
+
+const normalizeChatbotRole = (role) => (role === "admin" ? "admin" : "comensal");
 
 // ── Pantalla de Carga ────────────────────────────────────────────────────────
 const LoadingScreen = () => (
@@ -87,10 +108,36 @@ const AdminRoute = ({ children, isAuthenticated, loading, role }) => {
 // ── App Principal ───────────────────────────────────────────────────────────
 function App() {
   const { user, userName, userEmail, role, loading, logout } = useAuth();
+  const [chatbotSettings, setChatbotSettings] = useState(getChatbotSettings);
 
   const isAuthenticated = !!user;
   const needsGooglePasswordSetup =
     sessionStorage.getItem("googlePasswordSetupPending") === "true";
+  const chatbotRole = normalizeChatbotRole(role);
+  const isChatbotEnabled = chatbotSettings[chatbotRole] !== false;
+
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key === CHATBOT_SETTINGS_KEY) {
+        setChatbotSettings(getChatbotSettings());
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const toggleChatbot = (targetRole) => {
+    setChatbotSettings((currentSettings) => {
+      const nextSettings = {
+        ...DEFAULT_CHATBOT_SETTINGS,
+        ...currentSettings,
+        [targetRole]: currentSettings[targetRole] === false,
+      };
+      localStorage.setItem(CHATBOT_SETTINGS_KEY, JSON.stringify(nextSettings));
+      return nextSettings;
+    });
+  };
 
   // IMPORTANTE: El chequeo de loading debe ir AQUÍ dentro
   if (loading) {
@@ -148,6 +195,8 @@ function App() {
                 userName={userName}
                 userEmail={userEmail}
                 logout={logout}
+                chatbotSettings={chatbotSettings}
+                onToggleChatbot={toggleChatbot}
               />
             </ProtectedRoute>
           }
@@ -206,7 +255,12 @@ function App() {
       </Routes>
 
       {isAuthenticated && (
-        <RestaurantChatbot user={user} role={role} userName={userName} />
+        <RestaurantChatbot
+          user={user}
+          role={role}
+          userName={userName}
+          enabled={isChatbotEnabled}
+        />
       )}
       <Toaster
         toastOptions={{
