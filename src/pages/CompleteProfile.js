@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthService from "../services/AuthService";
+import { toastError, toastSuccess } from "../services/ToastService";
 import "../styles/MinimalStyle.css";
 
 const CompleteProfile = () => {
@@ -42,6 +43,18 @@ const CompleteProfile = () => {
 
     checkUserData();
   }, [navigate]);
+
+  useEffect(() => {
+    if (error) {
+      toastError(error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      toastSuccess("Perfil completado. Redirigiendo...");
+    }
+  }, [success]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -136,18 +149,7 @@ const CompleteProfile = () => {
           </p>
         </div>
 
-        {success && (
-          <div className="success-box" style={{ marginBottom: "16px" }}>
-            ✓ ¡Perfil completado! Redirigiendo...
-          </div>
-        )}
-        {error && (
-          <div className="error-box" style={{ marginBottom: "16px" }}>
-            ⚠ {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
+        <form noValidate onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Número de Teléfono *</label>
             <input

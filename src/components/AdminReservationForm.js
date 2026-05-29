@@ -5,6 +5,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import ReservationService from "../services/ReservationService";
 import UserService from "../services/UserService";
+import { toastError, toastInfo, toastSuccess } from "../services/ToastService";
 import "../styles/ChineseStyle.css";
 
 const AdminReservationForm = ({ onReservationCreated }) => {
@@ -79,6 +80,31 @@ const AdminReservationForm = ({ onReservationCreated }) => {
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
+
+  useEffect(() => {
+    if (!error) return;
+    if (error.startsWith("Usuario creado")) {
+      toastInfo(error);
+    } else {
+      toastError(error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      toastSuccess("Reserva creada exitosamente.");
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (
+      availableTables.length === 0 &&
+      formData.reservationDate &&
+      formData.reservationTime
+    ) {
+      toastInfo("No hay mesas disponibles para la fecha y hora seleccionadas.");
+    }
+  }, [availableTables.length, formData.reservationDate, formData.reservationTime]);
 
   // Filtrar usuarios por búsqueda en tiempo real
   useEffect(() => {
@@ -276,14 +302,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
       <div className="reservation-form-card">
         <h2>📅 Crear Reserva para Usuario</h2>
 
-        {error && <div className="error-message error-box">❌ {error}</div>}
-        {success && (
-          <div className="success-message success-box">
-            ✅ ¡Reserva creada exitosamente!
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="reservation-form">
+        <form noValidate onSubmit={handleSubmit} className="reservation-form">
           {/* Seleccionar Usuario - Con búsqueda en tiempo real */}
           <div className="form-group">
             <label htmlFor="userSearch">Seleccionar Usuario</label>
@@ -543,13 +562,6 @@ const AdminReservationForm = ({ onReservationCreated }) => {
           </button>
         </form>
 
-        {availableTables.length === 0 &&
-          formData.reservationDate &&
-          formData.reservationTime && (
-            <div className="info-message">
-              ℹ️ No hay mesas disponibles para la fecha y hora seleccionadas
-            </div>
-          )}
       </div>
     </div>
   );

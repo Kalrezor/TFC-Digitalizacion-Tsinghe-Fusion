@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebaseConfig";
+import { toastError, toastSuccess } from "../../services/ToastService";
 import "../styles/ForgotPasswordView.css";
 
 export default function ForgotPasswordView({ navegarA }) {
@@ -9,6 +10,18 @@ export default function ForgotPasswordView({ navegarA }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [step, setStep] = useState("email"); // "email" o "verification"
+
+  useEffect(() => {
+    if (error) {
+      toastError(error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success && step === "verification") {
+      toastSuccess("Email enviado correctamente. Revisa tu bandeja de entrada.");
+    }
+  }, [success, step]);
 
   const handleSendReset = async (e) => {
     e.preventDefault();
@@ -63,22 +76,8 @@ export default function ForgotPasswordView({ navegarA }) {
             <p className="forgot-password-subtitle">Te enviaremos un email para que recuperes acceso a tu cuenta</p>
           </div>
 
-          {error && (
-            <div className="alert alert-error">
-              <span className="alert-icon">⚠️</span>
-              {error}
-            </div>
-          )}
-
-          {success && step === "verification" && (
-            <div className="alert alert-success">
-              <span className="alert-icon">✓</span>
-              Email enviado correctamente. Revisa tu bandeja de entrada.
-            </div>
-          )}
-
           {step === "email" && (
-            <form onSubmit={handleSendReset} className="forgot-password-form">
+            <form noValidate onSubmit={handleSendReset} className="forgot-password-form">
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
                   Correo Electrónico

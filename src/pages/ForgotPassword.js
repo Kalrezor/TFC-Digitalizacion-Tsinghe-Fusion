@@ -180,12 +180,6 @@ const ForgotPassword = () => {
           </p>
         </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-
         {step === 1 && (
           <form noValidate onSubmit={handleRequestToken} style={{ marginBottom: "20px" }}>
             <div className="form-group">

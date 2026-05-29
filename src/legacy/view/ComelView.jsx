@@ -3,6 +3,7 @@ import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebaseConfig';
 import { useAuth } from '../control/AuthContext';
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { toastConfirm, toastError, toastSuccess } from '../../services/ToastService';
 import '../styles/ComelView.css';
 
 export default function ComelView() {
@@ -58,7 +59,7 @@ export default function ComelView() {
     e.preventDefault();
 
     if (!formData.fecha || !formData.hora) {
-      alert('Por favor completa todos los campos');
+      toastError('Por favor completa todos los campos');
       return;
     }
 
@@ -81,15 +82,15 @@ export default function ComelView() {
         notas: ''
       });
       setShowForm(false);
-      alert('¡Reserva creada exitosamente!');
+      toastSuccess('Reserva creada exitosamente.');
     } catch (error) {
       console.error('Error al crear reserva:', error);
-      alert('Error al crear la reserva');
+      toastError('Error al crear la reserva');
     }
   };
 
   const eliminarReserva = async (id) => {
-    if (window.confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
+    if (await toastConfirm('¿Estás seguro de que deseas cancelar esta reserva?', { confirmText: "Cancelar reserva" })) {
       try {
         await deleteDoc(doc(db, 'reservas', id));
         setMiReservas(miReservas.filter(r => r.id !== id));
@@ -157,7 +158,7 @@ export default function ComelView() {
             {/* FORMULARIO */}
             {showForm && (
               <div className="reserva-form-container">
-                <form onSubmit={handleSubmitReserva} className="reserva-form">
+                <form noValidate onSubmit={handleSubmitReserva} className="reserva-form">
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="nombre">Nombre</label>

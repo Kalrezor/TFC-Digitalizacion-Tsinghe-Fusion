@@ -26,7 +26,7 @@ const WelcomePanel = ({ role, userName }) => (
     <div style={{ fontSize: "60px", marginBottom: "16px" }}>
       {role === "admin" ? "🛠️" : "🍽️"}
     </div>
-    <h2 style={{ color: "#DC143C", marginBottom: "8px" }}>
+    <h2 style={{ color: "#050505", marginBottom: "8px" }}>
       {role === "admin"
         ? `Panel de Administración`
         : `¡Bienvenido, ${userName || "Usuario"}!`}
@@ -78,8 +78,8 @@ const WelcomePanel = ({ role, userName }) => (
             key={c.label}
             style={{
               background: "#fff",
-              border: "2px solid #FFD700",
-              borderRadius: "10px",
+              border: "1px solid #050505",
+              borderRadius: 0,
               padding: "20px 24px",
               minWidth: "140px",
               textAlign: "center",
@@ -87,7 +87,7 @@ const WelcomePanel = ({ role, userName }) => (
           >
             <div style={{ fontSize: "32px" }}>{c.emoji}</div>
             <div
-              style={{ fontWeight: "bold", color: "#DC143C", marginTop: "8px" }}
+              style={{ fontWeight: "bold", color: "#050505", marginTop: "8px" }}
             >
               {c.label}
             </div>
@@ -101,8 +101,113 @@ const WelcomePanel = ({ role, userName }) => (
   </div>
 );
 
+const ChatbotControlPanel = ({ settings, onToggle }) => {
+  const controls = [
+    { key: "comensal", label: "Comensal" },
+    { key: "admin", label: "Admin" },
+  ];
+
+  return (
+    <div style={{ padding: "40px 20px" }}>
+      <div
+        style={{
+          maxWidth: "720px",
+          margin: "0 auto",
+          background: "#fff",
+          border: "1px solid #050505",
+          padding: "28px",
+        }}
+      >
+        <p
+          style={{
+            fontSize: "11px",
+            fontWeight: 600,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "#050505",
+            marginBottom: "10px",
+          }}
+        >
+          Panel de mando
+        </p>
+        <h2 style={{ color: "#050505", marginBottom: "24px" }}>Chatbot</h2>
+
+        <div style={{ display: "grid", gap: "14px" }}>
+          {controls.map((control) => {
+            const isEnabled = settings?.[control.key] !== false;
+            return (
+              <div
+                key={control.key}
+                style={{
+                  border: "1px solid #050505",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "16px",
+                  padding: "16px",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      letterSpacing: "0.18em",
+                      textTransform: "uppercase",
+                      color: "#71717a",
+                    }}
+                  >
+                    Chatbot
+                  </div>
+                  <div
+                    style={{
+                      color: "#050505",
+                      fontSize: "20px",
+                      fontWeight: 600,
+                      marginTop: "4px",
+                    }}
+                  >
+                    {control.label}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onToggle(control.key)}
+                  aria-pressed={isEnabled}
+                  style={{
+                    minWidth: "92px",
+                    border: "1px solid #050505",
+                    background: isEnabled ? "#050505" : "#fff",
+                    color: isEnabled ? "#fff" : "#050505",
+                    padding: "12px 16px",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {isEnabled ? "ON" : "OFF"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Render del contenido segun opcion del sidebar
-const renderContent = (selectedOption, role, userId, userName, userEmail) => {
+const renderContent = (
+  selectedOption,
+  role,
+  userId,
+  userName,
+  userEmail,
+  chatbotSettings,
+  onToggleChatbot,
+) => {
   switch (selectedOption) {
     case "inicio":
       return <ProfileForm userId={userId} />;
@@ -120,6 +225,14 @@ const renderContent = (selectedOption, role, userId, userName, userEmail) => {
     // Opción compartida para ambos roles
     case "split-bill":
       return <SplitBillForm />;
+
+    case "chatbot-control":
+      return (
+        <ChatbotControlPanel
+          settings={chatbotSettings}
+          onToggle={onToggleChatbot}
+        />
+      );
 
     // Admin
     case "admin-menu":
@@ -160,7 +273,15 @@ const ICONS = {
 
 void ICONS;
 
-const Dashboard = ({ role, userId, userName, userEmail, logout }) => {
+const Dashboard = ({
+  role,
+  userId,
+  userName,
+  userEmail,
+  logout,
+  chatbotSettings,
+  onToggleChatbot,
+}) => {
   const { selectedOption, availableOptions, selectOption } = useDashboard(role);
   const navigate = useNavigate();
   const location = useLocation();
@@ -205,11 +326,19 @@ const Dashboard = ({ role, userId, userName, userEmail, logout }) => {
       <main
         style={{
           flex: 1,
-          background: "#fafaf5",
+          background: "#ffffff",
           overflowY: "auto",
         }}
       >
-        {renderContent(selectedOption, role, userId, userName, userEmail)}
+        {renderContent(
+          selectedOption,
+          role,
+          userId,
+          userName,
+          userEmail,
+          chatbotSettings,
+          onToggleChatbot,
+        )}
       </main>
     </div>
   );

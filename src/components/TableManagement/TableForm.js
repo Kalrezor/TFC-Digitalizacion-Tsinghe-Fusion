@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import tableService from "../../services/TableService";
+import { toastError } from "../../services/ToastService";
 
 const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
   const [formData, setFormData] = useState({
@@ -38,6 +39,14 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
       setErrors({});
     }
   }, [editingTable, isOpen]);
+
+  useEffect(() => {
+    Object.values(errors).forEach((message) => {
+      if (message) {
+        toastError(message);
+      }
+    });
+  }, [errors]);
 
   const validateForm = async () => {
     const newErrors = {};
@@ -129,11 +138,7 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          {errors.submit && (
-            <div style={styles.errorAlert}>{errors.submit}</div>
-          )}
-
+        <form noValidate onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
             <label style={styles.label}>
               Número de Mesa <span style={styles.required}>*</span>
@@ -151,9 +156,6 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
               placeholder="Ej: 1, 2, 3..."
               disabled={loading}
             />
-            {errors.number && (
-              <p style={styles.errorText}>{errors.number}</p>
-            )}
           </div>
 
           <div style={styles.formGroup}>
@@ -174,9 +176,6 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
               placeholder="Ej: 2, 4, 6..."
               disabled={loading}
             />
-            {errors.capacity && (
-              <p style={styles.errorText}>{errors.capacity}</p>
-            )}
           </div>
 
           <div style={styles.formGroup}>
@@ -290,14 +289,6 @@ const styles = {
     fontSize: "12px",
     color: "#dc2626",
     margin: 0,
-  },
-  errorAlert: {
-    padding: "12px",
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
-    borderRadius: "6px",
-    fontSize: "14px",
-    border: "1px solid #fecaca",
   },
   checkboxLabel: {
     display: "flex",

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { updateProfile } from "firebase/auth";
+import { toastError, toastSuccess } from "../services/ToastService";
 
 const fieldStyle = {
   display: "block",
@@ -33,6 +34,15 @@ const ProfileForm = ({ userId }) => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    if (!message) return;
+    if (message.type === "error") {
+      toastError(message.text);
+    } else {
+      toastSuccess(message.text);
+    }
+  }, [message]);
 
   useEffect(() => {
     let mounted = true;
@@ -93,7 +103,7 @@ const ProfileForm = ({ userId }) => {
       {loading ? (
         <div style={{ color: "#888" }}>Cargando perfil...</div>
       ) : (
-        <form onSubmit={handleSave}>
+        <form noValidate onSubmit={handleSave}>
           <div style={{ marginBottom: "10px" }}>
             <label style={labelStyle}>Nombre</label>
             <input
@@ -130,12 +140,6 @@ const ProfileForm = ({ userId }) => {
             >
               {saving ? "Guardando..." : "Guardar"}
             </button>
-
-            {message && (
-              <div style={{ color: message.type === "error" ? "#c62828" : "#2e7d32" }}>
-                {message.text}
-              </div>
-            )}
           </div>
         </form>
       )}
