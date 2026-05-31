@@ -1,10 +1,7 @@
-### feat: movimiento y funcionalidad para visualizar las politicas relacionadas con la pagina
+### feat: sistema de Políticas Legales, Cumplimiento y Consentimiento de Cookies
 
-He agregado en distintas partes de la pagina enlaces para poder navegar a las paginas donde se encuentran nuestra Política de Cookies, Politica de Privacidad y Aviso Legal de esta manera el usuario puede revisarlo cuando quiera.
-
-* **Footer:** Se a agregado los enlaces para acceder a las paginas de las partes legales que competen nuestra pagina.
-
-* **Política de Cookies:** Se ha añadido nadamas al inicar la pagina la opción para el usuario de revisar la politica, y aceptar o rechazarla.
-
-* **Registro de Sesión:** Cuando el usuario va a registrarse se puede ver el aviso de que si te registras aceptas nuestras politicas de privacidad y politicas de cookies, tambien puedes acceder a ellas.
+He corregido el movimiento de inicio de sesión y añadido el contenido de:
+* Política de Cookies
+* Política de Privacidad
+* Aviso Legal
 
