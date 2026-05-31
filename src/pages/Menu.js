@@ -131,8 +131,38 @@ const Menu = ({ role: propsRole }) => {
     setSelectedPlate(currentList[nextIndex]);
   };
 
+  const findScrollContainer = (element) => {
+    let node = element;
+    while (node && node !== document.body) {
+      const style = window.getComputedStyle(node);
+      const overflowY = style.overflowY;
+      if (
+        (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") &&
+        node.scrollHeight > node.clientHeight
+      ) {
+        return node;
+      }
+      node = node.parentElement;
+    }
+    return document.scrollingElement || document.documentElement || document.body;
+  };
+
   const scrollToMenuTop = () => {
-    menuTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const topElement = menuTopRef.current;
+    if (!topElement) return;
+
+    const scrollContainer = findScrollContainer(topElement);
+    if (scrollContainer && typeof scrollContainer.scrollTo === "function") {
+      scrollContainer.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (typeof window.scrollTo === "function") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    topElement.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   if (loading) return <div className="loading-container"><div className="loading-spinner"></div></div>;

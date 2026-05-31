@@ -300,7 +300,30 @@ class AuthService {
       };
     } catch (error) {
       console.error("Error en login con Google:", error);
-      return { success: false, error: error.message };
+
+      if (error?.code === "auth/popup-closed-by-user") {
+        return {
+          success: false,
+          error: "Inicio de sesión cancelado. Si quieres, vuelve a intentarlo.",
+          canceledByUser: true,
+        };
+      }
+
+      if (error?.code === "auth/popup-blocked") {
+        return {
+          success: false,
+          error: "El navegador bloqueó la ventana de Google. Comprueba la configuración de popups e inténtalo de nuevo.",
+        };
+      }
+
+      if (error?.code === "auth/cancelled-popup-request") {
+        return {
+          success: false,
+          error: "Ya hay un intento de inicio de sesión en curso. Por favor, inténtalo de nuevo.",
+        };
+      }
+
+      return { success: false, error: error.message || "Error al iniciar sesión con Google." };
     }
   }
 

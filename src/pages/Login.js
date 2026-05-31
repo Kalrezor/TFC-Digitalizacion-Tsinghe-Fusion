@@ -58,6 +58,9 @@ const Login = () => {
         } else {
           navigate(nextPath ? nextPath : "/home", { replace: true });
         }
+      } else if (result.canceledByUser) {
+        // El usuario cerró la ventana de Google sin elegir cuenta.
+        // No mostramos un error agresivo para no interferir con la experiencia.
       } else {
         toastError(result.error || "Error al iniciar sesión con Google");
       }
