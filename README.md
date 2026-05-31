@@ -1,7 +1,4 @@
-### feat: sistema de Políticas Legales, Cumplimiento y Consentimiento de Cookies
+### feat: error de inicio de sesión solucionado
 
-He corregido el movimiento de inicio de sesión y añadido el contenido de:
-* Política de Cookies
-* Política de Privacidad
-* Aviso Legal
+He restaurado el App.js que teniamos antes para poder solucionar un error de control de clases que habia
 
