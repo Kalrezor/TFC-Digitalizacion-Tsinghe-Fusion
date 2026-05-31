@@ -267,10 +267,10 @@ const Menu = ({ role: propsRole }) => {
 
           return (
             <section key={cat.id} id={`cat-${cat.id}`} className="category-section">
-              <div className="category-header-row" style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                {cat.imagen && <img src={cat.imagen} alt="" style={{ width: "35px", height: "35px", objectFit: "contain" }} />}
-                <h2 className="category-title-text" style={{ margin: 0 }}>{cat.nombre}</h2>
-                <div className="category-line-right" style={{ flexGrow: 1 }}></div>
+              <div className="category-header-row">
+                {cat.imagen && <img src={cat.imagen} alt="" className="category-header-icon" />}
+                <h2 className="category-title-text">{cat.nombre}</h2>
+                <div className="category-line-right"></div>
               </div>
               <div className={`plates-grid plates-grid-cols-${plateGridColumns}`}>
                 {categoryPlates.map(plate => {
@@ -291,7 +291,7 @@ const Menu = ({ role: propsRole }) => {
                         {plate.disponible === false && <div className="overlay-sold-out">AGOTADO</div>}
                       </div>
                       
-                      <div className="plate-card-info" style={{ flexGrow: 1 }}>
+                      <div className="plate-card-info">
                         <div className="plate-header">
                           <h3 className="item-name">{plate.nombre}</h3>
                           <span className="plate-price">{parseFloat(plate.precio).toFixed(2)} €</span>
@@ -314,127 +314,79 @@ const Menu = ({ role: propsRole }) => {
       {/* --- POP-UP / MODAL DEL PLATO --- */}
       {selectedPlate && (
         <div 
-          className="modal-overlay" 
+          className="menu-modal-overlay" 
           onClick={() => setSelectedPlate(null)}
-          style={{
-            position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-            backgroundColor: "rgba(0,0,0,0.7)", display: "flex", justifyContent: "center",
-            alignItems: "center", zIndex: 3000, backdropFilter: "blur(4px)"
-          }}
         >
-          <div style={{ position: "relative", width: "90%", maxWidth: "600px" }}>
-            
-            {/* Flecha Izquierda */}
+          <div className="modal-panel">
             <button
               onClick={handlePrevPlate}
-              style={{
-                position: "absolute", left: "-25px", top: "50%", transform: "translateY(-50%)",
-                background: "#f4f4f4", border: "1px solid #ddd", borderRadius: "50%", 
-                width: "45px", height: "45px", cursor: "pointer", zIndex: 3100, fontSize: "16px", 
-                display: "flex", alignItems: "center", justifyContent: "center", color: "#555",
-                boxShadow: "0 4px 10px rgba(0,0,0,0.15)", transition: "all 0.2s ease"
-              }}
-              onMouseEnter={(e) => { e.target.style.background = "#e9e9e9"; e.target.style.color = "#000"; }}
-              onMouseLeave={(e) => { e.target.style.background = "#f4f4f4"; e.target.style.color = "#555"; }}
+              className="modal-arrow-btn modal-arrow-left"
+              aria-label="Plato anterior"
+              onMouseEnter={(e) => { e.currentTarget.style.background = "#e9e9e9"; e.currentTarget.style.color = "#000"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "#f4f4f4"; e.currentTarget.style.color = "#555"; }}
             >
               ◀
             </button>
 
-            {/* Recuadro del Contenido */}
             <div 
               className="modal-content-plate" 
               onClick={(e) => e.stopPropagation()}
-              style={{
-                background: "white", width: "100%", borderRadius: "12px",
-                overflow: "hidden", position: "relative", boxShadow: "0 20px 40px rgba(0,0,0,0.25)"
-              }}
             >
               <button 
                 onClick={() => setSelectedPlate(null)}
-                style={{
-                  position: "absolute", top: "15px", right: "15px", background: "white",
-                  border: "1px solid #aaa", borderRadius: "50%", width: "30px", height: "30px",
-                  cursor: "pointer", zIndex: 10, fontWeight: "bold", color: "#555"
-                }}
+                className="modal-close-btn"
+                aria-label="Cerrar"
               >
                 ✕
               </button>
               
-              {/* Contenedor Pop-up Inteligente con imagen por defecto reactiva */}
-              <div 
-                style={{ 
-                  width: "100%", 
-                  height: "320px", 
-                  overflow: "hidden", 
-                  display: "flex", 
-                  justifyContent: "center", 
-                  alignItems: "center", 
-                  backgroundColor: "#ffffff",
-                  padding: "15px",
-                  boxSizing: "border-box"
-                }}
-              >
+              <div className="modal-plate-image">
                 <img 
                   src={selectedPlate.imagen && selectedPlate.imagen.trim() !== "" ? selectedPlate.imagen : DEFAULT_PLATE_IMAGE} 
                   alt={selectedPlate.nombre} 
-                  style={{ 
-                    maxWidth: "100%", 
-                    maxHeight: "100%", 
-                    width: "auto",
-                    height: "auto",
-                    objectFit: "contain",
-                    display: "block",
-                    margin: "0 auto"
-                  }} 
                 />
               </div>
               
-              <div style={{ padding: "30px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "15px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
-                  <h2 style={{ fontFamily: "Georgia, serif", fontSize: "28px", margin: 0, fontWeight: "400" }}>
+              <div className="modal-body">
+                <div className="modal-header-row">
+                  <h2 className="modal-title">
                     {selectedPlate.nombre}
                   </h2>
-                  <span style={{ fontSize: "22px", fontWeight: "700", color: "#050505" }}>
+                  <span className="modal-price">
                     {parseFloat(selectedPlate.precio).toFixed(2)} €
                   </span>
                 </div>
                 
-                <p style={{ color: "#444", fontSize: "16px", lineHeight: "1.6", marginBottom: "25px" }}>
+                <p className="modal-description">
                   {selectedPlate.descripcion}
                 </p>
                 
-                <div style={{ borderTop: "1px solid #eee", paddingTop: "15px" }}>
-                  <h4 style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "10px", color: "#888" }}>
+                <div className="modal-allergens-section">
+                  <h4 className="modal-allergens-title">
                     Información de Alérgenos
                   </h4>
-                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <div className="modal-allergens-list">
                     {selectedPlate.alergenos?.length > 0 ? (
                       selectedPlate.alergenos.map(aleId => (
-                        <div key={aleId} style={{ display: "flex", alignItems: "center", gap: "5px", background: "#f9f9f9", padding: "5px 10px", borderRadius: "20px", border: "1px solid #eee" }}>
-                          <img src={allAllergens[aleId]?.imagen} alt="" style={{ width: "18px", height: "18px" }} />
-                          <span style={{ fontSize: "12px", fontWeight: "600" }}>{allAllergens[aleId]?.nombre}</span>
+                        <div key={aleId} className="modal-allergen-pill">
+                          <img src={allAllergens[aleId]?.imagen} alt="" className="modal-allergen-icon" />
+                          <span>{allAllergens[aleId]?.nombre}</span>
                         </div>
                       ))
                     ) : (
-                      <span style={{ fontSize: "13px", color: "#aaa" }}>Sin alérgenos declarados.</span>
+                      <span className="modal-no-allergens">Sin alérgenos declarados.</span>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Flecha Derecha */}
             <button
               onClick={handleNextPlate}
-              style={{
-                position: "absolute", right: "-25px", top: "50%", transform: "translateY(-50%)",
-                background: "#f4f4f4", border: "1px solid #ddd", borderRadius: "50%", 
-                width: "45px", height: "45px", cursor: "pointer", zIndex: 3100, fontSize: "16px", 
-                display: "flex", alignItems: "center", justifyContent: "center", color: "#555",
-                boxShadow: "0 4px 10px rgba(0,0,0,0.15)", transition: "all 0.2s ease"
-              }}
-              onMouseEnter={(e) => { e.target.style.background = "#e9e9e9"; e.target.style.color = "#000"; }}
-              onMouseLeave={(e) => { e.target.style.background = "#f4f4f4"; e.target.style.color = "#555"; }}
+              className="modal-arrow-btn modal-arrow-right"
+              aria-label="Siguiente plato"
+              onMouseEnter={(e) => { e.currentTarget.style.background = "#e9e9e9"; e.currentTarget.style.color = "#000"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "#f4f4f4"; e.currentTarget.style.color = "#555"; }}
             >
               ▶
             </button>
@@ -449,11 +401,11 @@ const Menu = ({ role: propsRole }) => {
           <h3>Información de Alérgenos</h3>
           <p>Consulte a nuestro personal para más detalles.</p>
         </div>
-        <div className="allergen-legend-grid" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "16px" }}>
+        <div className="allergen-legend-grid">
           {Object.values(allAllergens).map(ale => (
-            <div key={ale.id} className="allergen-legend-item" style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "80px" }}>
-              <img src={ale.imagen} alt={ale.nombre} style={{ width: "22px", height: "22px", marginBottom: "6px" }} />
-              <span style={{ fontSize: "10px", fontWeight: "600", textTransform: "uppercase", textAlign: "center" }}>{ale.nombre}</span>
+            <div key={ale.id} className="allergen-legend-item">
+              <img src={ale.imagen} alt={ale.nombre} />
+              <span>{ale.nombre}</span>
             </div>
           ))}
         </div>
