@@ -586,9 +586,6 @@ const Home = () => {
         </div>
       )}
 
-      <footer className="editorial-footer editorial-ui">
-        © 2026 Tsinghe Cocina Fusión. Todos los derechos reservados.
-      </footer>
     </div>
   );
 };

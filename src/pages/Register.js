@@ -190,6 +190,9 @@ const Register = () => {
         <div className="editorial-auth-links editorial-auth-links-spaced">
           ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
         </div>
+        <div className="editorial-auth-text editorial-auth-legal-note">
+          Al registrarte aceptas nuestra <Link to="/politica-privacidad">Política de Privacidad</Link> y nuestra <Link to="/politica-cookies">Política de Cookies</Link>.
+        </div>
       </div>
     </div>
   );

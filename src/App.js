@@ -19,6 +19,11 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ConfirmReservation from "./pages/ConfirmReservation";
 import Reservations from "./pages/Reservations";
+import AvisoLegal from "./pages/AvisoLegal";
+import PoliticaPrivacidad from "./pages/PoliticaPrivacidad";
+import PoliticaCookies from "./pages/PoliticaCookies";
+import CookieBanner from "./components/CookieBanner";
+import LegalFooter from "./components/LegalFooter";
 
 // Vistas de usuario autenticado
 import Dashboard from "./pages/Dashboard";
@@ -139,18 +144,25 @@ function App() {
 
   return (
     <Router>
-      <NavigationBar
-        isAuthenticated={isAuthenticated}
-        user={user}
-        userName={userName}
-        role={role}
-        logout={logout}
-      />
+      <div className="app-shell">
+        <NavigationBar
+          isAuthenticated={isAuthenticated}
+          user={user}
+          userName={userName}
+          role={role}
+          logout={logout}
+        />
 
-      <Routes>
+        <CookieBanner />
+
+        <main className="app-content">
+          <Routes>
         {/* Rutas públicas */}
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
+        <Route path="/aviso-legal" element={<AvisoLegal />} />
+        <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
+        <Route path="/politica-cookies" element={<PoliticaCookies />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/confirm-reservation" element={<ConfirmReservation />} />
 
@@ -245,16 +257,19 @@ function App() {
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          </Routes>
+        </main>
 
-      {isAuthenticated && (
-        <RestaurantChatbot
-          user={user}
-          role={role}
-          userName={userName}
-          enabled={isChatbotEnabled}
-        />
-      )}
+        <LegalFooter />
+
+        {isAuthenticated && (
+          <RestaurantChatbot
+            user={user}
+            role={role}
+            userName={userName}
+            enabled={isChatbotEnabled}
+          />
+        )}
       <Toaster
         toastOptions={{
           duration: 4500,
@@ -263,6 +278,7 @@ function App() {
           },
         }}
       />
+    </div>
     </Router>
   );
 }
