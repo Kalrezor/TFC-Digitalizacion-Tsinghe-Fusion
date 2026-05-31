@@ -10,6 +10,8 @@ import {
 import useAuth from "./hooks/useAuth";
 import NavigationBar from "./components/NavigationBar";
 import RestaurantChatbot from "./components/RestaurantChatbot";
+import CookieBanner from "./components/CookieBanner";
+import LegalFooter from "./components/LegalFooter";
 
 // Vistas públicas
 import Home from "./pages/Home";
@@ -19,6 +21,9 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ConfirmReservation from "./pages/ConfirmReservation";
 import Reservations from "./pages/Reservations";
+import AvisoLegal from "./pages/AvisoLegal";
+import PoliticaPrivacidad from "./pages/PoliticaPrivacidad";
+import PoliticaCookies from "./pages/PoliticaCookies";
 
 // Vistas de usuario autenticado
 import Dashboard from "./pages/Dashboard";
@@ -64,6 +69,16 @@ const LoadingScreen = () => (
     </div>
   </div>
 );
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+
+  return null;
+};
 
 const LoginRoute = ({ isAuthenticated, loading, needsGooglePasswordSetup }) => {
   const location = useLocation();
@@ -139,7 +154,9 @@ function App() {
 
   return (
     <Router>
-      <NavigationBar
+      <ScrollToTop />
+      <div className="app-shell">
+        <NavigationBar
         isAuthenticated={isAuthenticated}
         user={user}
         userName={userName}
@@ -147,12 +164,16 @@ function App() {
         logout={logout}
       />
 
-      <Routes>
+        <main className="app-content">
+          <Routes>
         {/* Rutas públicas */}
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/confirm-reservation" element={<ConfirmReservation />} />
+        <Route path="/aviso-legal" element={<AvisoLegal />} />
+        <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
+        <Route path="/politica-cookies" element={<PoliticaCookies />} />
 
         {/* Lógica de Login mejorada */}
         <Route
@@ -245,7 +266,11 @@ function App() {
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          </Routes>
+        </main>
+
+        <LegalFooter />
+      </div>
 
       {isAuthenticated && (
         <RestaurantChatbot
@@ -263,6 +288,7 @@ function App() {
           },
         }}
       />
+      <CookieBanner />
     </Router>
   );
 }

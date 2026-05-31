@@ -1,15 +1,3 @@
-### style: mejoras visuales en la carta publica y modelo responsive
+### feat: recuperación de la funcionalidad de movimiento a las politicas y el mensaje de inicio
 
-Se ha actualizado la vista del menu para mejorar la presentacion de los platos:
-
-* **Pop-Up:** 
-    * El pop-up de cada plato muestra la imagen completa, sin recortes.
-    * El pop-up mantiene un tamano fijo entre platos para evitar saltos visuales.
-
-* **Tarjetas del plato:** 
-    * Las tarjetas de platos recuperan separacion entre ellas con fondo blanco.
-    * Cada tarjeta de plato tiene borde y esquinas redondeadas.
-    * Se elimino el borde exterior del contenedor que agrupa los platos.
-    * Las imagenes de los platos son mas grandes en escritorio, tablet y movil.
-
-* **Organización Carta:** La carta cambia antes a una sola columna para proteger el texto en pantallas medianas.
+He vuelto a agregar el footer con las politicas y el aviso legal, ademas se a arreglado el movimiento a sus respectivas paginas para poder visualizarlos, por último ya sale tambien la opción de aceptar o denegar nuestra política de cookies

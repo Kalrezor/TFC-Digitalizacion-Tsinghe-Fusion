@@ -423,7 +423,8 @@ body {
   flex-direction: column;
 }
 .app-content {
-  flex: 1;
+  flex: 1 0 auto;
+  min-width: 0;
 }
 /* ============================================================
    TIPOGRAFÍA
@@ -1215,6 +1216,10 @@ select {
   font-weight: 400;
 }
 .editorial-footer {
+  position: static;
+  z-index: auto;
+  flex-shrink: 0;
+  margin-top: auto;
   border-top: 1px solid var(--editorial-black);
   background: var(--editorial-white);
   color: var(--editorial-black);
