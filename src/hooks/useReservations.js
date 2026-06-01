@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/hooks/useReservations.js
+ * Proposito: Hook de reservas: carga reservas y acciones de gestion para usuario o administrador.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Controlador: useReservations.js
 // Hook para manejar CRUD de reservas con actualizaciones en tiempo real.
 
@@ -28,9 +34,9 @@ const useReservations = (userId = null) => {
     setLoading(true);
     let unsubscribe = () => {};
 
-    // Usar listener en tiempo real si está disponible
+    // Usar listener en tiempo real si estÃ¡ disponible
     if (userId) {
-      // Para usuario específico
+      // Para usuario especÃ­fico
       unsubscribe = ReservationService.subscribeToUserReservations(
         userId,
         (result) => {
@@ -67,7 +73,7 @@ const useReservations = (userId = null) => {
   // Crear reserva
   const createReservation = async (reservationData) => {
     const result = await ReservationService.createReservation(reservationData);
-    // No necesitamos llamar a loadReservations, el listener actualizará automáticamente
+    // No necesitamos llamar a loadReservations, el listener actualizarÃ¡ automÃ¡ticamente
     return result;
   };
 
@@ -77,14 +83,14 @@ const useReservations = (userId = null) => {
       id,
       reservationData,
     );
-    // No necesitamos llamar a loadReservations, el listener actualizará automáticamente
+    // No necesitamos llamar a loadReservations, el listener actualizarÃ¡ automÃ¡ticamente
     return result;
   };
 
   // Eliminar/cancelar reserva
   const deleteReservation = async (id) => {
     const result = await ReservationService.cancelReservation(id);
-    // No necesitamos llamar a loadReservations, el listener actualizará automáticamente
+    // No necesitamos llamar a loadReservations, el listener actualizarÃ¡ automÃ¡ticamente
     return result;
   };
 
@@ -100,3 +106,4 @@ const useReservations = (userId = null) => {
 };
 
 export default useReservations;
+

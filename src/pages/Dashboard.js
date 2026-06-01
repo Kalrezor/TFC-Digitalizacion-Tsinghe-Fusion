@@ -1,6 +1,12 @@
+/*
+ * Archivo: src/pages/Dashboard.js
+ * Proposito: Panel principal autenticado: muestra secciones disponibles para admin o comensal y coordina vistas internas.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Vista: Dashboard.js
 // Panel principal tras el login.
-// Sidebar dinámico según rol + contenido de cada sección.
+// Sidebar dinÃ¡mico segÃºn rol + contenido de cada secciÃ³n.
 // Admin: gestiona menu, mesas, ofertas y reservas.
 // Comensal: gestiona sus reservas.
 
@@ -23,16 +29,16 @@ import SplitBillForm from "../components/SplitBillForm";
 const WelcomePanel = ({ role, userName }) => (
   <div style={{ padding: "40px 20px", textAlign: "center" }}>
     <div style={{ fontSize: "60px", marginBottom: "16px" }}>
-      {role === "admin" ? "ðŸ› ï¸" : "ðŸ½ï¸"}
+      {role === "admin" ? "Ã°Å¸â€ºÂ Ã¯Â¸Â" : "Ã°Å¸ÂÂ½Ã¯Â¸Â"}
     </div>
     <h2 style={{ color: "#050505", marginBottom: "8px" }}>
       {role === "admin"
-        ? `Panel de Administración`
-        : `¡Bienvenido, ${userName || "Usuario"}!`}
+        ? `Panel de AdministraciÃ³n`
+        : `Â¡Bienvenido, ${userName || "Usuario"}!`}
     </h2>
     {role !== "admin" && (
       <p style={{ color: "#888", fontSize: "14px", marginBottom: "12px" }}>
-        Tsinghe Cocina Fusión
+        Tsinghe Cocina FusiÃ³n
       </p>
     )}
     <p
@@ -44,8 +50,8 @@ const WelcomePanel = ({ role, userName }) => (
       }}
     >
       {role === "admin"
-        ? "Desde aquí puedes gestionar el menú del restaurante, las mesas, las ofertas y todas las reservas."
-        : "Aquí puedes crear, consultar y cancelar tus reservas en Tsinghe Cocina Fusión."}
+        ? "Desde aquÃ­ puedes gestionar el menÃº del restaurante, las mesas, las ofertas y todas las reservas."
+        : "AquÃ­ puedes crear, consultar y cancelar tus reservas en Tsinghe Cocina FusiÃ³n."}
     </p>
 
     {/* Tarjetas informativas para admin */}
@@ -60,15 +66,15 @@ const WelcomePanel = ({ role, userName }) => (
         }}
       >
         {[
-          { emoji: "🍜", label: "Menú", desc: "Platos, precios y alérgenos" },
+          { emoji: "ðŸœ", label: "MenÃº", desc: "Platos, precios y alÃ©rgenos" },
           {
-            emoji: "ðŸª‘",
+            emoji: "Ã°Å¸Âªâ€˜",
             label: "Mesas",
             desc: "Mesas reales con estado en tiempo real",
           },
-          { emoji: "ðŸ·ï¸", label: "Ofertas", desc: "Promociones y descuentos" },
+          { emoji: "Ã°Å¸ÂÂ·Ã¯Â¸Â", label: "Ofertas", desc: "Promociones y descuentos" },
           {
-            emoji: "ðŸ“‹",
+            emoji: "Ã°Å¸â€œâ€¹",
             label: "Reservas",
             desc: "Todas las reservas del restaurante",
           },
@@ -221,7 +227,7 @@ const renderContent = (
     case "reservas":
       return <Reservations userId={userId} />;
 
-    // Opción compartida para ambos roles
+    // OpciÃ³n compartida para ambos roles
     case "split-bill":
       return <SplitBillForm />;
 
@@ -256,12 +262,12 @@ const renderContent = (
 
 // Iconos para el sidebar
 const ICONS = {
-  inicio: "ðŸ ",
-  reservas: "ðŸ“…",
-  "admin-menu": "ðŸœ",
-  "admin-mesas": "ðŸª‘",
-  "admin-ofertas": "ðŸ·ï¸",
-  "admin-reservas": "ðŸ“‹",
+  inicio: "Ã°Å¸ÂÂ ",
+  reservas: "Ã°Å¸â€œâ€¦",
+  "admin-menu": "Ã°Å¸ÂÅ“",
+  "admin-mesas": "Ã°Å¸Âªâ€˜",
+  "admin-ofertas": "Ã°Å¸ÂÂ·Ã¯Â¸Â",
+  "admin-reservas": "Ã°Å¸â€œâ€¹",
 };
 
 void ICONS;
@@ -315,7 +321,7 @@ const Dashboard = ({
         onLogout={logout}
       />
 
-      {/* ── Contenido principal ─────────────────────────────────────────── */}
+      {/* â”€â”€ Contenido principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <main
         style={{
           flex: 1,
@@ -338,4 +344,5 @@ const Dashboard = ({
 };
 
 export default Dashboard;
+
 

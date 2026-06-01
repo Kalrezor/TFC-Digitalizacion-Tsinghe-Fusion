@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/pages/UsersView.js
+ * Proposito: Vista legacy de administracion de usuarios basada en useUsers.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Vista: UsersView.js
 // Componente para gestionar usuarios (CRUD) - Solo para admin.
 
@@ -37,7 +43,7 @@ const UsersView = () => {
 
   return (
     <div>
-      <h2>Gestión de Usuarios</h2>
+      <h2>GestiÃ³n de Usuarios</h2>
       <form noValidate onSubmit={handleSubmit}>
         <input
           type="email"
@@ -76,3 +82,4 @@ const UsersView = () => {
 };
 
 export default UsersView;
+

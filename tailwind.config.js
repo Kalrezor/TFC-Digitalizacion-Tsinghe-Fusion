@@ -1,10 +1,16 @@
+/**
+ * Configuracion de Tailwind CSS.
+ * Define que archivos escanea Tailwind y extiende el tema visual de la app.
+ */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // Archivos donde Tailwind busca clases CSS usadas por React.
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
+      // Colores personalizados usados por la interfaz del restaurante.
       colors: {
         // Paleta Minimalista: Perla, Dorado, Verde
         pearl: {
@@ -56,14 +62,17 @@ module.exports = {
           900: '#0f3d1f',
         }
       },
+      // Familias tipograficas reutilizables desde clases Tailwind.
       fontFamily: {
         sans: ['Arial', 'Helvetica', 'sans-serif'],
         elegant: ['"Georgia"', 'serif'],
       },
+      // Espaciados extra que no vienen por defecto en Tailwind.
       spacing: {
         18: '4.5rem',
         22: '5.5rem',
       },
+      // Radios de borde ajustados al estilo visual del proyecto.
       borderRadius: {
         none: '0',
         xs: '2px',
@@ -72,15 +81,18 @@ module.exports = {
         lg: '8px',
         xl: '10px',
       },
+      // Sombras personalizadas para tarjetas, paneles y elementos elevados.
       boxShadow: {
         subtle: '0 1px 2px rgba(0, 0, 0, 0.05)',
         soft: '0 2px 4px rgba(0, 0, 0, 0.08)',
         md: '0 4px 8px rgba(0, 0, 0, 0.1)',
       },
+      // Duraciones de transicion adicionales.
       transitionDuration: {
         250: '250ms',
       }
     },
   },
+  // Plugins adicionales de Tailwind. Ahora mismo no hay ninguno.
   plugins: [],
 }

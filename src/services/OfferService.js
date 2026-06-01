@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/services/OfferService.js
+ * Proposito: Servicio de ofertas: lectura, creacion, actualizacion, borrado y estado de ofertas en Firestore.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Modelo: OfferService.js
 // Servicio para gestionar ofertas en Firestore.
 // Incluye CRUD completo para ofertas con operaciones admin-only para escritura.
@@ -14,7 +20,7 @@ import {
 import { db } from "../firebase";
 
 class OfferService {
-  // Obtener todas las ofertas (lectura p�blica)
+  // Obtener todas las ofertas (lectura pï¿½blica)
   async getAllOffers() {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));
@@ -29,7 +35,7 @@ class OfferService {
     }
   }
 
-  // Obtener ofertas activas (lectura p�blica)
+  // Obtener ofertas activas (lectura pï¿½blica)
   async getActiveOffers() {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));
@@ -50,7 +56,7 @@ class OfferService {
     }
   }
 
-  // Obtener una oferta por ID (lectura p�blica)
+  // Obtener una oferta por ID (lectura pï¿½blica)
   async getOfferById(id) {
     try {
       const docSnap = await getDoc(doc(db, "offers", id));
@@ -65,7 +71,7 @@ class OfferService {
     }
   }
 
-  // Obtener ofertas por tipo/categor�a (lectura p�blica)
+  // Obtener ofertas por tipo/categorï¿½a (lectura pï¿½blica)
   async getOffersByType(type) {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));
@@ -83,7 +89,7 @@ class OfferService {
     }
   }
 
-  // Obtener ofertas por rango de precio (lectura p�blica)
+  // Obtener ofertas por rango de precio (lectura pï¿½blica)
   async getOffersByPriceRange(minPrice, maxPrice) {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));
@@ -204,3 +210,4 @@ class OfferService {
 
 const offerService = new OfferService();
 export default offerService;
+

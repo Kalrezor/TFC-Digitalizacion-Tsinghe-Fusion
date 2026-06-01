@@ -1,5 +1,8 @@
+# Dependencias instaladas localmente. Se regeneran con npm install / npm ci.
 node_modules/
 functions/node_modules/
+
+# Variables de entorno locales. No deben subirse al repositorio.
 .env
 .env.local
 .env.development.local

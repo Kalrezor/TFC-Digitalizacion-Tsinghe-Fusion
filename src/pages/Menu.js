@@ -1,5 +1,11 @@
+/*
+ * Archivo: src/pages/Menu.js
+ * Proposito: Pagina publica de carta: muestra categorias, platos, alergenos, busqueda y modo de gestion para admin.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Vista: Menu.js
-// Ajuste de imágenes avanzado con soporte para imagen predeterminada por defecto.
+// Ajuste de imÃ¡genes avanzado con soporte para imagen predeterminada por defecto.
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -245,7 +251,7 @@ const Menu = ({ role: propsRole }) => {
         onClick={scrollToMenuTop}
         aria-label="Volver al inicio de la carta"
       >
-        ↑
+        â†‘
       </button>
 
       <div className="menu-sections">
@@ -274,7 +280,7 @@ const Menu = ({ role: propsRole }) => {
               </div>
               <div className={`plates-grid plates-grid-cols-${plateGridColumns}`}>
                 {categoryPlates.map(plate => {
-                  // Validación dinámica: si no tiene imagen o está vacía, inyecta la de por defecto
+                  // ValidaciÃ³n dinÃ¡mica: si no tiene imagen o estÃ¡ vacÃ­a, inyecta la de por defecto
                   const currentImg = plate.imagen && plate.imagen.trim() !== "" ? plate.imagen : DEFAULT_PLATE_IMAGE;
 
                   return (
@@ -294,7 +300,7 @@ const Menu = ({ role: propsRole }) => {
                       <div className="plate-card-info">
                         <div className="plate-header">
                           <h3 className="item-name">{plate.nombre}</h3>
-                          <span className="plate-price">{parseFloat(plate.precio).toFixed(2)} €</span>
+                          <span className="plate-price">{parseFloat(plate.precio).toFixed(2)} â‚¬</span>
                         </div>
                         <div className="plate-allergens-icons-row">
                           {plate.alergenos?.map(aleId => (
@@ -325,7 +331,7 @@ const Menu = ({ role: propsRole }) => {
               onMouseEnter={(e) => { e.currentTarget.style.background = "#e9e9e9"; e.currentTarget.style.color = "#000"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "#f4f4f4"; e.currentTarget.style.color = "#555"; }}
             >
-              ◀
+              â—€
             </button>
 
             <div 
@@ -337,7 +343,7 @@ const Menu = ({ role: propsRole }) => {
                 className="modal-close-btn"
                 aria-label="Cerrar"
               >
-                ✕
+                âœ•
               </button>
               
               <div className="modal-plate-image">
@@ -353,7 +359,7 @@ const Menu = ({ role: propsRole }) => {
                     {selectedPlate.nombre}
                   </h2>
                   <span className="modal-price">
-                    {parseFloat(selectedPlate.precio).toFixed(2)} €
+                    {parseFloat(selectedPlate.precio).toFixed(2)} â‚¬
                   </span>
                 </div>
                 
@@ -363,7 +369,7 @@ const Menu = ({ role: propsRole }) => {
                 
                 <div className="modal-allergens-section">
                   <h4 className="modal-allergens-title">
-                    Información de Alérgenos
+                    InformaciÃ³n de AlÃ©rgenos
                   </h4>
                   <div className="modal-allergens-list">
                     {selectedPlate.alergenos?.length > 0 ? (
@@ -374,7 +380,7 @@ const Menu = ({ role: propsRole }) => {
                         </div>
                       ))
                     ) : (
-                      <span className="modal-no-allergens">Sin alérgenos declarados.</span>
+                      <span className="modal-no-allergens">Sin alÃ©rgenos declarados.</span>
                     )}
                   </div>
                 </div>
@@ -388,18 +394,18 @@ const Menu = ({ role: propsRole }) => {
               onMouseEnter={(e) => { e.currentTarget.style.background = "#e9e9e9"; e.currentTarget.style.color = "#000"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "#f4f4f4"; e.currentTarget.style.color = "#555"; }}
             >
-              ▶
+              â–¶
             </button>
 
           </div>
         </div>
       )}
 
-      {/* FOOTER DE ALÉRGENOS */}
+      {/* FOOTER DE ALÃ‰RGENOS */}
       <div className="allergen-info-card footer-allergens">
         <div className="allergen-notice">
-          <h3>Información de Alérgenos</h3>
-          <p>Consulte a nuestro personal para más detalles.</p>
+          <h3>InformaciÃ³n de AlÃ©rgenos</h3>
+          <p>Consulte a nuestro personal para mÃ¡s detalles.</p>
         </div>
         <div className="allergen-legend-grid">
           {Object.values(allAllergens).map(ale => (
@@ -428,7 +434,7 @@ const Menu = ({ role: propsRole }) => {
           className="cta-main-button"
         >
           <span className="cta-text">
-            {isAdmin ? "VOLVER AL PANEL DE CONTROL" : (authRole ? "RESERVAR MESA" : "INICIA SESIÓN PARA RESERVAR")}
+            {isAdmin ? "VOLVER AL PANEL DE CONTROL" : (authRole ? "RESERVAR MESA" : "INICIA SESIÃ“N PARA RESERVAR")}
           </span>
         </button>
       </section>
@@ -437,3 +443,4 @@ const Menu = ({ role: propsRole }) => {
 };
 
 export default Menu;
+

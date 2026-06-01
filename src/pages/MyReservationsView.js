@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/pages/MyReservationsView.js
+ * Proposito: Vista de reservas del comensal: lista reservas propias y su estado.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React from "react";
 import useReservations from "../hooks/useReservations";
 
@@ -24,7 +30,7 @@ const MyReservationsView = ({ userId }) => {
 
       {reservations.length === 0 ? (
         <div className="my-reservations-empty">
-          Aún no tienes reservas. Puedes crear una nueva desde la sección "Reservas".
+          AÃºn no tienes reservas. Puedes crear una nueva desde la secciÃ³n "Reservas".
         </div>
       ) : (
         <div className="my-reservations-grid">
@@ -86,3 +92,4 @@ const statusBadge = (status) => ({
 });
 
 export default MyReservationsView;
+

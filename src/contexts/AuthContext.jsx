@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/contexts/AuthContext.jsx
+ * Proposito: Contexto de autenticacion alternativo: expone usuario, rol y banderas de acceso mediante React Context.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '../firebase';
@@ -65,3 +71,4 @@ export function useAuth() {
   }
   return context;
 }
+

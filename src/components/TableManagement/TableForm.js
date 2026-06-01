@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/components/TableManagement/TableForm.js
+ * Proposito: Formulario para crear o editar mesas.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useState, useEffect } from "react";
 import tableService from "../../services/TableService";
 import { toastError } from "../../services/ToastService";
@@ -53,18 +59,18 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
     const numberValue = String(formData.number || "").trim();
     const capacityValue = String(formData.capacity || "").trim();
 
-    // Validar número
+    // Validar nÃºmero
     if (!numberValue) {
-      newErrors.number = "El número de mesa es requerido";
+      newErrors.number = "El nÃºmero de mesa es requerido";
     } else if (isNaN(numberValue)) {
-      newErrors.number = "El número debe ser numérico";
+      newErrors.number = "El nÃºmero debe ser numÃ©rico";
     } else {
       const parsedNumber = parseInt(numberValue, 10);
       const currentTableNumber = editingTable
         ? Number(editingTable.tableNumber ?? editingTable.number)
         : null;
 
-      // Validar unicidad si es nueva mesa o cambia el número al editar
+      // Validar unicidad si es nueva mesa o cambia el nÃºmero al editar
       if (!editingTable || parsedNumber !== currentTableNumber) {
         const existing = await tableService.getTableByNumber(parsedNumber);
         if (existing.table) {
@@ -134,14 +140,14 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
             className="table-form-close"
             disabled={loading}
           >
-            ✕
+            âœ•
           </button>
         </div>
 
         <form noValidate onSubmit={handleSubmit} className="table-form-body">
           <div className="table-form-group">
             <label className="table-form-label">
-              Número de Mesa <span className="table-form-required">*</span>
+              NÃºmero de Mesa <span className="table-form-required">*</span>
             </label>
             <input
               type="number"
@@ -211,3 +217,4 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
 };
 
 export default TableForm;
+

@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/components/NavigationBar.js
+ * Proposito: Barra de navegacion principal: enlaces publicos, estado de sesion, rol y cierre de sesion.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // NavigationBar.js
 // Barra superior adaptada al rol del usuario. Solo capa visual.
 
@@ -73,13 +79,13 @@ const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
                     onClick={() => setShowUserMenu(false)}
                     className="editorial-menu-item editorial-ui"
                   >
-                    Configuración de perfil
+                    ConfiguraciÃ³n de perfil
                   </Link>
                   <button
                     onClick={handleLogout}
                     className="editorial-menu-item editorial-ui"
                   >
-                    Cerrar sesión
+                    Cerrar sesiÃ³n
                   </button>
                 </div>
               )}
@@ -101,4 +107,5 @@ const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
 };
 
 export default NavigationBar;
+
 

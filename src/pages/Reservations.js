@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/pages/Reservations.js
+ * Proposito: Contenedor de reservas del usuario autenticado.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React from "react";
 import ReservationFormComensal from "../components/ReservationFormComensal";
 import MyReservationsView from "./MyReservationsView";
@@ -19,4 +25,5 @@ const Reservations = ({ userId }) => (
 );
 
 export default Reservations;
+
 

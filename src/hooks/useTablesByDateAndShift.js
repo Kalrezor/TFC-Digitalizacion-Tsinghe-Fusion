@@ -1,7 +1,13 @@
+/*
+ * Archivo: src/hooks/useTablesByDateAndShift.js
+ * Proposito: Hook que agrupa mesas activas, reservadas e inactivas para una fecha y turno.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 /**
  * HOOK: useTablesByDateAndShift.js
  * 
- * Responsabilidad: Cargar estado de mesas para una fecha y turno específico.
+ * Responsabilidad: Cargar estado de mesas para una fecha y turno especÃ­fico.
  * 
  * Uso:
  * const { active, reserved, inactive, loading, error } = useTablesByDateAndShift(date, shift);
@@ -12,7 +18,7 @@
  * - inactive: array de mesas inactivas
  * - loading: boolean
  * - error: string (si hay error)
- * - refetch: función para recargar datos
+ * - refetch: funciÃ³n para recargar datos
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -80,3 +86,4 @@ const useTablesByDateAndShift = (date, shift) => {
 };
 
 export default useTablesByDateAndShift;
+

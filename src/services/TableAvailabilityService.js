@@ -1,24 +1,30 @@
+/*
+ * Archivo: src/services/TableAvailabilityService.js
+ * Proposito: Servicio de disponibilidad: calcula mesas libres, ocupadas o validas segun fecha, turno y comensales.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 /**
  * SERVICIO: TableAvailabilityService.js
  * 
- * Responsabilidad: Lógica completa de disponibilidad real de mesas.
+ * Responsabilidad: LÃ³gica completa de disponibilidad real de mesas.
  * 
  * INDEPENDENCIA DE RESERVAS:
  * - Disponibilidad basada en: fecha, hora, turno, margen de 2 horas, reservas activas, capacidad
- * - El campo 'available' de la mesa indica si está ACTIVA o INACTIVA (no influye en disponibilidad real)
+ * - El campo 'available' de la mesa indica si estÃ¡ ACTIVA o INACTIVA (no influye en disponibilidad real)
  * 
  * FUNCIONES:
  * - getTableStatusByDateAndShift(date, shift)
- *   → Retorna todas las mesas categorizadas por estado
+ *   â†’ Retorna todas las mesas categorizadas por estado
  * 
  * - getTablesAvailabilityForTime(date, time)
- *   → Retorna estado de disponibilidad de cada mesa para una hora específica
+ *   â†’ Retorna estado de disponibilidad de cada mesa para una hora especÃ­fica
  * 
  * - getAvailableTablesForCapacity(date, time, peopleCount)
- *   → Retorna mesas que pueden alojar X personas en esa fecha/hora
+ *   â†’ Retorna mesas que pueden alojar X personas en esa fecha/hora
  * 
  * - validateTableForReservation(tableId, date, time)
- *   → Valida si una mesa puede ser asignada a una reserva
+ *   â†’ Valida si una mesa puede ser asignada a una reserva
  */
 
 import {
@@ -40,7 +46,7 @@ import {
 class TableAvailabilityService {
   /**
    * Obtiene TODAS las mesas categorizadas por estado (libres, ocupadas, inactivas)
-   * para una fecha y turno específico.
+   * para una fecha y turno especÃ­fico.
    * 
    * @param {string} date - Fecha (YYYY-MM-DD)
    * @param {string} shift - Turno ('comida' | 'cena')
@@ -60,21 +66,21 @@ class TableAvailabilityService {
       });
 
       // Obtener reservas para esa fecha y turno
-      // NOTA: Se necesita índice compuesto en Firestore: (reservationDate, status)
-      // Ver: https://console.firebase.google.com para crear el índice
+      // NOTA: Se necesita Ã­ndice compuesto en Firestore: (reservationDate, status)
+      // Ver: https://console.firebase.google.com para crear el Ã­ndice
       const reservationsSnapshot = await getDocs(
         query(
           collection(db, "reservations"),
           where("reservationDate", "==", date)
-          // Temporalmente se filtra el status en memoria para evitar error de índice
-          // Una vez creado el índice, añadir: where("status", "!=", RESERVATION_STATUS.CANCELED)
+          // Temporalmente se filtra el status en memoria para evitar error de Ã­ndice
+          // Una vez creado el Ã­ndice, aÃ±adir: where("status", "!=", RESERVATION_STATUS.CANCELED)
         )
       );
 
       const reservations = [];
       reservationsSnapshot.forEach((doc) => {
         const data = doc.data();
-        // Filtrar en memoria: excluir reservas canceladas (hasta que se cree el índice)
+        // Filtrar en memoria: excluir reservas canceladas (hasta que se cree el Ã­ndice)
         if (data.status !== RESERVATION_STATUS.CANCELED) {
           reservations.push({ id: doc.id, ...data });
         }
@@ -130,7 +136,7 @@ class TableAvailabilityService {
   }
 
   /**
-   * Obtiene estado de disponibilidad de TODAS las mesas para una hora específica.
+   * Obtiene estado de disponibilidad de TODAS las mesas para una hora especÃ­fica.
    * 
    * @param {string} date - Fecha (YYYY-MM-DD)
    * @param {string} time - Hora (HH:MM)
@@ -142,7 +148,7 @@ class TableAvailabilityService {
     }
 
     if (!isValidReservationTime(time)) {
-      return { success: false, error: "Hora de reserva no válida" };
+      return { success: false, error: "Hora de reserva no vÃ¡lida" };
     }
 
     try {
@@ -154,7 +160,7 @@ class TableAvailabilityService {
       });
 
       // Obtener reservas para esa fecha (no canceladas)
-      // NOTA: Se necesita índice compuesto en Firestore: (reservationDate, status)
+      // NOTA: Se necesita Ã­ndice compuesto en Firestore: (reservationDate, status)
       const reservationsSnapshot = await getDocs(
         query(
           collection(db, "reservations"),
@@ -208,11 +214,11 @@ class TableAvailabilityService {
 
   /**
    * Obtiene SOLO las mesas disponibles que pueden alojar X personas
-   * para una fecha y hora específica.
+   * para una fecha y hora especÃ­fica.
    * 
    * @param {string} date - Fecha (YYYY-MM-DD)
    * @param {string} time - Hora (HH:MM)
-   * @param {number} peopleCount - Número de personas
+   * @param {number} peopleCount - NÃºmero de personas
    * @returns {Promise} { success, tables: [], needsMerge: boolean, error }
    */
   async getAvailableTablesForCapacity(date, time, peopleCount) {
@@ -221,7 +227,7 @@ class TableAvailabilityService {
     }
 
     if (Number(peopleCount) <= 0) {
-      return { success: false, error: "Número de personas inválido" };
+      return { success: false, error: "NÃºmero de personas invÃ¡lido" };
     }
 
     try {
@@ -241,7 +247,7 @@ class TableAvailabilityService {
         (table) => Number(table.capacity || 0) >= Number(peopleCount)
       );
 
-      // Calcular si necesita fusión
+      // Calcular si necesita fusiÃ³n
       const totalCapacity = availableTables.reduce(
         (sum, table) => sum + Number(table.capacity || 0),
         0
@@ -266,18 +272,18 @@ class TableAvailabilityService {
   }
 
   /**
-   * Valida si una mesa específica puede ser asignada a una reserva.
+   * Valida si una mesa especÃ­fica puede ser asignada a una reserva.
    * 
    * Verifica:
    * - Mesa existe
-   * - Mesa está activa
+   * - Mesa estÃ¡ activa
    * - Mesa tiene capacidad
    * - No hay conflicto horario
    * 
    * @param {string} tableId - ID de la mesa
    * @param {string} date - Fecha (YYYY-MM-DD)
    * @param {string} time - Hora (HH:MM)
-   * @param {number} peopleCount - Número de personas (opcional, solo validar capacidad)
+   * @param {number} peopleCount - NÃºmero de personas (opcional, solo validar capacidad)
    * @returns {Promise} { success, valid: boolean, error }
    */
   async validateTableForReservation(tableId, date, time, peopleCount = null) {
@@ -298,7 +304,7 @@ class TableAvailabilityService {
 
       const table = tableDoc.data();
 
-      // Validar que esté activa
+      // Validar que estÃ© activa
       if (table.available === false) {
         return { success: true, valid: false, error: "Mesa inactiva" };
       }
@@ -329,8 +335,8 @@ class TableAvailabilityService {
   }
 
   /**
-   * Obtiene el estado de ocupación de una mesa específica
-   * para una fecha y hora específica.
+   * Obtiene el estado de ocupaciÃ³n de una mesa especÃ­fica
+   * para una fecha y hora especÃ­fica.
    * 
    * @param {string} tableId - ID de la mesa
    * @param {string} date - Fecha (YYYY-MM-DD)
@@ -339,7 +345,7 @@ class TableAvailabilityService {
    */
   async getTableOccupancyStatus(tableId, date, time) {
     if (!tableId || !date || !time) {
-      return { success: false, error: "Parámetros requeridos" };
+      return { success: false, error: "ParÃ¡metros requeridos" };
     }
 
     try {
@@ -355,7 +361,7 @@ class TableAvailabilityService {
       }
 
       // Obtener reservas para esa fecha
-      // NOTA: Se necesita índice compuesto en Firestore: (reservationDate, status)
+      // NOTA: Se necesita Ã­ndice compuesto en Firestore: (reservationDate, status)
       const reservationsSnapshot = await getDocs(
         query(
           collection(db, "reservations"),
@@ -387,10 +393,11 @@ class TableAvailabilityService {
 
       return { success: true, status: hasConflict ? "ocupada" : "libre" };
     } catch (error) {
-      console.error("Error obteniendo ocupación de mesa:", error);
+      console.error("Error obteniendo ocupaciÃ³n de mesa:", error);
       return { success: false, error: error.message };
     }
   }
 }
 
 export default new TableAvailabilityService();
+

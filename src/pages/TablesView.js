@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/pages/TablesView.js
+ * Proposito: Vista legacy de administracion de mesas basada en useTables.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Vista: TablesView.js
 // Componente para gestionar mesas (CRUD).
 
@@ -55,7 +61,7 @@ const TablesView = ({ role }) => {
         <form noValidate onSubmit={handleSubmit}>
           <input
             type="number"
-            placeholder="Número de mesa"
+            placeholder="NÃºmero de mesa"
             value={formData.number}
             onChange={(e) => setFormData({ ...formData, number: parseInt(e.target.value) })}
             min="1"
@@ -99,3 +105,4 @@ const TablesView = ({ role }) => {
 };
 
 export default TablesView;
+

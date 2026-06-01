@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/services/ToastService.js
+ * Proposito: Capa comun para mostrar notificaciones y confirmaciones con react-hot-toast.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import { toast } from "react-hot-toast";
 
 const baseOptions = {
@@ -19,7 +25,7 @@ export const toastSuccess = (message) =>
   toast.success(message, {
     ...baseOptions,
     id: toastId("success", message),
-    icon: "✅",
+    icon: "âœ…",
     style: {
       ...baseOptions.style,
       background: "#ecfdf5",
@@ -32,7 +38,7 @@ export const toastError = (message) =>
   toast.error(message, {
     ...baseOptions,
     id: toastId("error", message),
-    icon: "❌",
+    icon: "âŒ",
     style: {
       ...baseOptions.style,
       background: "#fee2e2",
@@ -45,7 +51,7 @@ export const toastInfo = (message) =>
   toast(message, {
     ...baseOptions,
     id: toastId("info", message),
-    icon: "ℹ️",
+    icon: "â„¹ï¸",
     style: {
       ...baseOptions.style,
       background: "#f8fafc",
@@ -214,3 +220,4 @@ export const toastPromise = (promise, messages) =>
     success: messages.success,
     error: messages.error,
   });
+

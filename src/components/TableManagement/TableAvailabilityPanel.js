@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/components/TableManagement/TableAvailabilityPanel.js
+ * Proposito: Panel de disponibilidad de mesas por fecha y turno.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useState, useEffect } from "react";
 import useTablesByDateAndShift from "../../hooks/useTablesByDateAndShift";
 import ReservationTableService from "../../services/ReservationTableService";
@@ -90,7 +96,7 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
     try {
       const reservation = reservationDetails[table.id];
       if (!reservation || !reservation.id) {
-        setActionError("No se encontró la reserva asociada a esta mesa.");
+        setActionError("No se encontrÃ³ la reserva asociada a esta mesa.");
         return;
       }
 
@@ -142,7 +148,7 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
         {/* LIBRES */}
         <div className="table-availability-section">
           <h4 className="table-availability-section-title table-availability-section-title-free">
-            ✓ Libres ({activeTables.length})
+            âœ“ Libres ({activeTables.length})
           </h4>
           <div className="table-availability-table-group">
             {activeTables && activeTables.length > 0 ? (
@@ -177,7 +183,7 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
         {/* OCUPADAS */}
         <div className="table-availability-section">
           <h4 className="table-availability-section-title table-availability-section-title-busy">
-            ⚠ Ocupadas ({reservedTables.length})
+            âš  Ocupadas ({reservedTables.length})
           </h4>
           <div className="table-availability-table-group">
             {reservedTables && reservedTables.length > 0 ? (
@@ -228,7 +234,7 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
         {/* INACTIVAS */}
         <div className="table-availability-section">
           <h4 className="table-availability-section-title table-availability-section-title-inactive">
-            ✗ Inactivas ({inactiveTables.length})
+            âœ— Inactivas ({inactiveTables.length})
           </h4>
           <div className="table-availability-table-group">
             {inactiveTables && inactiveTables.length > 0 ? (
@@ -256,3 +262,4 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
 };
 
 export default TableAvailabilityPanel;
+

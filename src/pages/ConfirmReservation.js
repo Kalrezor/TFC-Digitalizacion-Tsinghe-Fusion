@@ -1,5 +1,11 @@
+/*
+ * Archivo: src/pages/ConfirmReservation.js
+ * Proposito: Pagina de confirmacion de reserva desde enlaces o flujos de validacion.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Vista: ConfirmReservation.js
-// Página para confirmar reservas desde el link en el email
+// PÃ¡gina para confirmar reservas desde el link en el email
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -18,7 +24,7 @@ const ConfirmReservation = () => {
 
       if (!token) {
         setStatus("error");
-        setMessage("Token no válido");
+        setMessage("Token no vÃ¡lido");
         return;
       }
 
@@ -38,7 +44,7 @@ const ConfirmReservation = () => {
         if (response.ok && result.success) {
           setStatus("success");
           setMessage(
-            "¡Reserva confirmada exitosamente! Será redirigido en 3 segundos..."
+            "Â¡Reserva confirmada exitosamente! SerÃ¡ redirigido en 3 segundos..."
           );
           setEmail(result.email);
 
@@ -46,7 +52,7 @@ const ConfirmReservation = () => {
           if (!result.userExists) {
             setShowRegister(true);
             setMessage(
-              "¡Reserva confirmada! Ahora crea una cuenta para gestionar tu reserva."
+              "Â¡Reserva confirmada! Ahora crea una cuenta para gestionar tu reserva."
             );
           } else {
             setTimeout(() => {
@@ -59,7 +65,7 @@ const ConfirmReservation = () => {
         }
       } catch (error) {
         setStatus("error");
-        setMessage("Error de conexión: " + error.message);
+        setMessage("Error de conexiÃ³n: " + error.message);
       }
     };
 
@@ -78,13 +84,13 @@ const ConfirmReservation = () => {
 
         {status === "success" && (
           <div className="success-state">
-            <h2>✅ ¡Reserva Confirmada!</h2>
+            <h2>âœ… Â¡Reserva Confirmada!</h2>
             <p>{message}</p>
 
             {showRegister && (
               <div className="register-cta">
                 <p>
-                  Crea una cuenta para poder gestionar tu reserva y acceder a más funciones.
+                  Crea una cuenta para poder gestionar tu reserva y acceder a mÃ¡s funciones.
                 </p>
                 <button
                   onClick={() => navigate(`/register?email=${email}`)}
@@ -97,7 +103,7 @@ const ConfirmReservation = () => {
 
             {!showRegister && (
               <button onClick={() => navigate("/login")} className="btn-primary">
-                Ir a Iniciar Sesión
+                Ir a Iniciar SesiÃ³n
               </button>
             )}
           </div>
@@ -105,7 +111,7 @@ const ConfirmReservation = () => {
 
         {status === "error" && (
           <div className="error-state">
-            <h2>❌ Error al Confirmar</h2>
+            <h2>âŒ Error al Confirmar</h2>
             <p>{message}</p>
             <button onClick={() => navigate("/")} className="btn-primary">
               Volver al Inicio
@@ -118,4 +124,5 @@ const ConfirmReservation = () => {
 };
 
 export default ConfirmReservation;
+
 

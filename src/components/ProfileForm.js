@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/components/ProfileForm.js
+ * Proposito: Formulario de perfil: permite ver y actualizar datos personales del usuario.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useEffect, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
@@ -77,7 +83,7 @@ const ProfileForm = ({ userId }) => {
 
   return (
     <div className="profile-form-card">
-      <h2 className="profile-form-title">Configuración de perfil</h2>
+      <h2 className="profile-form-title">ConfiguraciÃ³n de perfil</h2>
 
       {loading ? (
         <div className="profile-form-loading">Cargando perfil...</div>
@@ -94,11 +100,11 @@ const ProfileForm = ({ userId }) => {
           </div>
 
           <div className="profile-form-group">
-            <label className="profile-form-label">Teléfono</label>
+            <label className="profile-form-label">TelÃ©fono</label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="Tu teléfono"
+              placeholder="Tu telÃ©fono"
               className="profile-form-field"
             />
           </div>
@@ -119,3 +125,4 @@ const ProfileForm = ({ userId }) => {
 };
 
 export default ProfileForm;
+

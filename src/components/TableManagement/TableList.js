@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/components/TableManagement/TableList.js
+ * Proposito: Listado administrativo de mesas con acciones de edicion, borrado y estado.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useState } from "react";
 import { toastSuccess, toastError } from "../../services/ToastService";
 import tableService from "../../services/TableService";
@@ -83,7 +89,7 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
       {confirmDeleteTable && (
         <div className="table-list-confirm">
           <div className="table-list-confirm-text">
-            ¿Eliminar mesa #{confirmDeleteTable.tableNumber ?? confirmDeleteTable.number}?
+            Â¿Eliminar mesa #{confirmDeleteTable.tableNumber ?? confirmDeleteTable.number}?
             <span className="table-list-confirm-meta">
               Capacidad: {confirmDeleteTable.capacity} personas
             </span>
@@ -129,7 +135,7 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
                   <span
                     className="table-list-badge" style={{ backgroundColor: table.available ? "#d1fae5" : "#fee2e2", color: table.available ? "#065f46" : "#7f1d1d" }}
                   >
-                    {table.available ? "✓ Disponible" : "✗ Inactiva"}
+                    {table.available ? "âœ“ Disponible" : "âœ— Inactiva"}
                   </span>
                 </td>
                 <td className="table-list-td">
@@ -139,7 +145,7 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
                       className="table-list-edit"
                       title="Editar mesa"
                     >
-                      ✎ Editar
+                      âœŽ Editar
                     </button>
                     <button
                       onClick={() => handleDeleteClick(table)}
@@ -147,7 +153,7 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
                       disabled={deletingId === table.id}
                       title="Eliminar mesa"
                     >
-                      {deletingId === table.id ? "..." : "🗑 Eliminar"}
+                      {deletingId === table.id ? "..." : "ðŸ—‘ Eliminar"}
                     </button>
                   </div>
                 </td>

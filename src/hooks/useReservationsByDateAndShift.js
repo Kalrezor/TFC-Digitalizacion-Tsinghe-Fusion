@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/hooks/useReservationsByDateAndShift.js
+ * Proposito: Hook de consulta de reservas filtradas por fecha y turno.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import { useState, useEffect } from "react";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../firebase";
@@ -57,3 +63,4 @@ const useReservationsByDateAndShift = (date, shift) => {
 };
 
 export default useReservationsByDateAndShift;
+

@@ -1,5 +1,11 @@
+/*
+ * Archivo: src/models/MenuService.js
+ * Proposito: Servicio principal actual de carta: gestiona platos, categorias, alergenos y ofertas en Firestore.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Modelo: MenuService.js
-// Servicio para gestionar menús en Firestore.
+// Servicio para gestionar menÃºs en Firestore.
 
 import {
   collection,
@@ -15,7 +21,7 @@ import { db } from "../firebase";
 
 class MenuService {
 
-  // Obtener todos los alérgenos por ID
+  // Obtener todos los alÃ©rgenos por ID
   async getAllAllergens() {
     try {
       const querySnapshot = await getDocs(collection(db, "allergen"));
@@ -25,12 +31,12 @@ class MenuService {
       });
       return { success: true, data: allergens };
     } catch (error) {
-      console.error("Error obteniendo alérgenos:", error);
+      console.error("Error obteniendo alÃ©rgenos:", error);
       return { success: false, error: error.message };
     }
   }
 
-  // Obtener todas las categorías
+  // Obtener todas las categorÃ­as
   async getAllCategories() {
     try {
       const querySnapshot = await getDocs(collection(db, "category"));
@@ -40,12 +46,12 @@ class MenuService {
       }));
       return { success: true, data: categories };
     } catch (error) {
-      console.error("Error obteniendo categorías:", error);
+      console.error("Error obteniendo categorÃ­as:", error);
       return { success: false, error: error.message };
     }
   }
 
-  /* Métodos de la tabla 'PLATE' */
+  /* MÃ©todos de la tabla 'PLATE' */
 
   // Obtener todos los platos
   async getAllPlates() {
@@ -77,7 +83,7 @@ class MenuService {
     }
   }
 
-  // Actualizar categoría solo admin
+  // Actualizar categorÃ­a solo admin
   async updateCategory(id, categoryData, isAdmin = false) {
     try {
       if (!isAdmin) return { success: false, error: "No autorizado" };
@@ -87,7 +93,7 @@ class MenuService {
       });
       return { success: true };
     } catch (error) {
-      console.error("Error actualizando categoría:", error);
+      console.error("Error actualizando categorÃ­a:", error);
       return { success: false, error: error.message };
     }
   }
@@ -140,7 +146,7 @@ class MenuService {
     }
   }
 
-  /* MÉTODO DE OFERTAS */
+  /* MÃ‰TODO DE OFERTAS */
   async getAllOffers() {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));
@@ -155,7 +161,7 @@ class MenuService {
     }
   }
 
-  /* MÉTODOS DE COMPATIBILIDAD */
+  /* MÃ‰TODOS DE COMPATIBILIDAD */
   async getAllMenus() { return this.getAllPlates(); }
   async createMenu(data, isAdmin) { return this.createPlate(data, isAdmin); }
   async updateMenu(id, data, isAdmin) { return this.updatePlate(id, data, isAdmin); }

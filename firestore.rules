@@ -2,6 +2,8 @@ rules_version = '2';
 
 // ============================================================
 // Tsinghe Cocina Fusión - Reglas de seguridad Firestore
+// Este fichero controla quien puede leer/escribir cada coleccion.
+// Firebase lo usa porque firebase.json apunta a "firestore.rules".
 // Roles: "admin" | "comensal"
 // ============================================================
 

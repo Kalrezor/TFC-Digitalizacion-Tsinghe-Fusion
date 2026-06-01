@@ -1,5 +1,11 @@
+/*
+ * Archivo: src/hooks/useAuth.js
+ * Proposito: Hook de autenticacion usado por la app: escucha Firebase Auth y expone usuario, rol, login y logout.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Controlador: useAuth.js
-// Este hook personalizado maneja la lógica de control para la autenticación.
+// Este hook personalizado maneja la lÃ³gica de control para la autenticaciÃ³n.
 // Gestiona el estado del login, errores, y llamadas al modelo AuthService.
 // Ahora extendido para incluir el rol del usuario, su nombre y email desde Firestore.
 
@@ -17,12 +23,12 @@ const useAuth = () => {
   const [userEmail, setUserEmail] = useState(null);
   // Estado para el rol del usuario
   const [role, setRole] = useState(null);
-  // Estado para indicar si está cargando
+  // Estado para indicar si estÃ¡ cargando
   const [loading, setLoading] = useState(true);
   // Estado para errores
   const [error, setError] = useState(null);
 
-  // Efecto para escuchar cambios en el estado de autenticación
+  // Efecto para escuchar cambios en el estado de autenticaciÃ³n
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       setUser(currentUser);
@@ -55,7 +61,7 @@ const useAuth = () => {
     return () => unsubscribe();
   }, []);
 
-  // Función para manejar el login
+  // FunciÃ³n para manejar el login
   const login = async (email, password) => {
     setLoading(true);
     setError(null);
@@ -72,7 +78,7 @@ const useAuth = () => {
     }
   };
 
-  // Función para logout
+  // FunciÃ³n para logout
   const logout = async () => {
     const result = await AuthService.logout();
     if (result.success) {
@@ -98,3 +104,4 @@ const useAuth = () => {
 };
 
 export default useAuth;
+

@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/pages/Login.js
+ * Proposito: Pagina de inicio de sesion: email/password, Google y redireccion despues de login.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Vista: Login.js
 // Componente SOLO para login con email y Google.
 
@@ -20,7 +26,7 @@ const Login = () => {
     setError(null);
 
     if (!email.trim() || !password.trim()) {
-      toastError("Completa email y contraseña para continuar");
+      toastError("Completa email y contraseÃ±a para continuar");
       return;
     }
 
@@ -29,12 +35,12 @@ const Login = () => {
     setLoading(false);
 
     if (result.success) {
-      toastSuccess("Sesión iniciada correctamente");
+      toastSuccess("SesiÃ³n iniciada correctamente");
       setEmail("");
       setPassword("");
       navigate(nextPath ? nextPath : "/home", { replace: true });
     } else {
-      toastError(result.error || "Error al iniciar sesión");
+      toastError(result.error || "Error al iniciar sesiÃ³n");
     }
   };
 
@@ -46,7 +52,7 @@ const Login = () => {
       const result = await AuthService.loginWithGoogle();
 
       if (result.success) {
-        toastSuccess("Inicio de sesión con Google exitoso");
+        toastSuccess("Inicio de sesiÃ³n con Google exitoso");
         if (result.requiresPassword) {
           sessionStorage.setItem("googlePasswordSetupPending", "true");
           navigate(
@@ -59,13 +65,13 @@ const Login = () => {
           navigate(nextPath ? nextPath : "/home", { replace: true });
         }
       } else if (result.canceledByUser) {
-        // El usuario cerró la ventana de Google sin elegir cuenta.
+        // El usuario cerrÃ³ la ventana de Google sin elegir cuenta.
         // No mostramos un error agresivo para no interferir con la experiencia.
       } else {
-        toastError(result.error || "Error al iniciar sesión con Google");
+        toastError(result.error || "Error al iniciar sesiÃ³n con Google");
       }
     } catch (err) {
-      toastError(err.message || "Error inesperado al iniciar sesión");
+      toastError(err.message || "Error inesperado al iniciar sesiÃ³n");
     } finally {
       setLoading(false);
     }
@@ -82,7 +88,7 @@ const Login = () => {
       <div className="login-background-overlay" />
       <div className="editorial-auth-card">
         <div className="editorial-auth-header">
-          <h1>Iniciar Sesión</h1>
+          <h1>Iniciar SesiÃ³n</h1>
           <p>Accede a tu cuenta en Tsinghe</p>
         </div>
 
@@ -98,10 +104,10 @@ const Login = () => {
           </div>
 
           <div className="form-group">
-            <label>Contraseña</label>
+            <label>ContraseÃ±a</label>
             <input
               type="password"
-              placeholder="Tu contraseña"
+              placeholder="Tu contraseÃ±a"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -112,7 +118,7 @@ const Login = () => {
             disabled={loading}
             className="btn btn-primary btn-full-width"
           >
-            {loading ? "Iniciando..." : "Iniciar Sesión"}
+            {loading ? "Iniciando..." : "Iniciar SesiÃ³n"}
           </button>
         </form>
 
@@ -135,11 +141,11 @@ const Login = () => {
             to="/forgot-password"
             className="editorial-auth-forgot-link"
           >
-            ¿Olvidaste tu contraseña?
+            Â¿Olvidaste tu contraseÃ±a?
           </Link>
           <br />
-          <span>¿No tienes cuenta? </span>
-          <Link to="/register">Regístrate aquí</Link>
+          <span>Â¿No tienes cuenta? </span>
+          <Link to="/register">RegÃ­strate aquÃ­</Link>
         </div>
       </div>
     </div>
@@ -147,4 +153,5 @@ const Login = () => {
 };
 
 export default Login;
+
 

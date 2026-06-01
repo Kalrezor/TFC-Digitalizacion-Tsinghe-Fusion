@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/components/Sidebar.js
+ * Proposito: Menu lateral del dashboard para cambiar de seccion.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Componente: Sidebar.js
 // Sidebar desplegable/plegable para comensal y admin.
 
@@ -17,19 +23,19 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
     role === "admin"
       ? [
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
-          { id: "preview-menu", label: "Ver Menú", icon: "Menu" },
-          { id: "admin-menu", label: "Gestionar Menú", icon: "Menu" },
+          { id: "preview-menu", label: "Ver MenÃº", icon: "Menu" },
+          { id: "admin-menu", label: "Gestionar MenÃº", icon: "Menu" },
           { id: "admin-mesas", label: "Gestionar Mesas", icon: "Mesas" },
           { id: "admin-ofertas", label: "Ofertas", icon: "Oferta" },
           { id: "admin-reservas", label: "Todas las Reservas", icon: "Lista" },
           { id: "split-bill", label: "Dividir Cuenta", icon: "Cuenta" },
           { id: "chatbot-control", label: "Chatbot", icon: "Chat" },
-          { id: "inicio", label: "Configuración de perfil", icon: "Configuración" }
+          { id: "inicio", label: "ConfiguraciÃ³n de perfil", icon: "ConfiguraciÃ³n" }
         ]
       : [
-          { id: "inicio", label: "Configuración de perfil", icon: "Configuración" },
+          { id: "inicio", label: "ConfiguraciÃ³n de perfil", icon: "ConfiguraciÃ³n" },
           { id: "preview-inicio", label: "Ver Inicio", icon: "Vista" },
-          { id: "preview-menu", label: "Ver Menú", icon: "Menu" },
+          { id: "preview-menu", label: "Ver MenÃº", icon: "Menu" },
           { id: "reservas", label: "Reservas", icon: "Lista" },
           { id: "split-bill", label: "Dividir Cuenta", icon: "Cuenta" },
         ];
@@ -39,7 +45,7 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
       <button
         className="sidebar-toggle"
         onClick={() => setIsOpen(!isOpen)}
-        title={isOpen ? "Ocultar menú" : "Mostrar menú"}
+        title={isOpen ? "Ocultar menÃº" : "Mostrar menÃº"}
       >
         Menu
       </button>
@@ -174,4 +180,5 @@ const Sidebar = ({ role, userName, selectedOption, onSelectOption, onLogout }) =
 };
 
 export default Sidebar;
+
 

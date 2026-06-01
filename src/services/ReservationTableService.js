@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/services/ReservationTableService.js
+ * Proposito: Servicio auxiliar que relaciona reservas con mesas y disponibilidad.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import {
   collection,
   doc,
@@ -65,7 +71,7 @@ const sendReservationStatusNotification = async (reservation, newStatus) => {
   const recipientEmail = reservation?.userEmail || reservation?.email;
 
   if (!recipientEmail) {
-    console.warn("⚠️ No hay email de cliente para notificar el cambio de estado.", {
+    console.warn("âš ï¸ No hay email de cliente para notificar el cambio de estado.", {
       reservationId: reservation?.id,
       newStatus,
     });
@@ -100,10 +106,10 @@ const sendReservationStatusNotification = async (reservation, newStatus) => {
     });
 
     if (!response.ok) {
-      console.error("⚠️ Error enviando email de estado de reserva:", response.statusText);
+      console.error("âš ï¸ Error enviando email de estado de reserva:", response.statusText);
     }
   } catch (error) {
-    console.error("⚠️ Error enviando email de estado de reserva:", error);
+    console.error("âš ï¸ Error enviando email de estado de reserva:", error);
   }
 };
 
@@ -203,7 +209,7 @@ class ReservationTableService {
       return { success: false, error: "Fecha de reserva requerida" };
     }
     if (!Object.values(RESERVATION_SHIFTS).includes(shift)) {
-      return { success: false, error: "Turno inválido" };
+      return { success: false, error: "Turno invÃ¡lido" };
     }
 
     const result = await this.getReservationsByDate(date, includeCanceled);
@@ -322,17 +328,17 @@ class ReservationTableService {
       return { success: false, error: "Usuario no autenticado" };
     }
     if (!isValidReservationTime(time)) {
-      return { success: false, error: "Hora de reserva no válida" };
+      return { success: false, error: "Hora de reserva no vÃ¡lida" };
     }
     const shift = getShiftFromTime(time);
     if (!shift) {
-      return { success: false, error: "Turno de reserva no válido" };
+      return { success: false, error: "Turno de reserva no vÃ¡lido" };
     }
     if (!user.email) {
       return { success: false, error: "El usuario debe tener un email" };
     }
     if (!user.phone) {
-      return { success: false, error: "El usuario debe tener teléfono registrado" };
+      return { success: false, error: "El usuario debe tener telÃ©fono registrado" };
     }
 
     try {
@@ -369,11 +375,11 @@ class ReservationTableService {
     adminEmail,
   }) {
     if (!isValidReservationTime(time)) {
-      return { success: false, error: "Hora de reserva no válida" };
+      return { success: false, error: "Hora de reserva no vÃ¡lida" };
     }
     const shift = getShiftFromTime(time);
     if (!shift) {
-      return { success: false, error: "Turno de reserva no válido" };
+      return { success: false, error: "Turno de reserva no vÃ¡lido" };
     }
     if (!adminEmail) {
       return { success: false, error: "Email del administrador requerido" };
@@ -389,7 +395,7 @@ class ReservationTableService {
       return { success: false, error: "Nombre del comensal requerido" };
     }
     if (!userPhone) {
-      return { success: false, error: "Teléfono del comensal requerido" };
+      return { success: false, error: "TelÃ©fono del comensal requerido" };
     }
 
     try {
@@ -420,7 +426,7 @@ class ReservationTableService {
       return { success: false, error: "ID de reserva requerido" };
     }
     if (!updates || typeof updates !== "object") {
-      return { success: false, error: "Actualizaciones inválidas" };
+      return { success: false, error: "Actualizaciones invÃ¡lidas" };
     }
 
     const allowedFields = [
@@ -501,7 +507,7 @@ class ReservationTableService {
   async getReservedTableIds(date, time, excludeReservationId = null) {
     const shift = getShiftFromTime(time);
     if (!shift) {
-      return { success: false, error: "Turno inválido para comprobar conflictos" };
+      return { success: false, error: "Turno invÃ¡lido para comprobar conflictos" };
     }
 
     const reservationsResult = await this.getReservationsByDateAndShift(
@@ -532,13 +538,13 @@ class ReservationTableService {
     excludeReservationId = null,
   ) {
     if (!isValidReservationTime(time)) {
-      return { success: false, error: "Hora de reserva no válida" };
+      return { success: false, error: "Hora de reserva no vÃ¡lida" };
     }
     if (!date) {
       return { success: false, error: "Fecha de reserva requerida" };
     }
     if (Number(peopleCount) <= 0) {
-      return { success: false, error: "Número de personas inválido" };
+      return { success: false, error: "NÃºmero de personas invÃ¡lido" };
     }
 
     const tablesResult = await TableService.getAllTables();
@@ -662,7 +668,7 @@ class ReservationTableService {
     if (conflictingTable) {
       return {
         success: false,
-        error: `La mesa ${conflictingTable} no está disponible para ese horario`,
+        error: `La mesa ${conflictingTable} no estÃ¡ disponible para ese horario`,
       };
     }
 
@@ -777,7 +783,7 @@ class ReservationTableService {
       : [];
 
     if (!previousTableIds.includes(tableId)) {
-      return { success: false, error: "La mesa no está asignada a esta reserva" };
+      return { success: false, error: "La mesa no estÃ¡ asignada a esta reserva" };
     }
 
     const remainingTableIds = previousTableIds.filter((id) => id !== tableId);
@@ -829,7 +835,7 @@ class ReservationTableService {
     if (conflictingTable) {
       return {
         success: false,
-        error: `La mesa ${conflictingTable} no está disponible para ese turno`,
+        error: `La mesa ${conflictingTable} no estÃ¡ disponible para ese turno`,
       };
     }
 
@@ -837,13 +843,13 @@ class ReservationTableService {
       const payload = buildReservationPayload({
         userId: null,
         userEmail: "",
-        userName: "Ocupación Manual",
+        userName: "OcupaciÃ³n Manual",
         userPhone: "",
         date,
         time,
         shift,
         peopleCount: 0,
-        specialRequests: "Ocupación manual de mesa",
+        specialRequests: "OcupaciÃ³n manual de mesa",
         status: RESERVATION_STATUS.CONFIRMED,
         createdBy,
       });
@@ -863,7 +869,7 @@ class ReservationTableService {
       await Promise.all(updates);
       return { success: true, reservationId: docRef.id };
     } catch (error) {
-      console.error("Error creando ocupación manual de mesa:", error);
+      console.error("Error creando ocupaciÃ³n manual de mesa:", error);
       return { success: false, error: error.message };
     }
   }
@@ -871,3 +877,4 @@ class ReservationTableService {
 
 const reservationTableService = new ReservationTableService();
 export default reservationTableService;
+

@@ -1,6 +1,12 @@
+/*
+ * Archivo: src/services/UserService.js
+ * Proposito: Servicio de usuarios: consulta y gestion de perfiles, roles y datos de usuarios en Firestore/Auth.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Modelo: UserService.js
 // Servicio para gestionar usuarios en Firestore.
-// Incluye CRUD básico para usuarios.
+// Incluye CRUD bÃ¡sico para usuarios.
 
 import {
   collection,
@@ -118,3 +124,4 @@ class UserService {
 
 const userService = new UserService();
 export default userService;
+

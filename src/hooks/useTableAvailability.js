@@ -1,7 +1,13 @@
+/*
+ * Archivo: src/hooks/useTableAvailability.js
+ * Proposito: Hook de disponibilidad puntual de mesa para una fecha, hora y numero de comensales.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 /**
  * HOOK: useTableAvailability.js
  * 
- * Responsabilidad: Verificar disponibilidad de una mesa específica para reserva.
+ * Responsabilidad: Verificar disponibilidad de una mesa especÃ­fica para reserva.
  * 
  * Uso:
  * const { isAvailable, valid, loading, error, refetch } = useTableAvailability(
@@ -12,11 +18,11 @@
  * );
  * 
  * Retorna:
- * - isAvailable: boolean (mesa está libre para esa fecha/hora)
- * - valid: boolean (mesa válida para asignar a reserva)
+ * - isAvailable: boolean (mesa estÃ¡ libre para esa fecha/hora)
+ * - valid: boolean (mesa vÃ¡lida para asignar a reserva)
  * - loading: boolean
  * - error: string (si hay error)
- * - refetch: función para recargar datos
+ * - refetch: funciÃ³n para recargar datos
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -34,7 +40,7 @@ const useTableAvailability = (tableId, date, time, peopleCount = null) => {
       setIsAvailable(false);
       setValid(false);
       setStatus(null);
-      setError("Parámetros incompletos");
+      setError("ParÃ¡metros incompletos");
       return;
     }
 
@@ -42,7 +48,7 @@ const useTableAvailability = (tableId, date, time, peopleCount = null) => {
     setError(null);
 
     try {
-      // Primero obtener el estado de ocupación
+      // Primero obtener el estado de ocupaciÃ³n
       const statusResult = await TableAvailabilityService.getTableOccupancyStatus(
         tableId,
         date,
@@ -98,3 +104,4 @@ const useTableAvailability = (tableId, date, time, peopleCount = null) => {
 };
 
 export default useTableAvailability;
+

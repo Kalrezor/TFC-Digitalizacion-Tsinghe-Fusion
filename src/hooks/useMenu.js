@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/hooks/useMenu.js
+ * Proposito: Hook de menu legacy: carga y gestiona datos de menus desde el servicio correspondiente.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -15,7 +21,7 @@ const useMenu = () => {
         setLoading(true);
         setError(null);
 
-        // PLATOS (colección: plate)
+        // PLATOS (colecciÃ³n: plate)
         const platosSnap = await getDocs(collection(db, "plate"));
         const platosData = platosSnap.docs.map(doc => ({
           id: doc.id,
@@ -23,7 +29,7 @@ const useMenu = () => {
         }));
         setPlatos(platosData);
 
-        // CATEGORÍAS (colección: category)
+        // CATEGORÃAS (colecciÃ³n: category)
         const categoriasSnap = await getDocs(collection(db, "category"));
         const categoriasData = categoriasSnap.docs.map(doc => {
           const data = doc.data();
@@ -36,7 +42,7 @@ const useMenu = () => {
         });
         setCategorias(categoriasData);
 
-        // ALÉRGENOS (colección: allergen)
+        // ALÃ‰RGENOS (colecciÃ³n: allergen)
         const alergenosSnap = await getDocs(collection(db, "allergen"));
         const alergenosData = alergenosSnap.docs.map(doc => {
           const data = doc.data();
@@ -45,14 +51,14 @@ const useMenu = () => {
 
           if (!imagen) {
             const emojiMap = {
-              "Gluten": "🌾",
-              "Lácteos": "🥛",
-              "Huevos": "🥚",
-              "Frutos secos": "🥜",
-              "Mariscos": "🦐",
-              "Soja": "🫘"
+              "Gluten": "ðŸŒ¾",
+              "LÃ¡cteos": "ðŸ¥›",
+              "Huevos": "ðŸ¥š",
+              "Frutos secos": "ðŸ¥œ",
+              "Mariscos": "ðŸ¦",
+              "Soja": "ðŸ«˜"
             };
-            imagen = emojiMap[nombre] || "⚠️";
+            imagen = emojiMap[nombre] || "âš ï¸";
           }
 
           return {
@@ -65,7 +71,7 @@ const useMenu = () => {
         setAlergenos(alergenosData);
 
       } catch (error) {
-        console.error("Error al cargar datos del menú:", error);
+        console.error("Error al cargar datos del menÃº:", error);
         setError(error.message || "Error desconocido al cargar datos");
       } finally {
         setLoading(false);
@@ -85,3 +91,4 @@ const useMenu = () => {
 };
 
 export default useMenu;
+

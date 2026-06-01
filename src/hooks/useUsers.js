@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/hooks/useUsers.js
+ * Proposito: Hook de usuarios: carga usuarios y expone acciones administrativas de gestion.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Controlador: useUsers.js
 // Hook para manejar CRUD de usuarios.
 
@@ -70,3 +76,4 @@ const useUsers = () => {
 };
 
 export default useUsers;
+

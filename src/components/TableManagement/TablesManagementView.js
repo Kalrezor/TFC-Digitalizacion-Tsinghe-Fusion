@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/components/TableManagement/TablesManagementView.js
+ * Proposito: Vista compuesta de gestion de mesas: formulario, listado y panel de disponibilidad.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useState } from "react";
 import useTables from "../../hooks/useTables";
 import TableList from "./TableList";
@@ -18,26 +24,26 @@ const TablesManagementView = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingTable, setEditingTable] = useState(null);
 
-  // Manejar creación de mesa
+  // Manejar creaciÃ³n de mesa
   const handleTableCreate = () => {
     setEditingTable(null);
     setShowForm(true);
   };
 
-  // Manejar edición de mesa
+  // Manejar ediciÃ³n de mesa
   const handleTableEdit = (table) => {
     setEditingTable(table);
     setShowForm(true);
   };
 
-  // Manejar eliminación de mesa
+  // Manejar eliminaciÃ³n de mesa
   const handleTableDelete = () => {
-    refetchTables(); // Recargar lista después de eliminar
+    refetchTables(); // Recargar lista despuÃ©s de eliminar
   };
 
   // Manejar guardar (crear/editar)
   const handleFormSave = () => {
-    refetchTables(); // Recargar lista después de guardar
+    refetchTables(); // Recargar lista despuÃ©s de guardar
     setShowForm(false);
     setEditingTable(null);
   };
@@ -62,7 +68,7 @@ const TablesManagementView = () => {
   return (
     <div className="tables-management">
       <div className="tables-management-header">
-        <h1 className="tables-management-title">Gestión de Mesas</h1>
+        <h1 className="tables-management-title">GestiÃ³n de Mesas</h1>
         <p className="tables-management-subtitle">
           Administra las mesas del restaurante y visualiza su disponibilidad
         </p>
@@ -136,3 +142,4 @@ const TablesManagementView = () => {
 };
 
 export default TablesManagementView;
+

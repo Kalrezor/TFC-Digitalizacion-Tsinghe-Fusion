@@ -1,5 +1,11 @@
+/*
+ * Archivo: src/index.js
+ * Proposito: Punto de entrada del frontend React: monta App en el DOM y envuelve proveedores globales.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // index.js
-// Punto de entrada de la aplicación React.
+// Punto de entrada de la aplicaciÃ³n React.
 // Renderiza el componente App en el DOM.
 
 import React from "react";
@@ -18,3 +24,4 @@ root.render(
     </React.StrictMode>
   </GoogleOAuthProvider>,
 );
+

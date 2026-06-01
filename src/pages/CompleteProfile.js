@@ -1,6 +1,12 @@
+/*
+ * Archivo: src/pages/CompleteProfile.js
+ * Proposito: Pantalla para completar datos de perfil del usuario tras registro o autenticacion incompleta.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Vista: CompleteProfile.js
-// Pantalla para completar datos faltantes después de login con Google
-// Pide teléfono obligatorio y contraseña opcional
+// Pantalla para completar datos faltantes despuÃ©s de login con Google
+// Pide telÃ©fono obligatorio y contraseÃ±a opcional
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -30,7 +36,7 @@ const CompleteProfile = () => {
       try {
         const userDoc = await AuthService.getUserDoc(currentUser.uid);
         if (userDoc && userDoc.phone) {
-          // Ya tiene teléfono, redirigir
+          // Ya tiene telÃ©fono, redirigir
           navigate("/dashboard");
           return;
         }
@@ -63,26 +69,26 @@ const CompleteProfile = () => {
 
   const validateForm = () => {
     if (!formData.phone.trim()) {
-      setError("El número de teléfono es obligatorio");
+      setError("El nÃºmero de telÃ©fono es obligatorio");
       return false;
     }
     const phoneRegex = /^\+?[0-9\s\-\(\)]{7,15}$/;
     if (!phoneRegex.test(formData.phone.trim())) {
-      setError("Por favor ingresa un número de teléfono válido");
+      setError("Por favor ingresa un nÃºmero de telÃ©fono vÃ¡lido");
       return false;
     }
 
     if (requiresPassword) {
       if (!formData.password) {
-        setError("La contraseña es requerida");
+        setError("La contraseÃ±a es requerida");
         return false;
       }
       if (formData.password.length < 6) {
-        setError("La contraseña debe tener al menos 6 caracteres");
+        setError("La contraseÃ±a debe tener al menos 6 caracteres");
         return false;
       }
       if (formData.password !== formData.confirmPassword) {
-        setError("Las contraseñas no coinciden");
+        setError("Las contraseÃ±as no coinciden");
         return false;
       }
     }
@@ -150,7 +156,7 @@ const CompleteProfile = () => {
 
         <form noValidate onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Número de Teléfono *</label>
+            <label>NÃºmero de TelÃ©fono *</label>
             <input
               type="tel"
               name="phone"
@@ -164,19 +170,19 @@ const CompleteProfile = () => {
           {requiresPassword && (
             <>
               <div className="form-group">
-                <label>Contraseña *</label>
+                <label>ContraseÃ±a *</label>
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="MÃ­nimo 6 caracteres"
                 />
               </div>
 
               <div className="form-group">
-                <label>Confirmar Contraseña *</label>
+                <label>Confirmar ContraseÃ±a *</label>
                 <input
                   type="password"
                   name="confirmPassword"
@@ -203,4 +209,5 @@ const CompleteProfile = () => {
 };
 
 export default CompleteProfile;
+
 

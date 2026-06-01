@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/services/ChatbotContextService.js
+ * Proposito: Construye contexto del restaurante para el chatbot usando carta, reservas, mesas, horarios y datos de Firestore.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import menuService from "../models/MenuService";
 import offerService from "./OfferService";
 import reservationService from "./ReservationService";
@@ -252,7 +258,7 @@ const compactList = (items, formatter, limit = 8) => {
   if (!Array.isArray(items) || items.length === 0) return "Ninguno.";
   const visibleItems = items.slice(0, limit).map(formatter);
   const remaining = items.length - visibleItems.length;
-  return `${visibleItems.join("\n")}${remaining > 0 ? `\n...y ${remaining} más.` : ""}`;
+  return `${visibleItems.join("\n")}${remaining > 0 ? `\n...y ${remaining} mÃ¡s.` : ""}`;
 };
 
 class ChatbotContextService {
@@ -372,7 +378,7 @@ class ChatbotContextService {
       .map((result) =>
         result.status === "fulfilled"
           ? result.value
-          : `No se pudo recuperar parte de la información. Si el problema persiste, contacta con soporte del restaurante: ${SUPPORT_PHONE}.`,
+          : `No se pudo recuperar parte de la informaciÃ³n. Si el problema persiste, contacta con soporte del restaurante: ${SUPPORT_PHONE}.`,
       )
       .filter(Boolean)
       .join("\n\n");
@@ -393,7 +399,7 @@ class ChatbotContextService {
 
     return [
       "CONTEXTO CARTA:",
-      `Categorías: ${categories.map((category) => category.nombre).join(", ") || "Sin categorías."}`,
+      `CategorÃ­as: ${categories.map((category) => category.nombre).join(", ") || "Sin categorÃ­as."}`,
       "Platos disponibles destacados:",
       compactList(
         availablePlates,
@@ -402,8 +408,8 @@ class ChatbotContextService {
             plate.alergenos
               ?.map((id) => allergens[id]?.nombre)
               .filter(Boolean)
-              .join(", ") || "sin alérgenos indicados";
-          return `- ${plate.nombre}: ${plate.descripcion || "Sin descripción"} (${plate.precio || "sin precio"} EUR). Alérgenos: ${allergenNames}`;
+              .join(", ") || "sin alÃ©rgenos indicados";
+          return `- ${plate.nombre}: ${plate.descripcion || "Sin descripciÃ³n"} (${plate.precio || "sin precio"} EUR). AlÃ©rgenos: ${allergenNames}`;
         },
         12,
       ),
@@ -419,7 +425,7 @@ class ChatbotContextService {
       compactList(
         result.offers,
         (offer) =>
-          `- ${offer.title || offer.name || "Oferta"}: ${offer.description || "Sin descripción"}${offer.discount ? ` (${offer.discount}% descuento)` : ""}`,
+          `- ${offer.title || offer.name || "Oferta"}: ${offer.description || "Sin descripciÃ³n"}${offer.discount ? ` (${offer.discount}% descuento)` : ""}`,
         10,
       ),
     ].join("\n");
@@ -505,12 +511,12 @@ class ChatbotContextService {
 
   getBasicNavigationContext(role) {
     return [
-      "CONTEXTO NAVEGACIÓN:",
-      "- /menu muestra la carta pública con platos y alérgenos.",
+      "CONTEXTO NAVEGACIÃ“N:",
+      "- /menu muestra la carta pÃºblica con platos y alÃ©rgenos.",
       "- /dashboard?section=reservas permite gestionar reservas del comensal.",
       "- /dashboard?section=preview-menu permite ver carta desde el panel.",
       role === "admin"
-        ? "- Admin: /dashboard permite acceder a menú, mesas, ofertas y reservas internas."
+        ? "- Admin: /dashboard permite acceder a menÃº, mesas, ofertas y reservas internas."
         : "- Comensal: puede consultar sus reservas y crear nuevas desde su panel.",
     ].join("\n");
   }
@@ -536,7 +542,7 @@ class ChatbotContextService {
     if (fuzzyIncludes(cleanMessage, ["mesa", "mesas", "libre", "libres", "disponible"]) || lastIntent === "tables") {
       return isAdmin
         ? this.answerAdminTables(cleanMessage, history)
-        : "Para consultar disponibilidad concreta, entra en tu panel y crea una reserva indicando fecha, hora y número de personas.";
+        : "Para consultar disponibilidad concreta, entra en tu panel y crea una reserva indicando fecha, hora y nÃºmero de personas.";
     }
 
     if (
@@ -577,7 +583,7 @@ class ChatbotContextService {
       return this.answerMenu(cleanMessage);
     }
 
-    return "Puedo ayudarte con carta, platos, alérgenos, reservas, mesas, ofertas y navegación del restaurante.";
+    return "Puedo ayudarte con carta, platos, alÃ©rgenos, reservas, mesas, ofertas y navegaciÃ³n del restaurante.";
   }
 
   async answerOffers() {
@@ -590,7 +596,7 @@ class ChatbotContextService {
       compactList(
         result.offers,
         (offer) =>
-          `- ${offer.title || offer.name || "Oferta"}: ${offer.description || "Sin descripción"}${offer.discount ? ` (${offer.discount}% descuento)` : ""}`,
+          `- ${offer.title || offer.name || "Oferta"}: ${offer.description || "Sin descripciÃ³n"}${offer.discount ? ` (${offer.discount}% descuento)` : ""}`,
         8,
       ),
     ].join("\n");
@@ -705,12 +711,12 @@ class ChatbotContextService {
     }
 
     if (!availablePlates.length && requestedTerms.length) {
-      return `No encontré ${requestedTerms.join(", ")} disponibles en la carta ahora mismo. Puedes revisar la carta completa en /menu o consultar con el restaurante.`;
+      return `No encontrÃ© ${requestedTerms.join(", ")} disponibles en la carta ahora mismo. Puedes revisar la carta completa en /menu o consultar con el restaurante.`;
     }
     if (!availablePlates.length) return "No hay platos disponibles registrados ahora mismo.";
 
     return [
-      requestedTerms.length ? "Encontré estos resultados en carta:" : "Algunos platos disponibles:",
+      requestedTerms.length ? "EncontrÃ© estos resultados en carta:" : "Algunos platos disponibles:",
       compactList(
         availablePlates,
         (plate) => {
@@ -718,8 +724,8 @@ class ChatbotContextService {
             plate.alergenos
               ?.map((id) => allergens[id]?.nombre)
               .filter(Boolean)
-              .join(", ") || "sin alérgenos indicados";
-          return `- ${plate.nombre}: ${plate.precio || "sin precio"} EUR. Alérgenos: ${allergenNames}.`;
+              .join(", ") || "sin alÃ©rgenos indicados";
+          return `- ${plate.nombre}: ${plate.precio || "sin precio"} EUR. AlÃ©rgenos: ${allergenNames}.`;
         },
         10,
       ),
@@ -729,3 +735,4 @@ class ChatbotContextService {
 
 const chatbotContextService = new ChatbotContextService();
 export default chatbotContextService;
+

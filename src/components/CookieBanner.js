@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/components/CookieBanner.js
+ * Proposito: Banner de consentimiento de cookies y enlace a politica correspondiente.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -30,7 +36,7 @@ const CookieBanner = () => {
       <div className="cookie-banner-content">
         <div className="cookie-banner-text">
           <strong>Usamos cookies</strong> para mejorar tu experiencia.
-          Al continuar, aceptas nuestra <Link to="/politica-cookies">Política de Cookies</Link>.
+          Al continuar, aceptas nuestra <Link to="/politica-cookies">PolÃ­tica de Cookies</Link>.
         </div>
         <div className="cookie-banner-actions">
           <button
@@ -54,3 +60,4 @@ const CookieBanner = () => {
 };
 
 export default CookieBanner;
+

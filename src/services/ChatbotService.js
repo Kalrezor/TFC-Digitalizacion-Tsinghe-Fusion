@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/services/ChatbotService.js
+ * Proposito: Servicio del chatbot: prepara mensajes, llama al modelo configurado y procesa respuestas para el usuario.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import chatbotContextService from "./ChatbotContextService";
 
 const SUPPORT_PHONE =
@@ -93,7 +99,7 @@ const ADMIN_KEYWORDS = [
 const GREETING_KEYWORDS = ["hola", "buenas", "buenos dias", "buenas tardes"];
 const COURTESY_KEYWORDS = ["gracias", "muchas gracias", "ok", "vale", "perfecto", "genial"];
 
-const UNCLEAR_MESSAGE = `No he entendido bien la consulta. ¿Podrías hacer la pregunta nuevamente? Por ejemplo: "qué reservas hay hoy?", "qué ofertas hay?" o "qué platos tienen alérgenos?". Si necesitas ayuda directa, contacta con soporte del restaurante: ${SUPPORT_PHONE}.`;
+const UNCLEAR_MESSAGE = `No he entendido bien la consulta. Â¿PodrÃ­as hacer la pregunta nuevamente? Por ejemplo: "quÃ© reservas hay hoy?", "quÃ© ofertas hay?" o "quÃ© platos tienen alÃ©rgenos?". Si necesitas ayuda directa, contacta con soporte del restaurante: ${SUPPORT_PHONE}.`;
 
 const normalizeRole = (role) => {
   const normalized = normalizeText(role || "");
@@ -140,27 +146,27 @@ const typoHint = (message) => {
 const buildSystemInstruction = ({ role, userName, userEmail, locationPath, firebaseContext }) => {
   const effectiveRole = normalizeRole(role);
   const baseRules = [
-    "Eres el chatbot interno de Tsinghe Cocina Fusión.",
-    "Responde siempre en español claro, breve y útil.",
-    "Solo puedes responder temas del restaurante: carta, platos, alérgenos, reservas, mesas, ofertas, usuarios o navegación por la web.",
+    "Eres el chatbot interno de Tsinghe Cocina FusiÃ³n.",
+    "Responde siempre en espaÃ±ol claro, breve y Ãºtil.",
+    "Solo puedes responder temas del restaurante: carta, platos, alÃ©rgenos, reservas, mesas, ofertas, usuarios o navegaciÃ³n por la web.",
     "Si el usuario pregunta algo externo, responde que solo ayudas con temas de Tsinghe.",
-    "No inventes datos concretos si no están en el contexto.",
-    "No reveles ni solicites secretos, claves API, tokens ni información sensible.",
-    "No respondas preguntas de clima, política, noticias, deporte, programación general u otros temas externos.",
-    "No realices acciones de escritura: no creas, modifica ni cancela reservas; solo informa y guía.",
+    "No inventes datos concretos si no estÃ¡n en el contexto.",
+    "No reveles ni solicites secretos, claves API, tokens ni informaciÃ³n sensible.",
+    "No respondas preguntas de clima, polÃ­tica, noticias, deporte, programaciÃ³n general u otros temas externos.",
+    "No realices acciones de escritura: no creas, modifica ni cancela reservas; solo informa y guÃ­a.",
     `Usuario actual: ${userName || "sin nombre"} (${userEmail || "sin email"}).`,
     `Ruta actual: ${locationPath || "/"}.`,
     "Usa exclusivamente el contexto de Firebase proporcionado para datos concretos.",
-    "Si el contexto no contiene la información solicitada, dilo con honestidad y guía al usuario a la sección correcta.",
-    `Contexto Firebase disponible:\n${firebaseContext || "Sin contexto específico disponible."}`,
+    "Si el contexto no contiene la informaciÃ³n solicitada, dilo con honestidad y guÃ­a al usuario a la secciÃ³n correcta.",
+    `Contexto Firebase disponible:\n${firebaseContext || "Sin contexto especÃ­fico disponible."}`,
   ];
 
   if (effectiveRole === "admin") {
     return [
       ...baseRules,
       "Rol: administrador.",
-      "Puede recibir orientación sobre consultas internas, reservas, mesas, usuarios y datos operativos.",
-      "Aun siendo admin, no reveles claves, tokens ni configuración sensible.",
+      "Puede recibir orientaciÃ³n sobre consultas internas, reservas, mesas, usuarios y datos operativos.",
+      "Aun siendo admin, no reveles claves, tokens ni configuraciÃ³n sensible.",
       "Si faltan datos reales, indica que necesitas conectarte a la base de datos o consultar la pantalla correspondiente.",
     ].join("\n");
   }
@@ -168,11 +174,11 @@ const buildSystemInstruction = ({ role, userName, userEmail, locationPath, fireb
   return [
     ...baseRules,
     "Rol: comensal.",
-    "Puede recibir ayuda sobre carta, alérgenos, reservas, ofertas y navegación.",
+    "Puede recibir ayuda sobre carta, alÃ©rgenos, reservas, ofertas y navegaciÃ³n.",
     "Si el contexto contiene reservas propias del comensal, puedes mostrarlas al usuario.",
     "Si pregunta por reservas sin decir 'mis', interpreta que pregunta por sus propias reservas, nunca por reservas globales.",
     "No respondas consultas internas de base de datos, usuarios, reservas globales o mesas libres internas.",
-    "Nunca reveles reservas de otros usuarios ni información operativa interna.",
+    "Nunca reveles reservas de otros usuarios ni informaciÃ³n operativa interna.",
   ].join("\n");
 };
 
@@ -211,7 +217,7 @@ class ChatbotService {
         reason:
           effectiveRole === "admin"
             ? "Hola. Puedo ayudarte con carta, reservas, mesas, usuarios y consultas internas del restaurante."
-            : "Hola. Puedo ayudarte con la carta, alérgenos, reservas, ofertas y navegación por la web.",
+            : "Hola. Puedo ayudarte con la carta, alÃ©rgenos, reservas, ofertas y navegaciÃ³n por la web.",
       };
     }
 
@@ -219,7 +225,7 @@ class ChatbotService {
       return {
         allowed: false,
         reason:
-          "Con gusto. Si necesitas algo más, puedo ayudarte con carta, postres, alérgenos, reservas, mesas u ofertas del restaurante.",
+          "Con gusto. Si necesitas algo mÃ¡s, puedo ayudarte con carta, postres, alÃ©rgenos, reservas, mesas u ofertas del restaurante.",
       };
     }
 
@@ -227,7 +233,7 @@ class ChatbotService {
       return {
         allowed: false,
         reason:
-          "Solo puedo responder preguntas relacionadas con Tsinghe, su carta, reservas, mesas, ofertas y alérgenos.",
+          "Solo puedo responder preguntas relacionadas con Tsinghe, su carta, reservas, mesas, ofertas y alÃ©rgenos.",
       };
     }
 
@@ -235,7 +241,7 @@ class ChatbotService {
       return {
         allowed: false,
         reason:
-          "Esa consulta contiene información interna. Desde un perfil de comensal puedo ayudarte con carta, reservas, ofertas y alérgenos.",
+          "Esa consulta contiene informaciÃ³n interna. Desde un perfil de comensal puedo ayudarte con carta, reservas, ofertas y alÃ©rgenos.",
       };
     }
 
@@ -395,3 +401,4 @@ class ChatbotService {
 
 const chatbotService = new ChatbotService();
 export default chatbotService;
+

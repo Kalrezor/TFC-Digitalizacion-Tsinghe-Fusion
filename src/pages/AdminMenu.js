@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/pages/AdminMenu.js
+ * Proposito: Vista de administracion de carta: permite crear, editar, borrar y organizar platos, categorias y alergenos.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Vista: AdminMenu.js (Fragmento de la Tabla optimizado para legibilidad y holgura)
 
 import React, { useState, useEffect, useRef } from "react";
@@ -17,7 +23,7 @@ const EMPTY_FORM = {
 };
 
 const AdminMenu = () => {
-  // ... (Mantén toda tu lógica de estados, useEffects y handlers exactamente igual)
+  // ... (MantÃ©n toda tu lÃ³gica de estados, useEffects y handlers exactamente igual)
   const [plates, setPlates]           = useState([]);
   const [categories, setCategories]   = useState([]);
   const [allAllergens, setAllAllergens] = useState({});
@@ -147,7 +153,7 @@ const AdminMenu = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.nombre.trim() || !formData.precio || !formData.idCategoria) {
-      setError("Nombre, categoría y precio son obligatorios.");
+      setError("Nombre, categorÃ­a y precio son obligatorios.");
       return;
     }
     setLoading(true);
@@ -157,7 +163,7 @@ const AdminMenu = () => {
       : await menuService.createPlate(payload, true);
     setLoading(false);
     if (result.success) {
-      setSuccess("¡Guardado correctamente!");
+      setSuccess("Â¡Guardado correctamente!");
       setShowForm(false);
       loadPlatesOnly();
     } else setError(result.error);
@@ -170,17 +176,17 @@ const AdminMenu = () => {
   });
 
   const selectedCatName = categories.find(c => c.id === formData.idCategoria)?.nombre || "";
-  const filterCatName = filterCat === "all" ? "TODAS LAS CATEGORÍAS" : categories.find(c => c.id === filterCat)?.nombre || "";
+  const filterCatName = filterCat === "all" ? "TODAS LAS CATEGORÃAS" : categories.find(c => c.id === filterCat)?.nombre || "";
 
   return (
     <div className="container" style={{ padding: "24px 0" }}>
-      {/* ... (Mantén tus cabeceras, formularios y filtros superiores exactamente como estaban) ... */}
+      {/* ... (MantÃ©n tus cabeceras, formularios y filtros superiores exactamente como estaban) ... */}
       <div className="card admin-menu-card-spaced">
         <div className="card-header">
-          <h1 className="admin-menu-heading">Administración de Menú</h1>
+          <h1 className="admin-menu-heading">AdministraciÃ³n de MenÃº</h1>
         </div>
         <div className="admin-menu-toolbar">
-          <p className="admin-menu-intro">Gestiona los platos del menú, categoría, alérgenos e imagen desde un panel editorial.</p>
+          <p className="admin-menu-intro">Gestiona los platos del menÃº, categorÃ­a, alÃ©rgenos e imagen desde un panel editorial.</p>
           <button onClick={openNew} disabled={loading} className="btn btn-primary">+ Nuevo Plato</button>
         </div>
       </div>
@@ -199,15 +205,15 @@ const AdminMenu = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Descripción</label>
+                  <label>DescripciÃ³n</label>
                   <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows={2} className="form-control" />
                 </div>
 
                 <div className="form-group admin-menu-select-group" ref={catRef}>
-                  <label>Categoría *</label>
+                  <label>CategorÃ­a *</label>
                   <div onClick={() => setIsOpenCat(!isOpenCat)} className="admin-menu-select-trigger">
                     <span style={{ fontWeight: formData.idCategoria ? "bold" : "normal" }}>{selectedCatName.toUpperCase()}</span>
-                    <span>{isOpenCat ? "▲" : "▼"}</span>
+                    <span>{isOpenCat ? "â–²" : "â–¼"}</span>
                   </div>
                   {isOpenCat && (
                     <div className="admin-menu-select-dropdown">
@@ -224,7 +230,7 @@ const AdminMenu = () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="admin-menu-label">Alérgenos</label>
+                  <label className="admin-menu-label">AlÃ©rgenos</label>
                   <div className="admin-menu-allergen-grid">
                     {Object.values(allAllergens).map(ale => (
                       <div key={ale.id} onClick={() => handleAlergenoToggle(ale.id)}
@@ -238,7 +244,7 @@ const AdminMenu = () => {
 
                 <div className="admin-menu-form-row">
                   <div>
-                    <label className="admin-menu-label">Precio (€) *</label>
+                    <label className="admin-menu-label">Precio (â‚¬) *</label>
                     <input name="precio" type="text" value={formData.precio} onChange={handleChange} placeholder="0.00" className="admin-menu-input" />
                   </div>
                   <div>
@@ -266,7 +272,7 @@ const AdminMenu = () => {
                   <label style={{ marginBottom: 0, fontWeight: 700 }}>Disponible?</label>
                   <input name="disponible" type="checkbox" checked={formData.disponible} onChange={handleChange} style={{ width: "18px", height: "18px", cursor: "pointer" }} />
                   <span style={{ fontWeight: "bold", color: "#050505", fontSize: "13px" }}>
-                    {formData.disponible ? "SÍ" : "NO"}
+                    {formData.disponible ? "SÃ" : "NO"}
                   </span>
                 </div>
               </div>
@@ -288,10 +294,10 @@ const AdminMenu = () => {
           </div>
 
           <div className="admin-menu-select-group" ref={filterRef}>
-            <label className="admin-menu-label">Filtrar por Categoría:</label>
+            <label className="admin-menu-label">Filtrar por CategorÃ­a:</label>
             <div onClick={() => setIsOpenFilter(!isOpenFilter)} className="admin-menu-select-trigger">
               <span style={{ fontWeight: filterCat === "all" ? "normal" : "bold" }}>{filterCatName.toUpperCase()}</span>
-              <span>{isOpenFilter ? "▲" : "▼"}</span>
+              <span>{isOpenFilter ? "â–²" : "â–¼"}</span>
             </div>
             {isOpenFilter && (
               <div className="admin-menu-select-dropdown">
@@ -313,7 +319,7 @@ const AdminMenu = () => {
         </div>
       </div>
 
-      {/* --- SECCIÓN SECCIÓN TABLA REFORMADA --- */}
+      {/* --- SECCIÃ“N SECCIÃ“N TABLA REFORMADA --- */}
       <div className="card admin-menu-card admin-menu-plates-card" style={{ padding: "26px", overflowX: "auto", borderRadius: "12px" }}>
         <div className="card-header" style={{ marginBottom: "16px" }}>
           <h3 style={{ margin: 0 }}>Platos</h3>
@@ -323,10 +329,10 @@ const AdminMenu = () => {
             <tr style={{ background: "var(--sage, #222)", color: "#fff", fontSize: "13px", letterSpacing: "0.5px" }}>
               <th className="admin-menu-table-header-cell">Imagen</th>
               <th className="admin-menu-table-header-cell">Nombre</th>
-              <th className="admin-menu-table-header-cell">Categoría</th>
+              <th className="admin-menu-table-header-cell">CategorÃ­a</th>
               <th className="admin-menu-table-header-cell">Precio</th>
               <th className="admin-menu-table-header-cell">Estado</th>
-              <th className="admin-menu-table-header-cell">Alérgenos</th>
+              <th className="admin-menu-table-header-cell">AlÃ©rgenos</th>
               <th className="admin-menu-table-header-cell admin-menu-table-header-cell-center">Acciones</th>
             </tr>
           </thead>
@@ -358,14 +364,14 @@ const AdminMenu = () => {
                     <strong style={{ color: "#111" }}>{p.nombre}</strong>
                   </td>
 
-                  {/* Celda Categoría */}
+                  {/* Celda CategorÃ­a */}
                   <td className="admin-menu-table-cell admin-menu-table-cell-category">
                     {p.idCategoria}
                   </td>
 
                   {/* Celda Precio */}
                   <td className="admin-menu-table-cell admin-menu-table-cell-price">
-                    {parseFloat(p.precio || 0).toFixed(2)} €
+                    {parseFloat(p.precio || 0).toFixed(2)} â‚¬
                   </td>
 
                   {/* Celda Estado (No disponible / Disponible) mas espacioso */}
@@ -387,7 +393,7 @@ const AdminMenu = () => {
                     </span>
                   </td>
 
-                  {/* Celda Alérgenos */}
+                  {/* Celda AlÃ©rgenos */}
                   <td className="admin-menu-table-cell">
                     <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", maxWidth: "120px" }}>
                       {p.alergenos?.map(id => (
@@ -431,7 +437,7 @@ const AdminMenu = () => {
       {confirmDeletePlate && (
         <div className="card" style={{ padding: "18px", background: "#ffffff", border: "1px solid #050505", marginTop: "16px" }}>
           <div className="admin-menu-confirm-text">
-            ¿Eliminar "{confirmDeletePlate.nombre}"?
+            Â¿Eliminar "{confirmDeletePlate.nombre}"?
             <div className="admin-menu-confirm-meta">Capacidad: --</div>
           </div>
           <div className="admin-menu-confirm-actions">
@@ -445,3 +451,4 @@ const AdminMenu = () => {
 };
 
 export default AdminMenu;
+

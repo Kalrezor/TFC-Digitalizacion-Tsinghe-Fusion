@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/components/RestaurantChatbot.js
+ * Proposito: Widget flotante de chatbot del restaurante para asistencia contextual.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import chatbotService from "../services/ChatbotService";
@@ -10,7 +16,7 @@ const getWelcomeMessage = (role) => {
     return "Hola. Puedo ayudarte con carta, reservas, mesas, usuarios y consultas internas del restaurante.";
   }
 
-  return "Hola. Puedo ayudarte con la carta, alérgenos, reservas, ofertas y navegación por la web.";
+  return "Hola. Puedo ayudarte con la carta, alÃ©rgenos, reservas, ofertas y navegaciÃ³n por la web.";
 };
 
 const normalizeRole = (role) => {
@@ -136,7 +142,7 @@ const RestaurantChatbot = ({ user, role, userName, enabled = true }) => {
               placeholder={
                 effectiveRole === "admin"
                   ? "Reservas de hoy, mesas libres..."
-                  : "Platos, alérgenos, reservas..."
+                  : "Platos, alÃ©rgenos, reservas..."
               }
               aria-label="Mensaje para el chatbot"
             />
@@ -160,4 +166,5 @@ const RestaurantChatbot = ({ user, role, userName, enabled = true }) => {
 };
 
 export default RestaurantChatbot;
+
 

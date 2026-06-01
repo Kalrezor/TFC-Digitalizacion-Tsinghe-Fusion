@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/hooks/useTables.js
+ * Proposito: Hook de mesas: carga listado y expone acciones CRUD para mesas.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 // Controlador: useTables.js
 // Hook para manejar CRUD de mesas con actualizaciones en tiempo real.
 
@@ -59,21 +65,21 @@ const useTables = () => {
   // Crear mesa
   const createTable = async (tableData) => {
     const result = await TableService.createTable(tableData);
-    // No necesitamos llamar a loadTables, el listener actualizará automáticamente
+    // No necesitamos llamar a loadTables, el listener actualizarÃ¡ automÃ¡ticamente
     return result;
   };
 
   // Actualizar mesa
   const updateTable = async (id, tableData) => {
     const result = await TableService.updateTable(id, tableData);
-    // No necesitamos llamar a loadTables, el listener actualizará automáticamente
+    // No necesitamos llamar a loadTables, el listener actualizarÃ¡ automÃ¡ticamente
     return result;
   };
 
   // Eliminar mesa
   const deleteTable = async (id) => {
     const result = await TableService.deleteTable(id);
-    // No necesitamos llamar a loadTables, el listener actualizará automáticamente
+    // No necesitamos llamar a loadTables, el listener actualizarÃ¡ automÃ¡ticamente
     return result;
   };
 

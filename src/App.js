@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/App.js
+ * Proposito: Componente raiz: define rutas, protecciones por rol, navegacion principal, chatbot, footer legal y sistema de notificaciones.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
@@ -13,7 +19,7 @@ import RestaurantChatbot from "./components/RestaurantChatbot";
 import CookieBanner from "./components/CookieBanner";
 import LegalFooter from "./components/LegalFooter";
 
-// Vistas públicas
+// Vistas pÃºblicas
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Login from "./pages/Login";
@@ -59,12 +65,12 @@ const getChatbotSettings = () => {
 
 const normalizeChatbotRole = (role) => (role === "admin" ? "admin" : "comensal");
 
-// ── Pantalla de Carga ────────────────────────────────────────────────────────
+// â”€â”€ Pantalla de Carga â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const LoadingScreen = () => (
   <div className="app-loading-screen">
     <div className="app-loading-content">
       <div className="app-loading-text">
-        Cargando autenticación...
+        Cargando autenticaciÃ³n...
       </div>
     </div>
   </div>
@@ -113,7 +119,7 @@ const AdminRoute = ({ children, isAuthenticated, loading, role }) => {
   return role === "admin" ? children : <Navigate to="/dashboard" replace />;
 };
 
-// ── App Principal ───────────────────────────────────────────────────────────
+// â”€â”€ App Principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function App() {
   const { user, userName, userEmail, role, loading, logout } = useAuth();
   const [chatbotSettings, setChatbotSettings] = useState(getChatbotSettings);
@@ -147,7 +153,7 @@ function App() {
     });
   };
 
-  // IMPORTANTE: El chequeo de loading debe ir AQUÍ dentro
+  // IMPORTANTE: El chequeo de loading debe ir AQUÃ dentro
   if (loading) {
     return <LoadingScreen />;
   }
@@ -166,7 +172,7 @@ function App() {
 
         <main className="app-content">
           <Routes>
-        {/* Rutas públicas */}
+        {/* Rutas pÃºblicas */}
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -175,7 +181,7 @@ function App() {
         <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
         <Route path="/politica-cookies" element={<PoliticaCookies />} />
 
-        {/* Lógica de Login mejorada */}
+        {/* LÃ³gica de Login mejorada */}
         <Route
           path="/login"
           element={
@@ -294,3 +300,4 @@ function App() {
 }
 
 export default App;
+

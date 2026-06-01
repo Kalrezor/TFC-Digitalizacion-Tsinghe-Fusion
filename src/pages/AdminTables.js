@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/pages/AdminTables.js
+ * Proposito: Vista administrativa de mesas: integra la gestion de mesas y disponibilidad.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import tableService from "../services/TableService";
@@ -41,12 +47,12 @@ const AdminTables = ({ userId, userRole }) => {
   useEffect(() => {
     if (!userId) return;
 
-    // La ruta AdminRoute ya verificó que es admin, así que confiamos en userRole
+    // La ruta AdminRoute ya verificÃ³ que es admin, asÃ­ que confiamos en userRole
     if (userRole === "admin") {
       setIsAdmin(true);
     }
 
-    // Listener en tiempo real para el PIN (SINCRONIZACIÓN)
+    // Listener en tiempo real para el PIN (SINCRONIZACIÃ“N)
     const unsubscribe = onSnapshot(doc(db, "users", userId), (doc) => {
       if (doc.exists()) {
         const userData = doc.data();
@@ -65,7 +71,7 @@ const AdminTables = ({ userId, userRole }) => {
     return () => unsubscribe();
   }, [userId, userRole]);
 
-  // 3. LÓGICA DE SELECCIÓN (FUSIÓN)
+  // 3. LÃ“GICA DE SELECCIÃ“N (FUSIÃ“N)
   const handleTableClick = (table) => {
     // Validar que sea admin
     if (!isAdmin) {
@@ -76,13 +82,13 @@ const AdminTables = ({ userId, userRole }) => {
     // Si no hay una reserva pendiente de asignar, el clic no hace nada
     if (!pendingRes || !table.active) return;
 
-    // Si la mesa ya está ocupada por OTRA reserva, no deja seleccionarla
+    // Si la mesa ya estÃ¡ ocupada por OTRA reserva, no deja seleccionarla
     if (table.reservationId && table.reservationId !== pendingRes.resId) {
-      toastError("Esta mesa ya está ocupada.");
+      toastError("Esta mesa ya estÃ¡ ocupada.");
       return;
     }
 
-    // Toggle de selección
+    // Toggle de selecciÃ³n
     if (selectedMultiple.find((t) => t.tableNumber === table.tableNumber)) {
       setSelectedMultiple(
         selectedMultiple.filter((t) => t.tableNumber !== table.tableNumber),
@@ -92,7 +98,7 @@ const AdminTables = ({ userId, userRole }) => {
     }
   };
 
-  // 4. CONFIRMAR FUSIÓN (USAR NUEVO MÉTODO)
+  // 4. CONFIRMAR FUSIÃ“N (USAR NUEVO MÃ‰TODO)
   const handleConfirmFusion = async () => {
     if (!isAdmin) {
       toastError("Solo administradores pueden fusionar mesas.");
@@ -111,7 +117,7 @@ const AdminTables = ({ userId, userRole }) => {
         .filter(t => t.id)
         .map(t => t.id);
 
-      // Usar el nuevo método mergeTables de TableService
+      // Usar el nuevo mÃ©todo mergeTables de TableService
       const result = await tableService.mergeTables(
         pendingRes.resId,
         tableIds,
@@ -126,7 +132,7 @@ const AdminTables = ({ userId, userRole }) => {
         toastError(result.error || "Error al fusionar mesas");
       }
     } catch (error) {
-      console.error("Error en fusión:", error);
+      console.error("Error en fusiÃ³n:", error);
       toastError("Error al fusionar mesas: " + error.message);
     } finally {
       setLoading(false);
@@ -141,12 +147,12 @@ const AdminTables = ({ userId, userRole }) => {
     }
 
     if (!table.reservationId) {
-      toastError("Esta mesa no está fusionada.");
+      toastError("Esta mesa no estÃ¡ fusionada.");
       return;
     }
 
     // Solicitar PIN
-    const confirmPass = await toastInput("Mesa fusionada. Ingresa PIN de 4 dígitos:", {
+    const confirmPass = await toastInput("Mesa fusionada. Ingresa PIN de 4 dÃ­gitos:", {
       inputType: "password",
       maxLength: 4,
       placeholder: "PIN",
@@ -174,7 +180,7 @@ const AdminTables = ({ userId, userRole }) => {
         .filter(t => t.id)
         .map(t => t.id);
 
-      // Usar el nuevo método unmergeTables
+      // Usar el nuevo mÃ©todo unmergeTables
       const result = await tableService.unmergeTables(tableIdsToUnmerge);
 
       if (result.success) {
@@ -196,7 +202,7 @@ const AdminTables = ({ userId, userRole }) => {
       return;
     }
 
-    const confirmPass = await toastInput("Mesa ocupada. Ingresa PIN de 4 dígitos:", {
+    const confirmPass = await toastInput("Mesa ocupada. Ingresa PIN de 4 dÃ­gitos:", {
       inputType: "password",
       maxLength: 4,
       placeholder: "PIN",
@@ -242,7 +248,7 @@ const AdminTables = ({ userId, userRole }) => {
     }
 
     if (table.reservationId || (!table.available && table.active !== false)) {
-      toastError("Esta mesa está ocupada o fusionada. Libérala con PIN antes de modificarla.");
+      toastError("Esta mesa estÃ¡ ocupada o fusionada. LibÃ©rala con PIN antes de modificarla.");
       return;
     }
 
@@ -281,17 +287,17 @@ const AdminTables = ({ userId, userRole }) => {
       return;
     }
 
-    // Validar nuevo PIN (4 dígitos)
+    // Validar nuevo PIN (4 dÃ­gitos)
     if (!newPin || !/^\d{4}$/.test(newPin)) {
-      setPinError("El nuevo PIN debe ser 4 dígitos numéricos");
-      toastError("El nuevo PIN debe ser 4 dígitos numéricos");
+      setPinError("El nuevo PIN debe ser 4 dÃ­gitos numÃ©ricos");
+      toastError("El nuevo PIN debe ser 4 dÃ­gitos numÃ©ricos");
       return;
     }
 
     try {
       setLoading(true);
       
-      // Actualizar en Firestore (con validación en reglas)
+      // Actualizar en Firestore (con validaciÃ³n en reglas)
       await updateDoc(doc(db, "users", userId), { 
         adminPin: newPin 
       });
@@ -302,7 +308,7 @@ const AdminTables = ({ userId, userRole }) => {
       setCurrentPinInput("");
       setNewPin("");
       
-      // El listener en tiempo real actualizará dbPin automáticamente
+      // El listener en tiempo real actualizarÃ¡ dbPin automÃ¡ticamente
       setTimeout(() => {
         setShowPinSettings(false);
         setPinSuccess(false);
@@ -320,7 +326,7 @@ const AdminTables = ({ userId, userRole }) => {
   if (!isAdmin) {
     return (
       <div style={{ padding: "20px", textAlign: "center" }}>
-        <h2>⚠️ Acceso Denegado</h2>
+        <h2>âš ï¸ Acceso Denegado</h2>
         <p>Solo administradores pueden acceder a esta vista.</p>
         <button 
           onClick={() => navigate("/")}
@@ -352,16 +358,16 @@ const AdminTables = ({ userId, userRole }) => {
           marginBottom: "20px",
         }}
       >
-        <h2>⛩️ Plano de Mesas</h2>
+        <h2>â›©ï¸ Plano de Mesas</h2>
         <button onClick={() => setShowPinSettings(!showPinSettings)}>
-          ⚙️ Ajustes PIN
+          âš™ï¸ Ajustes PIN
         </button>
       </div>
 
-      {/* Banner de Fusión: Solo aparece si vienes de Reservas */}
+      {/* Banner de FusiÃ³n: Solo aparece si vienes de Reservas */}
       {pendingRes && (
         <div className="admin-tables-fusion-banner">
-          <h3>📍 Asignando a: {pendingRes.userName}</h3>
+          <h3>ðŸ“ Asignando a: {pendingRes.userName}</h3>
           <p>Selecciona las mesas en el plano y pulsa Vincular</p>
           <button
             onClick={handleConfirmFusion}
@@ -395,11 +401,11 @@ const AdminTables = ({ userId, userRole }) => {
 
       {showPinSettings && (
         <div className="admin-tables-pin-settings">
-          <h3>🔐 Cambiar PIN de Seguridad</h3>
+          <h3>ðŸ” Cambiar PIN de Seguridad</h3>
           
           <input
             type="password"
-            placeholder="PIN Actual (4 dígitos)"
+            placeholder="PIN Actual (4 dÃ­gitos)"
             value={currentPinInput}
             onChange={(e) => setCurrentPinInput(e.target.value.slice(0, 4))}
             maxLength="4"
@@ -408,7 +414,7 @@ const AdminTables = ({ userId, userRole }) => {
           
           <input
             type="password"
-            placeholder="Nuevo PIN (4 dígitos)"
+            placeholder="Nuevo PIN (4 dÃ­gitos)"
             value={newPin}
             onChange={(e) => setNewPin(e.target.value.slice(0, 4))}
             maxLength="4"
@@ -421,7 +427,7 @@ const AdminTables = ({ userId, userRole }) => {
               disabled={loading}
               className="admin-tables-button"
             >
-              {loading ? "Guardando..." : "💾 Guardar PIN"}
+              {loading ? "Guardando..." : "ðŸ’¾ Guardar PIN"}
             </button>
             
             <button
@@ -579,3 +585,4 @@ const AdminTables = ({ userId, userRole }) => {
 };
 
 export default AdminTables;
+

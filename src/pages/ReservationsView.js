@@ -1,3 +1,9 @@
+/*
+ * Archivo: src/pages/ReservationsView.js
+ * Proposito: Vista legacy/general de reservas con datos de reservas y mesas.
+ * Nota: Cabecera documental; no modifica la logica del fichero.
+ */
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useReservations from "../hooks/useReservations";
@@ -31,7 +37,7 @@ const ReservationsView = ({ role, userId }) => {
       <h2
         className="reservations-view-title"
       >
-        Gestión de Reservas
+        GestiÃ³n de Reservas
       </h2>
 
       <div className="reservations-list">
@@ -162,3 +168,4 @@ const ReservationsView = ({ role, userId }) => {
 };
 
 export default ReservationsView;
+
