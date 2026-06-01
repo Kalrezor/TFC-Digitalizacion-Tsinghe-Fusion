@@ -141,6 +141,9 @@ const Login = () => {
           <span>¿No tienes cuenta? </span>
           <Link to="/register">Regístrate aquí</Link>
         </div>
+        <div className="editorial-auth-text editorial-auth-legal-note">
+          Al realizar el Registro en nuestra web aceptas nuestra <Link to="/politica-privacidad">Política de Privacidad</Link> 
+        </div>
       </div>
     </div>
   );
