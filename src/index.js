@@ -5,7 +5,7 @@
  */
 
 // index.js
-// Punto de entrada de la aplicaciÃ³n React.
+// Punto de entrada de la aplicación React.
 // Renderiza el componente App en el DOM.
 
 import React from "react";

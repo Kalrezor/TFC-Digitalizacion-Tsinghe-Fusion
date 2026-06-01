@@ -25,7 +25,7 @@ export const toastSuccess = (message) =>
   toast.success(message, {
     ...baseOptions,
     id: toastId("success", message),
-    icon: "âœ…",
+    icon: "✅",
     style: {
       ...baseOptions.style,
       background: "#ecfdf5",
@@ -38,7 +38,7 @@ export const toastError = (message) =>
   toast.error(message, {
     ...baseOptions,
     id: toastId("error", message),
-    icon: "âŒ",
+    icon: "❌",
     style: {
       ...baseOptions.style,
       background: "#fee2e2",
@@ -51,7 +51,7 @@ export const toastInfo = (message) =>
   toast(message, {
     ...baseOptions,
     id: toastId("info", message),
-    icon: "â„¹ï¸",
+    icon: "ℹ️",
     style: {
       ...baseOptions.style,
       background: "#f8fafc",

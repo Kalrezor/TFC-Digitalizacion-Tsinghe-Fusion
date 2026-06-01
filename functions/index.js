@@ -5,12 +5,12 @@
  */
 
 /**
- * Tsinghe Cocina FusiÃ³n - Cloud Functions
+ * Tsinghe Cocina Fusión - Cloud Functions
  * Funciones del servidor para el restaurante.
  *
  * FUNCIONES:
  * 1. sendWelcomeEmail   - HTTP: enviar email de bienvenida 
- * 2. sendVerificationEmail - HTTP: crear usuario y enviar email de verificaciÃ³n
+ * 2. sendVerificationEmail - HTTP: crear usuario y enviar email de verificación
  * 3. onReservationWrite - Trigger: cuando se crea/cancela una reserva, actualiza la mesa
  * 4. initTables         - HTTP: desactivada, Firestore es la fuente real de mesas
  *
@@ -31,10 +31,10 @@ const db = admin.firestore();
 
 setGlobalOptions({ maxInstances: 10, region: "us-central1" });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // NOTA: El trigger onUserCreated de Auth se maneja mejor desde Firestore
 // Se crean usuarios directamente en Firestore desde el cliente al registrarse
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 // Trigger: enviar email de bienvenida cuando se crea un documento en 'users/{uid}'
 exports.onUserCreated = onDocumentCreated(
@@ -54,7 +54,7 @@ exports.onUserCreated = onDocumentCreated(
       const name = data.name || String(email).split('@')[0];
 
       const info = await transporter.sendMail({
-        from: '"Tsinghe Cocina FusiÃ³n" <tsinghecocinafusion@gmail.com>',
+        from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
         to: email,
         subject: 'Bienvenido a Tsinghe Cocina Fusion',
         html: buildWelcomeEmailHtml(name),
@@ -69,9 +69,9 @@ exports.onUserCreated = onDocumentCreated(
   },
 );
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // 2. HTTP: enviar email de bienvenida con Gmail/Nodemailer
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 const nodemailer = require("nodemailer");
 
 // Configurar transporter de Gmail con opciones adicionales
@@ -230,7 +230,7 @@ const buildWelcomeEmailHtml = (name) => `
         <body style="${EMAIL_INLINE.body}">
           <div class="container" style="${EMAIL_INLINE.container}">
             <div class="header" style="${EMAIL_INLINE.header}">
-              <p style="margin: 0 0 14px; color: #050505; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;">Cocina fusion Â· Madrid</p>
+              <p style="margin: 0 0 14px; color: #050505; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;">Cocina fusion · Madrid</p>
               <h1 style="${EMAIL_INLINE.title}">Tsinghe Cocina Fusion</h1>
             </div>
             <div class="content" style="${EMAIL_INLINE.content}">
@@ -238,7 +238,7 @@ const buildWelcomeEmailHtml = (name) => `
               <p style="${EMAIL_INLINE.paragraph}">Gracias por registrarte en <strong style="color: #050505;">Tsinghe Cocina Fusion</strong>.</p>
               <p style="${EMAIL_INLINE.paragraph}">Estamos muy felices de tenerte con nosotros. Ahora puedes:</p>
               <ul style="${EMAIL_INLINE.paragraph} padding-left: 22px;">
-                <li style="margin-bottom: 8px;">Explorar nuestro menÃº</li>
+                <li style="margin-bottom: 8px;">Explorar nuestro menú</li>
                 <li style="margin-bottom: 8px;">Hacer reservas de mesa</li>
                 <li>Ver tus reservas anteriores</li>
               </ul>
@@ -246,7 +246,7 @@ const buildWelcomeEmailHtml = (name) => `
               <a href="https://digitalizacion-tsinge-fusion.web.app/" style="${EMAIL_INLINE.button}">Visitar restaurante</a>
             </div>
             <div class="footer" style="${EMAIL_INLINE.footer}">
-              <p style="${EMAIL_INLINE.footerText}">Â© 2026 Tsinghe Cocina Fusion. Todos los derechos reservados.</p>
+              <p style="${EMAIL_INLINE.footerText}">© 2026 Tsinghe Cocina Fusion. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -255,12 +255,12 @@ const buildWelcomeEmailHtml = (name) => `
 
 const buildReservationStatusEmailHtml = ({ name, status, reservationDetails }) => {
   const title = status === "confirmada"
-    ? "âœ… Tu reserva ha sido confirmada"
-    : "âŒ Tu reserva ha sido cancelada";
+    ? "✅ Tu reserva ha sido confirmada"
+    : "❌ Tu reserva ha sido cancelada";
 
   const statusCopy = status === "confirmada"
-    ? "Tu reserva en Tsinghe Cocina FusiÃ³n ha sido confirmada."
-    : "Tu reserva en Tsinghe Cocina FusiÃ³n ha sido cancelada.";
+    ? "Tu reserva en Tsinghe Cocina Fusión ha sido confirmada."
+    : "Tu reserva en Tsinghe Cocina Fusión ha sido cancelada.";
 
   const tableInfo = Array.isArray(reservationDetails.tableIds)
     ? reservationDetails.tableIds.join(", ")
@@ -278,7 +278,7 @@ const buildReservationStatusEmailHtml = ({ name, status, reservationDetails }) =
         <body style="${EMAIL_INLINE.body}">
           <div class="container" style="${EMAIL_INLINE.container}">
             <div class="header" style="${EMAIL_INLINE.header}">
-              <p style="margin: 0 0 14px; color: #050505; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;">Cocina fusion Â· Madrid</p>
+              <p style="margin: 0 0 14px; color: #050505; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;">Cocina fusion · Madrid</p>
               <h1 style="${EMAIL_INLINE.title}">${title}</h1>
             </div>
             <div class="content" style="${EMAIL_INLINE.content}">
@@ -294,11 +294,11 @@ const buildReservationStatusEmailHtml = ({ name, status, reservationDetails }) =
                 ${reservationDetails.specialRequests ? `<p style="${EMAIL_INLINE.paragraph}"><strong>Solicitudes especiales:</strong> ${reservationDetails.specialRequests}</p>` : ""}
               </div>
 
-              <p style="${EMAIL_INLINE.paragraph}">Si tienes alguna duda, escrÃ­benos y te ayudaremos.</p>
+              <p style="${EMAIL_INLINE.paragraph}">Si tienes alguna duda, escríbenos y te ayudaremos.</p>
               <a href="https://digitalizacion-tsinge-fusion.web.app/" style="${EMAIL_INLINE.button}">Visitar restaurante</a>
             </div>
             <div class="footer" style="${EMAIL_INLINE.footer}">
-              <p style="${EMAIL_INLINE.footerText}">Â© 2026 Tsinghe Cocina Fusion. Todos los derechos reservados.</p>
+              <p style="${EMAIL_INLINE.footerText}">© 2026 Tsinghe Cocina Fusion. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -339,7 +339,7 @@ exports.sendWelcomeEmail = onRequest(
       const name = displayName || email.split("@")[0];
 
       const info = await transporter.sendMail({
-        from: '"Tsinghe Cocina FusiÃ³n" <tsinghecocinafusion@gmail.com>',
+        from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
         to: email,
         subject: "Bienvenido a Tsinghe Cocina Fusion",
         html: buildWelcomeEmailHtml(name),
@@ -405,11 +405,11 @@ exports.sendReservationStatusNotification = onRequest(
 
       const name = reservationDetails.userName || email.split("@")[0];
       const info = await transporter.sendMail({
-        from: '"Tsinghe Cocina FusiÃ³n" <tsinghecocinafusion@gmail.com>',
+        from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
         to: email,
         subject: newStatus === "confirmada"
-          ? "âœ… Tu reserva ha sido confirmada"
-          : "âŒ Tu reserva ha sido cancelada",
+          ? "✅ Tu reserva ha sido confirmada"
+          : "❌ Tu reserva ha sido cancelada",
         html: buildReservationStatusEmailHtml({
           name,
           status: newStatus,
@@ -437,8 +437,8 @@ exports.sendReservationStatusNotification = onRequest(
   },
 );
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// 3. TRIGGER: cuando se escribe una reserva â†’ actualizar campo reservationCount
+// ════════════════════════════════════════════════════════════════════════════
+// 3. TRIGGER: cuando se escribe una reserva → actualizar campo reservationCount
 exports.onReservationWrite = onDocumentWritten(
   "reservations/{reservationId}",
   async (event) => {
@@ -483,10 +483,10 @@ exports.onReservationWrite = onDocumentWritten(
   },
 );
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // 4. HTTP: inicializacion de mesas desactivada.
 //    Firestore es la fuente de verdad y no se crean mesas automaticamente.
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 exports.initTables = onRequest(
   {
     region: "us-central1",
@@ -508,9 +508,9 @@ exports.initTables = onRequest(
   },
 );
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// 5. HTTP: enviar email de verificaciÃ³n para usuarios creados por admin
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// 5. HTTP: enviar email de verificación para usuarios creados por admin
+// ════════════════════════════════════════════════════════════════════════════
 
 // Listar usuarios de Firebase Auth para administradores.
 exports.listUsersAdmin = onRequest(
@@ -627,11 +627,11 @@ exports.sendVerificationEmail = onRequest(
 
       const displayName = name || email.split("@")[0];
 
-      // Enviar email de verificaciÃ³n
+      // Enviar email de verificación
       const info = await transporter.sendMail({
-        from: '"Tsinghe Cocina FusiÃ³n" <tsinghecocinafusion@gmail.com>',
+        from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
         to: email,
-        subject: "Verificar tu cuenta - Tsinghe Cocina FusiÃ³n ðŸ”",
+        subject: "Verificar tu cuenta - Tsinghe Cocina Fusión 🔐",
         html: `
         <!DOCTYPE html>
         <html>
@@ -644,31 +644,31 @@ exports.sendVerificationEmail = onRequest(
         <body style="${EMAIL_INLINE.body}">
           <div class="container" style="${EMAIL_INLINE.container}">
             <div class="header" style="${EMAIL_INLINE.header}">
-              <h1 style="${EMAIL_INLINE.title}">ðŸœ Tsinghe Cocina FusiÃ³n</h1>
+              <h1 style="${EMAIL_INLINE.title}">🍜 Tsinghe Cocina Fusión</h1>
             </div>
             <div class="content" style="${EMAIL_INLINE.content}">
-              <h2 style="${EMAIL_INLINE.subtitle}">Â¡Hola ${displayName}!</h2>
-              <p>Tu cuenta ha sido creada por el administrador de <strong>Tsinghe Cocina FusiÃ³n</strong>.</p>
+              <h2 style="${EMAIL_INLINE.subtitle}">¡Hola ${displayName}!</h2>
+              <p>Tu cuenta ha sido creada por el administrador de <strong>Tsinghe Cocina Fusión</strong>.</p>
               
               <div class="info-box" style="${EMAIL_INLINE.panel}">
-                <strong>ðŸ“‹ Tu reserva estÃ¡ pendiente de confirmaciÃ³n</strong>
-                <p>Se ha creado una reserva a tu nombre. Para que sea vÃ¡lida, necesitas:</p>
+                <strong>📋 Tu reserva está pendiente de confirmación</strong>
+                <p>Se ha creado una reserva a tu nombre. Para que sea válida, necesitas:</p>
                 <ul>
-                  <li>Verificar este correo (haciendo clic en el botÃ³n de abajo)</li>
-                  <li>Crear una contraseÃ±a segura en tu cuenta</li>
+                  <li>Verificar este correo (haciendo clic en el botón de abajo)</li>
+                  <li>Crear una contraseña segura en tu cuenta</li>
                 </ul>
               </div>
 
-              <p>Una vez completes estos pasos, tu reserva serÃ¡ confirmada automÃ¡ticamente.</p>
+              <p>Una vez completes estos pasos, tu reserva será confirmada automáticamente.</p>
 
               <a href="https://digitalizacion-tsinge-fusion.web.app/login" class="button" style="${EMAIL_INLINE.button}">Confirmar mi cuenta</a>
               
               <p class="muted" style="${EMAIL_INLINE.muted} margin-top: 30px;">
-                Si no fuiste tÃº quien creÃ³ esta cuenta, puedes ignorar este mensaje.
+                Si no fuiste tú quien creó esta cuenta, puedes ignorar este mensaje.
               </p>
             </div>
             <div class="footer" style="${EMAIL_INLINE.footer}">
-              <p style="${EMAIL_INLINE.footerText}">Â© 2024 Tsinghe Cocina FusiÃ³n. Todos los derechos reservados.</p>
+              <p style="${EMAIL_INLINE.footerText}">© 2024 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -676,7 +676,7 @@ exports.sendVerificationEmail = onRequest(
       `,
       });
 
-      logger.info("EMAIL DE VERIFICACIÃ“N enviado:", {
+      logger.info("EMAIL DE VERIFICACIÓN enviado:", {
         to: email,
         name: displayName,
         messageId: info.messageId,
@@ -684,11 +684,11 @@ exports.sendVerificationEmail = onRequest(
 
       res.status(200).json({
         success: true,
-        message: "Email de verificaciÃ³n enviado a " + email,
+        message: "Email de verificación enviado a " + email,
         messageId: info.messageId,
       });
     } catch (error) {
-      logger.error("Error enviando email de verificaciÃ³n:", error);
+      logger.error("Error enviando email de verificación:", error);
       res.status(500).json({
         error: "Error al enviar el email: " + error.message,
       });
@@ -739,26 +739,26 @@ exports.sendPasswordResetEmail = onRequest(
         <body style="${EMAIL_INLINE.body}">
           <div class="container" style="${EMAIL_INLINE.container}">
             <div class="header" style="${EMAIL_INLINE.header}">
-              <h1 style="${EMAIL_INLINE.title}">Tsinghe Cocina FusiÃ³n</h1>
+              <h1 style="${EMAIL_INLINE.title}">Tsinghe Cocina Fusión</h1>
             </div>
             <div class="content" style="${EMAIL_INLINE.content}">
-              <h2 style="${EMAIL_INLINE.subtitle}">RecuperaciÃ³n de contraseÃ±a</h2>
+              <h2 style="${EMAIL_INLINE.subtitle}">Recuperación de contraseña</h2>
               <p style="${EMAIL_INLINE.paragraph}">Hola ${name},</p>
-              <p style="${EMAIL_INLINE.paragraph}">Hemos recibido una solicitud para restablecer tu contraseÃ±a.</p>
+              <p style="${EMAIL_INLINE.paragraph}">Hemos recibido una solicitud para restablecer tu contraseña.</p>
 
               <div class="info-box" style="${EMAIL_INLINE.panel}">
-                <p style="${EMAIL_INLINE.paragraph}"><strong>Tu token de recuperaciÃ³n es:</strong></p>
+                <p style="${EMAIL_INLINE.paragraph}"><strong>Tu token de recuperación es:</strong></p>
                 <p style="${EMAIL_INLINE.paragraph} font-size: 18px; letter-spacing: 0.15em;"><strong>${token}</strong></p>
               </div>
 
-              <p style="${EMAIL_INLINE.paragraph}">Copia este token y pÃ©galo en la pÃ¡gina de recuperaciÃ³n de contraseÃ±a. El token expira en 15 minutos.</p>
+              <p style="${EMAIL_INLINE.paragraph}">Copia este token y pégalo en la página de recuperación de contraseña. El token expira en 15 minutos.</p>
 
               <p class="muted" style="${EMAIL_INLINE.muted} margin-top: 24px;">
                 Si no solicitaste este cambio, puedes ignorar este mensaje.
               </p>
             </div>
             <div class="footer" style="${EMAIL_INLINE.footer}">
-              <p style="${EMAIL_INLINE.footerText}">Â© 2026 Tsinghe Cocina FusiÃ³n. Todos los derechos reservados.</p>
+              <p style="${EMAIL_INLINE.footerText}">© 2026 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -766,20 +766,20 @@ exports.sendPasswordResetEmail = onRequest(
       `;
 
       await transporter.sendMail({
-        from: '"Tsinghe Cocina FusiÃ³n" <tsinghecocinafusion@gmail.com>',
+        from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
         to: email,
-        subject: "RecuperaciÃ³n de contraseÃ±a - Tsinghe Cocina FusiÃ³n",
+        subject: "Recuperación de contraseña - Tsinghe Cocina Fusión",
         html: emailHtml,
       });
 
-      logger.info("EMAIL DE RECUPERACIÃ“N enviado:", { to: email, name, token });
+      logger.info("EMAIL DE RECUPERACIÓN enviado:", { to: email, name, token });
 
       res.status(200).json({
         success: true,
-        message: "Token de recuperaciÃ³n enviado a " + email,
+        message: "Token de recuperación enviado a " + email,
       });
     } catch (error) {
-      logger.error("Error enviando email de recuperaciÃ³n:", error);
+      logger.error("Error enviando email de recuperación:", error);
       res.status(500).json({
         error: "Error al enviar el email: " + error.message,
       });
@@ -795,22 +795,22 @@ exports.sendPasswordResetEmail = onRequest(
 
               <p><strong>Instrucciones:</strong></p>
               <ol>
-                <li>Accede a la pÃ¡gina de recuperaciÃ³n de contraseÃ±a</li>
+                <li>Accede a la página de recuperación de contraseña</li>
                 <li>Ingresa este token: <strong>${token}</strong></li>
-                <li>Establece tu nueva contraseÃ±a</li>
-                <li>Â¡Listo! Ya podrÃ¡s acceder con tu nueva contraseÃ±a</li>
+                <li>Establece tu nueva contraseña</li>
+                <li>¡Listo! Ya podrás acceder con tu nueva contraseña</li>
               </ol>
 
               <div class="warning">
-                âš ï¸ <strong>Este token expira en 15 minutos.</strong> Si no lo usas, tendrÃ¡s que solicitar uno nuevo.
+                ⚠️ <strong>Este token expira en 15 minutos.</strong> Si no lo usas, tendrás que solicitar uno nuevo.
               </div>
 
               <p class="muted" style="${EMAIL_INLINE.muted} margin-top: 20px;">
-                Si no solicitaste esta recuperaciÃ³n, ignora este email.
+                Si no solicitaste esta recuperación, ignora este email.
               </p>
             </div>
             <div class="footer">
-              <p>Â© 2024 Tsinghe Cocina FusiÃ³n. Todos los derechos reservados.</p>
+              <p>© 2024 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>
@@ -818,7 +818,7 @@ exports.sendPasswordResetEmail = onRequest(
       `,
       });
 
-      logger.info("Email de reset de contraseÃ±a enviado:", {
+      logger.info("Email de reset de contraseña enviado:", {
         to: email,
         token: token,
         messageId: info.messageId,
@@ -826,7 +826,7 @@ exports.sendPasswordResetEmail = onRequest(
 
       res.status(200).json({
         success: true,
-        message: "Email de recuperaciÃ³n enviado a " + email,
+        message: "Email de recuperación enviado a " + email,
       });
     } catch (error) {
       logger.error("Error enviando email de reset:", error);
@@ -837,9 +837,9 @@ exports.sendPasswordResetEmail = onRequest(
   },
 );*/
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// 6. HTTP: validar token y resetear contraseÃ±a
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// 6. HTTP: validar token y resetear contraseña
+// ════════════════════════════════════════════════════════════════════════════
 exports.resetPasswordWithToken = onRequest(
   {
     region: "us-central1",
@@ -910,31 +910,31 @@ exports.resetPasswordWithToken = onRequest(
 
       const userId = userQuery.docs[0].id;
 
-      // Cambiar contraseÃ±a en Firebase Auth
+      // Cambiar contraseña en Firebase Auth
       // Primero verificar si el usuario existe en Auth
       try {
         // Intentar obtener el usuario por email
         const userRecord = await admin.auth().getUserByEmail(email);
 
-        // Actualizar contraseÃ±a
+        // Actualizar contraseña
         await admin.auth().updateUser(userRecord.uid, {
           password: newPassword,
         });
 
-        logger.info("ContraseÃ±a actualizada para usuario:", { email, userId });
+        logger.info("Contraseña actualizada para usuario:", { email, userId });
       } catch (authError) {
         // Si el usuario no existe en Auth (cuenta federada como Google)
-        // Crear un enlace de verificaciÃ³n de email
+        // Crear un enlace de verificación de email
         if (authError.code === "auth/user-not-found") {
           logger.warn("Usuario no existe en Auth (cuenta federada):", email);
 
-          // Enviar email con enlace para establecer contraseÃ±a
+          // Enviar email con enlace para establecer contraseña
           const resetLink = await admin.auth().generatePasswordResetLink(email);
 
           await transporter.sendMail({
-            from: '"Tsinghe Cocina FusiÃ³n" <tsinghecocinafusion@gmail.com>',
+            from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
             to: email,
-            subject: "Establece tu contraseÃ±a - Tsinghe Cocina FusiÃ³n",
+            subject: "Establece tu contraseña - Tsinghe Cocina Fusión",
             html: `
             <!DOCTYPE html>
             <html>
@@ -943,17 +943,17 @@ exports.resetPasswordWithToken = onRequest(
             </style></head>
             <body style="${EMAIL_INLINE.body}">
               <div class="container" style="${EMAIL_INLINE.container}">
-                <div class="header" style="${EMAIL_INLINE.header}"><h1 style="${EMAIL_INLINE.title}">ðŸ” Establece tu ContraseÃ±a</h1></div>
+                <div class="header" style="${EMAIL_INLINE.header}"><h1 style="${EMAIL_INLINE.title}">🔐 Establece tu Contraseña</h1></div>
                 <div class="content" style="${EMAIL_INLINE.content}">
-                  <p>Has solicitado recuperar tu contraseÃ±a.</p>
-                  <p>Como te registraste con Google, necesitas crear una contraseÃ±a para poder acceder con email y contraseÃ±a.</p>
-                  <p>Haz clic en el siguiente botÃ³n para establecer tu contraseÃ±a:</p>
-                  <a href="${resetLink}" class="btn" style="${EMAIL_INLINE.button}">Establecer ContraseÃ±a</a>
+                  <p>Has solicitado recuperar tu contraseña.</p>
+                  <p>Como te registraste con Google, necesitas crear una contraseña para poder acceder con email y contraseña.</p>
+                  <p>Haz clic en el siguiente botón para establecer tu contraseña:</p>
+                  <a href="${resetLink}" class="btn" style="${EMAIL_INLINE.button}">Establecer Contraseña</a>
                   <p class="muted" style="${EMAIL_INLINE.muted} margin-top: 20px;">
                     Si no solicitaste esto, ignora este email.
                   </p>
                 </div>
-                <div class="footer" style="${EMAIL_INLINE.footer}"><p style="${EMAIL_INLINE.footerText}">Â© 2024 Tsinghe Cocina FusiÃ³n.</p></div>
+                <div class="footer" style="${EMAIL_INLINE.footer}"><p style="${EMAIL_INLINE.footerText}">© 2024 Tsinghe Cocina Fusión.</p></div>
               </div>
             </body>
             </html>
@@ -963,27 +963,27 @@ exports.resetPasswordWithToken = onRequest(
           res.status(200).json({
             success: true,
             message:
-              "Se ha enviado un enlace a tu email para establecer la contraseÃ±a",
+              "Se ha enviado un enlace a tu email para establecer la contraseña",
           });
           return;
         }
 
-        logger.error("Error actualizando contraseÃ±a en Auth:", authError);
+        logger.error("Error actualizando contraseña en Auth:", authError);
         res.status(500).json({
-          error: "Error al actualizar la contraseÃ±a: " + authError.message,
+          error: "Error al actualizar la contraseña: " + authError.message,
         });
         return;
       }
 
-      // Eliminar token de reset despuÃ©s de usarlo
+      // Eliminar token de reset después de usarlo
       await db.collection("passwordResets").doc(email).delete();
 
-      // Enviar email de confirmaciÃ³n
+      // Enviar email de confirmación
       try {
         await transporter.sendMail({
-          from: '"Tsinghe Cocina FusiÃ³n" <tsinghecocinafusion@gmail.com>',
+          from: '"Tsinghe Cocina Fusión" <tsinghecocinafusion@gmail.com>',
           to: email,
-          subject: "Tu contraseÃ±a ha sido actualizada - Tsinghe Cocina FusiÃ³n",
+          subject: "Tu contraseña ha sido actualizada - Tsinghe Cocina Fusión",
           html: `
           <!DOCTYPE html>
           <html>
@@ -996,15 +996,15 @@ exports.resetPasswordWithToken = onRequest(
           <body style="${EMAIL_INLINE.body}">
             <div class="container" style="${EMAIL_INLINE.container}">
               <div class="header" style="${EMAIL_INLINE.header}">
-                <h1 style="${EMAIL_INLINE.title}">âœ… ContraseÃ±a Actualizada</h1>
+                <h1 style="${EMAIL_INLINE.title}">✅ Contraseña Actualizada</h1>
               </div>
               <div class="content" style="${EMAIL_INLINE.content}">
-                <p>Tu contraseÃ±a ha sido actualizada exitosamente.</p>
-                <p>Ya puedes iniciar sesiÃ³n con tu nueva contraseÃ±a en Tsinghe Cocina FusiÃ³n.</p>
+                <p>Tu contraseña ha sido actualizada exitosamente.</p>
+                <p>Ya puedes iniciar sesión con tu nueva contraseña en Tsinghe Cocina Fusión.</p>
                 <p class="muted" style="${EMAIL_INLINE.muted}">Si no realizaste este cambio, contacta a soporte inmediatamente.</p>
               </div>
               <div class="footer" style="${EMAIL_INLINE.footer}">
-                <p style="${EMAIL_INLINE.footerText}">Â© 2024 Tsinghe Cocina FusiÃ³n. Todos los derechos reservados.</p>
+                <p style="${EMAIL_INLINE.footerText}">© 2024 Tsinghe Cocina Fusión. Todos los derechos reservados.</p>
               </div>
             </div>
           </body>
@@ -1012,13 +1012,13 @@ exports.resetPasswordWithToken = onRequest(
         `,
         });
       } catch (emailError) {
-        logger.warn("Email de confirmaciÃ³n no enviado:", emailError);
-        // No fallar si el email de confirmaciÃ³n no se envÃ­a
+        logger.warn("Email de confirmación no enviado:", emailError);
+        // No fallar si el email de confirmación no se envía
       }
 
       res.status(200).json({
         success: true,
-        message: "ContraseÃ±a actualizada exitosamente",
+        message: "Contraseña actualizada exitosamente",
       });
     } catch (error) {
       logger.error("Error en resetPasswordWithToken:", error);
@@ -1029,10 +1029,10 @@ exports.resetPasswordWithToken = onRequest(
   },
 );
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// 7. HTTP: inicializar menÃº bÃ¡sico con platos
+// ════════════════════════════════════════════════════════════════════════════
+// 7. HTTP: inicializar menú básico con platos
 //    Llamar UNA SOLA VEZ desde el navegador o con curl
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 exports.initMenuBasic = onRequest(
   {
     region: "us-central1",
@@ -1060,7 +1060,7 @@ exports.initMenuBasic = onRequest(
         },
         {
           name: "Tabla de Embutidos",
-          description: "SelecciÃ³n de embutidos ibÃ©ricos y quesos variados",
+          description: "Selección de embutidos ibéricos y quesos variados",
           category: "Entrantes",
           price: 12.0,
           available: true,
@@ -1068,7 +1068,7 @@ exports.initMenuBasic = onRequest(
         },
         {
           name: "Bruschettas Variadas",
-          description: "Pan tostado con tomate, queso y hierbas aromÃ¡ticas",
+          description: "Pan tostado con tomate, queso y hierbas aromáticas",
           category: "Entrantes",
           price: 8.0,
           available: true,
@@ -1076,7 +1076,7 @@ exports.initMenuBasic = onRequest(
         },
         {
           name: "Tabla de Quesos",
-          description: "SelecciÃ³n de quesos nacionales e internacionales",
+          description: "Selección de quesos nacionales e internacionales",
           category: "Entrantes",
           price: 14.0,
           available: true,
@@ -1093,7 +1093,7 @@ exports.initMenuBasic = onRequest(
           active: true,
         },
         {
-          name: "Carne Asada al CarbÃ³n",
+          name: "Carne Asada al Carbón",
           description: "Trozos de carne premium a la parrilla con chimichurri",
           category: "Principales - Carnes",
           price: 24.0,
@@ -1112,9 +1112,9 @@ exports.initMenuBasic = onRequest(
 
         // PRINCIPALES - PESCADOS
         {
-          name: "SalmÃ³n a la Mantequilla",
+          name: "Salmón a la Mantequilla",
           description:
-            "Filete de salmÃ³n fresco con salsa de mantequilla y limÃ³n",
+            "Filete de salmón fresco con salsa de mantequilla y limón",
           category: "Principales - Pescados",
           price: 20.0,
           available: true,
@@ -1130,7 +1130,7 @@ exports.initMenuBasic = onRequest(
         },
         {
           name: "Camarones al Ajillo",
-          description: "Camarones frescos salteados con ajo, limÃ³n y perejil",
+          description: "Camarones frescos salteados con ajo, limón y perejil",
           category: "Principales - Pescados",
           price: 19.0,
           available: true,
@@ -1139,8 +1139,8 @@ exports.initMenuBasic = onRequest(
 
         // PRINCIPALES - VEGETARIANOS
         {
-          name: "Risotto de ChampiÃ±ones",
-          description: "Arroz cremoso con champiÃ±ones variados y parmesano",
+          name: "Risotto de Champiñones",
+          description: "Arroz cremoso con champiñones variados y parmesano",
           category: "Principales - Vegetarianos",
           price: 15.0,
           available: true,
@@ -1168,7 +1168,7 @@ exports.initMenuBasic = onRequest(
         // BEBIDAS
         {
           name: "Vino Tinto Reserva",
-          description: "Vino tinto espaÃ±ol de excelente calidad",
+          description: "Vino tinto español de excelente calidad",
           category: "Bebidas",
           price: 10.0,
           available: true,
@@ -1176,7 +1176,7 @@ exports.initMenuBasic = onRequest(
         },
         {
           name: "Vino Blanco Sauvignon",
-          description: "Vino blanco fresco con notas cÃ­tricas",
+          description: "Vino blanco fresco con notas cítricas",
           category: "Bebidas",
           price: 9.5,
           available: true,
@@ -1201,9 +1201,9 @@ exports.initMenuBasic = onRequest(
 
         // POSTRES
         {
-          name: "TiramisÃº ClÃ¡sico",
+          name: "Tiramisú Clásico",
           description:
-            "Postre italiano con capas de bizcochos, cafÃ© y mascarpone",
+            "Postre italiano con capas de bizcochos, café y mascarpone",
           category: "Postres",
           price: 7.0,
           available: true,
@@ -1247,23 +1247,23 @@ exports.initMenuBasic = onRequest(
       }
 
       await batch.commit();
-      logger.info("MenÃº bÃ¡sico inicializado con", menuItems.length, "platos");
+      logger.info("Menú básico inicializado con", menuItems.length, "platos");
 
       res.status(200).json({
         success: true,
-        message: `MenÃº inicializado con ${menuItems.length} platos`,
+        message: `Menú inicializado con ${menuItems.length} platos`,
       });
     } catch (error) {
-      logger.error("Error inicializando menÃº:", error);
+      logger.error("Error inicializando menú:", error);
       res.status(500).json({ error: error.message });
     }
   },
 );
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// 8. HTTP: enviar confirmaciÃ³n de reserva por email
+// ════════════════════════════════════════════════════════════════════════════
+// 8. HTTP: enviar confirmación de reserva por email
 //    Llamado desde el cliente cuando se crea una reserva
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 exports.sendReservationConfirmation = onRequest(
   {
     region: "us-central1",
@@ -1319,11 +1319,11 @@ exports.sendReservationConfirmation = onRequest(
         <body style="${EMAIL_INLINE.body}">
           <div class="container" style="${EMAIL_INLINE.container}">
             <div class="header" style="${EMAIL_INLINE.header}">
-              <h1 style="${EMAIL_INLINE.title}">Â¡Reserva Confirmada! ðŸ“…</h1>
+              <h1 style="${EMAIL_INLINE.title}">¡Reserva Confirmada! 📅</h1>
             </div>
             <div class="content" style="${EMAIL_INLINE.content}">
             <p>Hola ${reservationDetails.userName},</p>
-            <p>Tu reserva en <strong>Tsinghe Cocina FusiÃ³n</strong> ha sido registrada.</p>
+            <p>Tu reserva en <strong>Tsinghe Cocina Fusión</strong> ha sido registrada.</p>
             
             <div class="reservation-details" style="${EMAIL_INLINE.panel}">
               <h3>Detalles de tu Reserva:</h3>
@@ -1334,7 +1334,7 @@ exports.sendReservationConfirmation = onRequest(
               ${reservationDetails.specialRequests ? `<p><strong>Solicitudes especiales:</strong> ${reservationDetails.specialRequests}</p>` : ""}
             </div>
 
-            <p>Para confirmar tu reserva, haz clic en el botÃ³n de abajo:</p>
+            <p>Para confirmar tu reserva, haz clic en el botón de abajo:</p>
             <div style="text-align: center; margin: 30px 0;">
               <a href="${confirmationLink}" class="button" style="${EMAIL_INLINE.button}">Confirmar Reserva</a>
             </div>
@@ -1351,8 +1351,8 @@ exports.sendReservationConfirmation = onRequest(
             </div>
             <div class="footer" style="${EMAIL_INLINE.footer}">
               <p style="${EMAIL_INLINE.footerText}">
-                Tsinghe Cocina FusiÃ³n - AutÃ©ntica Cocina China<br>
-                Â© 2024 Todos los derechos reservados
+                Tsinghe Cocina Fusión - Auténtica Cocina China<br>
+                © 2024 Todos los derechos reservados
               </p>
             </div>
           </div>
@@ -1361,20 +1361,20 @@ exports.sendReservationConfirmation = onRequest(
       `;
 
       await transporter.sendMail({
-        from: "Tsinghe Cocina FusiÃ³n <tsinghecocinafusion@gmail.com>",
+        from: "Tsinghe Cocina Fusión <tsinghecocinafusion@gmail.com>",
         to: email,
-        subject: "ðŸ“… ConfirmaciÃ³n de tu Reserva en Tsinghe Cocina FusiÃ³n",
+        subject: "📅 Confirmación de tu Reserva en Tsinghe Cocina Fusión",
         html: emailHtml,
       });
 
-      logger.info("Email de confirmaciÃ³n de reserva enviado a:", email);
+      logger.info("Email de confirmación de reserva enviado a:", email);
 
       res.status(200).json({
         success: true,
-        message: "Email de confirmaciÃ³n enviado",
+        message: "Email de confirmación enviado",
       });
     } catch (error) {
-      logger.error("Error enviando email de confirmaciÃ³n:", error);
+      logger.error("Error enviando email de confirmación:", error);
       res.status(500).json({
         error: "Error enviando email: " + error.message,
       });
@@ -1382,10 +1382,10 @@ exports.sendReservationConfirmation = onRequest(
   },
 );
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // 9. HTTP: confirmar token de reserva
-//    Llamado desde el link en el email de confirmaciÃ³n
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//    Llamado desde el link en el email de confirmación
+// ════════════════════════════════════════════════════════════════════════════
 exports.confirmReservationToken = onRequest(
   {
     region: "us-central1",
@@ -1415,7 +1415,7 @@ exports.confirmReservationToken = onRequest(
         return;
       }
 
-      // Buscar el token en la colecciÃ³n reservationConfirmations
+      // Buscar el token en la colección reservationConfirmations
       const snapshot = await db
         .collection("reservationConfirmations")
         .where("token", "==", token)
@@ -1424,7 +1424,7 @@ exports.confirmReservationToken = onRequest(
         .get();
 
       if (snapshot.empty) {
-        res.status(400).json({ error: "Token no vÃ¡lido o ya fue usado" });
+        res.status(400).json({ error: "Token no válido o ya fue usado" });
         return;
       }
 
@@ -1490,12 +1490,12 @@ exports.confirmReservationToken = onRequest(
   },
 );
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // 10. SCHEDULED: verificar No-Show cada 15 minutos
 //    Se ejecuta cada 15 minutos via Pub/Sub
-//    Marca como "no-asistiÃ³" las reservas confirmadas cuya hora pasÃ³
+//    Marca como "no-asistió" las reservas confirmadas cuya hora pasó
 //    sin que el usuario confirmara en persona
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 const { onSchedule } = require("firebase-functions/scheduler");
 
 exports.checkNoShows = onSchedule(
@@ -1505,12 +1505,12 @@ exports.checkNoShows = onSchedule(
     timeout: "60s",
   },
   async (event) => {
-    logger.info("Iniciando verificaciÃ³n de No-Shows...");
+    logger.info("Iniciando verificación de No-Shows...");
 
     try {
       const now = admin.firestore.Timestamp.now();
 
-      // Buscar reservas confirmadas cuya hora ya pasÃ³
+      // Buscar reservas confirmadas cuya hora ya pasó
       const snapshot = await db
         .collection("reservations")
         .where("status", "==", "confirmada")
@@ -1531,10 +1531,10 @@ exports.checkNoShows = onSchedule(
         const [hours, minutes] = (reservation.time || "20:00").split(":");
         reservationDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-        // AÃ±adir 15 minutos de gracia
+        // Añadir 15 minutos de gracia
         const graceTime = new Date(reservationDate.getTime() + 15 * 60 * 1000);
 
-        // Si pasÃ³ la hora + 15 min de gracia, marcar como no-asistiÃ³
+        // Si pasó la hora + 15 min de gracia, marcar como no-asistió
         if (now.toDate() > graceTime) {
           await doc.ref.update({
             status: "no-asistio",
@@ -1552,14 +1552,14 @@ exports.checkNoShows = onSchedule(
             time: reservation.time,
           });
 
-          logger.info("Reserva marcada como no-asistiÃ³:", {
+          logger.info("Reserva marcada como no-asistió:", {
             reservationId: doc.id,
             email: reservation.email,
           });
         }
       }
 
-      logger.info("VerificaciÃ³n de No-Shows completada:", {
+      logger.info("Verificación de No-Shows completada:", {
         totalCheck: snapshot.size,
         noShowsFound: noShowCount,
       });
@@ -1571,7 +1571,7 @@ exports.checkNoShows = onSchedule(
         noShowReservations,
       };
     } catch (error) {
-      logger.error("Error en verificaciÃ³n de No-Shows:", error);
+      logger.error("Error en verificación de No-Shows:", error);
       throw error;
     }
   },

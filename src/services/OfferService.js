@@ -20,7 +20,7 @@ import {
 import { db } from "../firebase";
 
 class OfferService {
-  // Obtener todas las ofertas (lectura pï¿½blica)
+  // Obtener todas las ofertas (lectura pública)
   async getAllOffers() {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));
@@ -35,7 +35,7 @@ class OfferService {
     }
   }
 
-  // Obtener ofertas activas (lectura pï¿½blica)
+  // Obtener ofertas activas (lectura pública)
   async getActiveOffers() {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));
@@ -56,7 +56,7 @@ class OfferService {
     }
   }
 
-  // Obtener una oferta por ID (lectura pï¿½blica)
+  // Obtener una oferta por ID (lectura pública)
   async getOfferById(id) {
     try {
       const docSnap = await getDoc(doc(db, "offers", id));
@@ -71,7 +71,7 @@ class OfferService {
     }
   }
 
-  // Obtener ofertas por tipo/categorï¿½a (lectura pï¿½blica)
+  // Obtener ofertas por tipo/categoría (lectura pública)
   async getOffersByType(type) {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));
@@ -89,7 +89,7 @@ class OfferService {
     }
   }
 
-  // Obtener ofertas por rango de precio (lectura pï¿½blica)
+  // Obtener ofertas por rango de precio (lectura pública)
   async getOffersByPriceRange(minPrice, maxPrice) {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));

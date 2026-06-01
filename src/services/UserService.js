@@ -6,7 +6,7 @@
 
 // Modelo: UserService.js
 // Servicio para gestionar usuarios en Firestore.
-// Incluye CRUD bÃ¡sico para usuarios.
+// Incluye CRUD básico para usuarios.
 
 import {
   collection,

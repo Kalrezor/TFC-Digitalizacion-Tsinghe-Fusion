@@ -23,7 +23,7 @@ const EMPTY_FORM = {
 };
 
 const AdminMenu = () => {
-  // ... (MantÃ©n toda tu lÃ³gica de estados, useEffects y handlers exactamente igual)
+  // ... (Mantén toda tu lógica de estados, useEffects y handlers exactamente igual)
   const [plates, setPlates]           = useState([]);
   const [categories, setCategories]   = useState([]);
   const [allAllergens, setAllAllergens] = useState({});
@@ -153,7 +153,7 @@ const AdminMenu = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.nombre.trim() || !formData.precio || !formData.idCategoria) {
-      setError("Nombre, categorÃ­a y precio son obligatorios.");
+      setError("Nombre, categoría y precio son obligatorios.");
       return;
     }
     setLoading(true);
@@ -163,7 +163,7 @@ const AdminMenu = () => {
       : await menuService.createPlate(payload, true);
     setLoading(false);
     if (result.success) {
-      setSuccess("Â¡Guardado correctamente!");
+      setSuccess("¡Guardado correctamente!");
       setShowForm(false);
       loadPlatesOnly();
     } else setError(result.error);
@@ -176,17 +176,17 @@ const AdminMenu = () => {
   });
 
   const selectedCatName = categories.find(c => c.id === formData.idCategoria)?.nombre || "";
-  const filterCatName = filterCat === "all" ? "TODAS LAS CATEGORÃAS" : categories.find(c => c.id === filterCat)?.nombre || "";
+  const filterCatName = filterCat === "all" ? "TODAS LAS CATEGORÍAS" : categories.find(c => c.id === filterCat)?.nombre || "";
 
   return (
     <div className="container" style={{ padding: "24px 0" }}>
-      {/* ... (MantÃ©n tus cabeceras, formularios y filtros superiores exactamente como estaban) ... */}
+      {/* ... (Mantén tus cabeceras, formularios y filtros superiores exactamente como estaban) ... */}
       <div className="card admin-menu-card-spaced">
         <div className="card-header">
-          <h1 className="admin-menu-heading">AdministraciÃ³n de MenÃº</h1>
+          <h1 className="admin-menu-heading">Administración de Menú</h1>
         </div>
         <div className="admin-menu-toolbar">
-          <p className="admin-menu-intro">Gestiona los platos del menÃº, categorÃ­a, alÃ©rgenos e imagen desde un panel editorial.</p>
+          <p className="admin-menu-intro">Gestiona los platos del menú, categoría, alérgenos e imagen desde un panel editorial.</p>
           <button onClick={openNew} disabled={loading} className="btn btn-primary">+ Nuevo Plato</button>
         </div>
       </div>
@@ -205,15 +205,15 @@ const AdminMenu = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>DescripciÃ³n</label>
+                  <label>Descripción</label>
                   <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} rows={2} className="form-control" />
                 </div>
 
                 <div className="form-group admin-menu-select-group" ref={catRef}>
-                  <label>CategorÃ­a *</label>
+                  <label>Categoría *</label>
                   <div onClick={() => setIsOpenCat(!isOpenCat)} className="admin-menu-select-trigger">
                     <span style={{ fontWeight: formData.idCategoria ? "bold" : "normal" }}>{selectedCatName.toUpperCase()}</span>
-                    <span>{isOpenCat ? "â–²" : "â–¼"}</span>
+                    <span>{isOpenCat ? "▲" : "▼"}</span>
                   </div>
                   {isOpenCat && (
                     <div className="admin-menu-select-dropdown">
@@ -230,7 +230,7 @@ const AdminMenu = () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="admin-menu-label">AlÃ©rgenos</label>
+                  <label className="admin-menu-label">Alérgenos</label>
                   <div className="admin-menu-allergen-grid">
                     {Object.values(allAllergens).map(ale => (
                       <div key={ale.id} onClick={() => handleAlergenoToggle(ale.id)}
@@ -244,7 +244,7 @@ const AdminMenu = () => {
 
                 <div className="admin-menu-form-row">
                   <div>
-                    <label className="admin-menu-label">Precio (â‚¬) *</label>
+                    <label className="admin-menu-label">Precio (€) *</label>
                     <input name="precio" type="text" value={formData.precio} onChange={handleChange} placeholder="0.00" className="admin-menu-input" />
                   </div>
                   <div>
@@ -272,7 +272,7 @@ const AdminMenu = () => {
                   <label style={{ marginBottom: 0, fontWeight: 700 }}>Disponible?</label>
                   <input name="disponible" type="checkbox" checked={formData.disponible} onChange={handleChange} style={{ width: "18px", height: "18px", cursor: "pointer" }} />
                   <span style={{ fontWeight: "bold", color: "#050505", fontSize: "13px" }}>
-                    {formData.disponible ? "SÃ" : "NO"}
+                    {formData.disponible ? "SÍ" : "NO"}
                   </span>
                 </div>
               </div>
@@ -294,10 +294,10 @@ const AdminMenu = () => {
           </div>
 
           <div className="admin-menu-select-group" ref={filterRef}>
-            <label className="admin-menu-label">Filtrar por CategorÃ­a:</label>
+            <label className="admin-menu-label">Filtrar por Categoría:</label>
             <div onClick={() => setIsOpenFilter(!isOpenFilter)} className="admin-menu-select-trigger">
               <span style={{ fontWeight: filterCat === "all" ? "normal" : "bold" }}>{filterCatName.toUpperCase()}</span>
-              <span>{isOpenFilter ? "â–²" : "â–¼"}</span>
+              <span>{isOpenFilter ? "▲" : "▼"}</span>
             </div>
             {isOpenFilter && (
               <div className="admin-menu-select-dropdown">
@@ -319,7 +319,7 @@ const AdminMenu = () => {
         </div>
       </div>
 
-      {/* --- SECCIÃ“N SECCIÃ“N TABLA REFORMADA --- */}
+      {/* --- SECCIÓN SECCIÓN TABLA REFORMADA --- */}
       <div className="card admin-menu-card admin-menu-plates-card" style={{ padding: "26px", overflowX: "auto", borderRadius: "12px" }}>
         <div className="card-header" style={{ marginBottom: "16px" }}>
           <h3 style={{ margin: 0 }}>Platos</h3>
@@ -329,10 +329,10 @@ const AdminMenu = () => {
             <tr style={{ background: "var(--sage, #222)", color: "#fff", fontSize: "13px", letterSpacing: "0.5px" }}>
               <th className="admin-menu-table-header-cell">Imagen</th>
               <th className="admin-menu-table-header-cell">Nombre</th>
-              <th className="admin-menu-table-header-cell">CategorÃ­a</th>
+              <th className="admin-menu-table-header-cell">Categoría</th>
               <th className="admin-menu-table-header-cell">Precio</th>
               <th className="admin-menu-table-header-cell">Estado</th>
-              <th className="admin-menu-table-header-cell">AlÃ©rgenos</th>
+              <th className="admin-menu-table-header-cell">Alérgenos</th>
               <th className="admin-menu-table-header-cell admin-menu-table-header-cell-center">Acciones</th>
             </tr>
           </thead>
@@ -364,14 +364,14 @@ const AdminMenu = () => {
                     <strong style={{ color: "#111" }}>{p.nombre}</strong>
                   </td>
 
-                  {/* Celda CategorÃ­a */}
+                  {/* Celda Categoría */}
                   <td className="admin-menu-table-cell admin-menu-table-cell-category">
                     {p.idCategoria}
                   </td>
 
                   {/* Celda Precio */}
                   <td className="admin-menu-table-cell admin-menu-table-cell-price">
-                    {parseFloat(p.precio || 0).toFixed(2)} â‚¬
+                    {parseFloat(p.precio || 0).toFixed(2)} €
                   </td>
 
                   {/* Celda Estado (No disponible / Disponible) mas espacioso */}
@@ -393,7 +393,7 @@ const AdminMenu = () => {
                     </span>
                   </td>
 
-                  {/* Celda AlÃ©rgenos */}
+                  {/* Celda Alérgenos */}
                   <td className="admin-menu-table-cell">
                     <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", maxWidth: "120px" }}>
                       {p.alergenos?.map(id => (
@@ -437,7 +437,7 @@ const AdminMenu = () => {
       {confirmDeletePlate && (
         <div className="card" style={{ padding: "18px", background: "#ffffff", border: "1px solid #050505", marginTop: "16px" }}>
           <div className="admin-menu-confirm-text">
-            Â¿Eliminar "{confirmDeletePlate.nombre}"?
+            ¿Eliminar "{confirmDeletePlate.nombre}"?
             <div className="admin-menu-confirm-meta">Capacidad: --</div>
           </div>
           <div className="admin-menu-confirm-actions">

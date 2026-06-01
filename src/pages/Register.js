@@ -41,18 +41,18 @@ const Register = () => {
     const code = error?.code || error?.errorCode || "";
 
     if (code === "auth/weak-password" || message.includes("auth/weak-password")) {
-      return "La contraseÃ±a debe tener al menos 6 caracteres";
+      return "La contraseña debe tener al menos 6 caracteres";
     }
 
     if (
       code === "auth/email-already-in-use" ||
       message.includes("auth/email-already-in-use")
     ) {
-      return "Este email ya estÃ¡ registrado. Â¿Quieres iniciar sesiÃ³n?";
+      return "Este email ya está registrado. ¿Quieres iniciar sesión?";
     }
 
     if (code === "auth/invalid-email" || message.includes("auth/invalid-email")) {
-      return "El email no es vÃ¡lido.";
+      return "El email no es válido.";
     }
 
     return message || "Error al registrarse";
@@ -65,24 +65,24 @@ const Register = () => {
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toastError("Por favor ingresa un email vÃ¡lido");
+      toastError("Por favor ingresa un email válido");
       return false;
     }
     if (formData.password.length < 6) {
-      toastError("La contraseÃ±a debe tener al menos 6 caracteres");
+      toastError("La contraseña debe tener al menos 6 caracteres");
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      toastError("Las contraseÃ±as no coinciden");
+      toastError("Las contraseñas no coinciden");
       return false;
     }
     if (!formData.phone.trim()) {
-      toastError("El nÃºmero de telÃ©fono es obligatorio");
+      toastError("El número de teléfono es obligatorio");
       return false;
     }
     const phoneRegex = /^\+?[0-9\s\-()]{7,15}$/;
     if (!phoneRegex.test(formData.phone.trim())) {
-      toastError("Por favor ingresa un nÃºmero de telÃ©fono vÃ¡lido");
+      toastError("Por favor ingresa un número de teléfono válido");
       return false;
     }
     return true;
@@ -126,7 +126,7 @@ const Register = () => {
       <div className="editorial-auth-card">
         <div className="editorial-auth-header editorial-auth-header-compact">
           <h1>Crear Cuenta</h1>
-          <p>Ãšnete a Tsinghe Cocina FusiÃ³n</p>
+          <p>Únete a Tsinghe Cocina Fusión</p>
         </div>
 
         <form noValidate onSubmit={handleSubmit}>
@@ -153,18 +153,18 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label>ContraseÃ±a</label>
+            <label>Contraseña</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              placeholder="MÃ­nimo 6 caracteres"
+              placeholder="Mínimo 6 caracteres"
             />
           </div>
 
           <div className="form-group">
-            <label>Confirmar contraseÃ±a</label>
+            <label>Confirmar contraseña</label>
             <input
               type="password"
               name="confirmPassword"
@@ -174,7 +174,7 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label>NÃºmero de telÃ©fono</label>
+            <label>Número de teléfono</label>
             <input
               type="tel"
               name="phone"
@@ -194,10 +194,10 @@ const Register = () => {
         </form>
 
         <div className="editorial-auth-links editorial-auth-links-spaced">
-          Â¿Ya tienes cuenta? <Link to="/login">Inicia sesiÃ³n</Link>
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
         </div>
         <div className="editorial-auth-text editorial-auth-legal-note">
-          Al registrarte aceptas nuestra <Link to="/politica-privacidad">PolÃ­tica de Privacidad</Link> y nuestra <Link to="/politica-cookies">PolÃ­tica de Cookies</Link>.
+          Al registrarte aceptas nuestra <Link to="/politica-privacidad">Política de Privacidad</Link>
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@
 
 // Componente: AdminReservationForm.js
 // Formulario para que el admin cree reservas en nombre de otros usuarios
-// Con bÃºsqueda en tiempo real y opciÃ³n de crear usuario
+// Con búsqueda en tiempo real y opción de crear usuario
 
 import React, { useState, useEffect, useCallback } from "react";
 import ReservationService from "../services/ReservationService";
@@ -111,7 +111,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     }
   }, [availableTables.length, formData.reservationDate, formData.reservationTime]);
 
-  // Filtrar usuarios por bÃºsqueda en tiempo real
+  // Filtrar usuarios por búsqueda en tiempo real
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredUsers(users);
@@ -162,14 +162,14 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     // Validar que el email no exista ya
     const emailExists = users.some((u) => u.email === newUserData.email);
     if (emailExists) {
-      setError("Este email ya estÃ¡ registrado");
+      setError("Este email ya está registrado");
       return;
     }
 
     setLoading(true);
 
     try {
-      // Llamar a la funciÃ³n para crear usuario en Auth y enviar email
+      // Llamar a la función para crear usuario en Auth y enviar email
       const response = await fetch(
         "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/sendVerificationEmail",
         {
@@ -207,7 +207,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
         setNewUserData({ name: "", email: "", phone: "" });
         setShowNewUserForm(false);
         setSearchTerm("");
-        setError("Usuario creado. Se enviÃ³ email de verificaciÃ³n.");
+        setError("Usuario creado. Se envió email de verificación.");
       } else {
         setError(result.error || "Error al crear usuario");
       }
@@ -245,7 +245,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     }
 
     if (formData.numberOfPeople < 1 || formData.numberOfPeople > 10) {
-      setError("El nÃºmero de personas debe estar entre 1 y 10");
+      setError("El número de personas debe estar entre 1 y 10");
       return;
     }
 
@@ -261,7 +261,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
         reservationTime: formData.reservationTime,
         numberOfPeople: formData.numberOfPeople,
         specialRequests: formData.specialRequests,
-        status: "confirmada", // Reservas creadas por admin se confirman automÃ¡ticamente
+        status: "confirmada", // Reservas creadas por admin se confirman automáticamente
       };
 
       const result =
@@ -305,10 +305,10 @@ const AdminReservationForm = ({ onReservationCreated }) => {
   return (
     <div className="reservation-form-container">
       <div className="reservation-form-card">
-        <h2>Ã°Å¸â€œâ€¦ Crear Reserva para Usuario</h2>
+        <h2>📅 Crear Reserva para Usuario</h2>
 
         <form noValidate onSubmit={handleSubmit} className="reservation-form">
-          {/* Seleccionar Usuario - Con bÃºsqueda en tiempo real */}
+          {/* Seleccionar Usuario - Con búsqueda en tiempo real */}
           <div className="form-group">
             <label htmlFor="userSearch">Seleccionar Usuario</label>
             {!selectedUser ? (
@@ -342,7 +342,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                         {/* Mostrar badge si emailVerified es false o undefined (usuario no verificado) */}
                         {!user.emailVerified && (
                           <span className="badge-pending">
-                            Pendiente verificaciÃ³n
+                            Pendiente verificación
                           </span>
                         )}
                       </div>
@@ -358,7 +358,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                       onClick={() => setShowNewUserForm(true)}
                       className="btn-secondary btn-small"
                     >
-                      âž• AÃ±adir nuevo usuario
+                      ➕ Añadir nuevo usuario
                     </button>
                   </div>
                 )}
@@ -371,7 +371,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                       onClick={() => setShowNewUserForm(true)}
                       className="btn-secondary btn-small"
                     >
-                      âž• Crear nuevo usuario
+                      ➕ Crear nuevo usuario
                     </button>
                   </div>
                 )}
@@ -392,7 +392,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                           marginTop: "4px",
                         }}
                       >
-                        âš ï¸ Pendiente de verificaciÃ³n de correo
+                        ⚠️ Pendiente de verificación de correo
                       </div>
                     )}
                   </div>
@@ -420,7 +420,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                 <input
                   id="newUserName"
                   type="text"
-                  placeholder="Ej: Juan PÃ©rez"
+                  placeholder="Ej: Juan Pérez"
                   value={newUserData.name}
                   onChange={(e) =>
                     setNewUserData((prev) => ({
@@ -450,7 +450,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="newUserPhone">TelÃ©fono (opcional)</label>
+                <label htmlFor="newUserPhone">Teléfono (opcional)</label>
                 <input
                   id="newUserPhone"
                   type="tel"
@@ -514,7 +514,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
               required
             >
               <option value="">Selecciona una hora</option>
-              <option value="12:00">12:00 - MediodÃ­a</option>
+              <option value="12:00">12:00 - Mediodía</option>
               <option value="13:00">13:00</option>
               <option value="14:00">14:00</option>
               <option value="15:00">15:00</option>
@@ -527,9 +527,9 @@ const AdminReservationForm = ({ onReservationCreated }) => {
             </select>
           </div>
 
-          {/* NÃºmero de personas */}
+          {/* Número de personas */}
           <div className="form-group">
-            <label htmlFor="numberOfPeople">NÃºmero de personas</label>
+            <label htmlFor="numberOfPeople">Número de personas</label>
             <input
               id="numberOfPeople"
               type="number"
@@ -550,14 +550,14 @@ const AdminReservationForm = ({ onReservationCreated }) => {
             <textarea
               id="specialRequests"
               name="specialRequests"
-              placeholder="Ej: CumpleaÃ±os, aniversario, alergias, etc."
+              placeholder="Ej: Cumpleaños, aniversario, alergias, etc."
               value={formData.specialRequests}
               onChange={handleInputChange}
               rows="3"
             />
           </div>
 
-          {/* BotÃ³n de envÃ­o */}
+          {/* Botón de envío */}
           <button
             type="submit"
             disabled={loading || availableTables.length === 0}

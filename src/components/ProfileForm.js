@@ -83,7 +83,7 @@ const ProfileForm = ({ userId }) => {
 
   return (
     <div className="profile-form-card">
-      <h2 className="profile-form-title">ConfiguraciÃ³n de perfil</h2>
+      <h2 className="profile-form-title">Configuración de perfil</h2>
 
       {loading ? (
         <div className="profile-form-loading">Cargando perfil...</div>
@@ -100,11 +100,11 @@ const ProfileForm = ({ userId }) => {
           </div>
 
           <div className="profile-form-group">
-            <label className="profile-form-label">TelÃ©fono</label>
+            <label className="profile-form-label">Teléfono</label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="Tu telÃ©fono"
+              placeholder="Tu teléfono"
               className="profile-form-field"
             />
           </div>

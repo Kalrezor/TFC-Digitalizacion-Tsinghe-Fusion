@@ -24,26 +24,26 @@ const TablesManagementView = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingTable, setEditingTable] = useState(null);
 
-  // Manejar creaciÃ³n de mesa
+  // Manejar creación de mesa
   const handleTableCreate = () => {
     setEditingTable(null);
     setShowForm(true);
   };
 
-  // Manejar ediciÃ³n de mesa
+  // Manejar edición de mesa
   const handleTableEdit = (table) => {
     setEditingTable(table);
     setShowForm(true);
   };
 
-  // Manejar eliminaciÃ³n de mesa
+  // Manejar eliminación de mesa
   const handleTableDelete = () => {
-    refetchTables(); // Recargar lista despuÃ©s de eliminar
+    refetchTables(); // Recargar lista después de eliminar
   };
 
   // Manejar guardar (crear/editar)
   const handleFormSave = () => {
-    refetchTables(); // Recargar lista despuÃ©s de guardar
+    refetchTables(); // Recargar lista después de guardar
     setShowForm(false);
     setEditingTable(null);
   };
@@ -68,7 +68,7 @@ const TablesManagementView = () => {
   return (
     <div className="tables-management">
       <div className="tables-management-header">
-        <h1 className="tables-management-title">GestiÃ³n de Mesas</h1>
+        <h1 className="tables-management-title">Gestión de Mesas</h1>
         <p className="tables-management-subtitle">
           Administra las mesas del restaurante y visualiza su disponibilidad
         </p>

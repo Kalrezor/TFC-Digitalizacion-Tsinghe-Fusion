@@ -136,10 +136,10 @@ const AdminReservationsView = () => {
         true,
       );
     } else if (filterMode === "cliente") {
-      // Obtener todas las reservas y filtrar por nombre/telÃ©fono
+      // Obtener todas las reservas y filtrar por nombre/teléfono
       result = await ReservationTableService.getAllReservations(true);
     } else {
-      result = { success: false, error: "Modo de filtro invÃ¡lido" };
+      result = { success: false, error: "Modo de filtro inválido" };
     }
 
     if (!result.success) {
@@ -299,7 +299,7 @@ const AdminReservationsView = () => {
     const phone = selectedUser ? selectedUser.phone || "" : manualPhone.trim();
 
     if (!name || !phone) {
-      toastError("El nombre y el telÃ©fono son obligatorios.");
+      toastError("El nombre y el teléfono son obligatorios.");
       setFormLoading(false);
       return;
     }
@@ -432,7 +432,7 @@ const AdminReservationsView = () => {
     <div className="admin-reservations">
       <header className="admin-reservations-header">
         <div>
-          <h1 className="admin-reservations-title">AdministraciÃ³n de reservas</h1>
+          <h1 className="admin-reservations-title">Administración de reservas</h1>
           <p className="admin-reservations-subtitle">
             Gestiona reservas, actualiza estados y asigna mesas desde una vista unificada.
           </p>
@@ -451,9 +451,9 @@ const AdminReservationsView = () => {
                 className="admin-reservations-input"
               >
                 <option value="turno">Turno</option>
-                <option value="dia">DÃ­a</option>
+                <option value="dia">Día</option>
                 <option value="rango">Rango de fechas</option>
-                <option value="cliente">Nombre/TelÃ©fono del cliente</option>
+                <option value="cliente">Nombre/Teléfono del cliente</option>
               </select>
             </label>
             {filterMode !== "cliente" ? (
@@ -493,12 +493,12 @@ const AdminReservationsView = () => {
             ) : null}
             {filterMode === "cliente" ? (
               <label className="admin-reservations-field-label">
-                Buscar por nombre o telÃ©fono
+                Buscar por nombre o teléfono
                 <input
                   type="text"
                   value={searchClientTerm}
                   onChange={(e) => setSearchClientTerm(e.target.value)}
-                  placeholder="Ej. Juan GarcÃ­a / +34 600 123 456"
+                  placeholder="Ej. Juan García / +34 600 123 456"
                   className="admin-reservations-input"
                 />
               </label>
@@ -545,7 +545,7 @@ const AdminReservationsView = () => {
                 <thead>
                   <tr>
                     <th>Cliente</th>
-                    <th>TelÃ©fono</th>
+                    <th>Teléfono</th>
                     <th>Fecha</th>
                     <th>Hora</th>
                     <th>Turno</th>
@@ -564,7 +564,7 @@ const AdminReservationsView = () => {
                         <td>{normalized.userPhone || "--"}</td>
                         <td>{normalized.date}</td>
                         <td>{normalized.time}</td>
-                        <td>{normalized.shift === RESERVATION_SHIFTS.CENA ? "Cena" : normalized.shift === RESERVATION_SHIFTS.COMIDA ? "Comida" : "â€”"}</td>
+                        <td>{normalized.shift === RESERVATION_SHIFTS.CENA ? "Cena" : normalized.shift === RESERVATION_SHIFTS.COMIDA ? "Comida" : "—"}</td>
                         <td>{normalized.peopleCount}</td>
                         <td>
                           <select
@@ -609,7 +609,7 @@ const AdminReservationsView = () => {
           <div className="admin-reservations-panel-title">{selectedReservation ? "Editar reserva" : "Crear nueva reserva"}</div>
           <form noValidate onSubmit={handleSaveReservation} className="admin-reservations-form">
             <div className="admin-reservations-field-label">
-              Buscar cliente (telÃ©fono, nombre o email)
+              Buscar cliente (teléfono, nombre o email)
               <input
                 type="text"
                 value={searchPhone}
@@ -621,7 +621,7 @@ const AdminReservationsView = () => {
                     setManualPhone("");
                   }
                 }}
-                placeholder="Ej. +34 600 123 456 / Juan GarcÃ­a / juan@email.com"
+                placeholder="Ej. +34 600 123 456 / Juan García / juan@email.com"
                 className="admin-reservations-input"
               />
             </div>
@@ -648,7 +648,7 @@ const AdminReservationsView = () => {
                         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                           <strong style={{ fontSize: 14, color: "#222" }}>{user.name || user.displayName || user.email}</strong>
                           <div style={{ display: "flex", gap: 12, fontSize: 13, color: "#666" }}>
-                            <span>TelÃ©fono: {user.phone || "Sin telÃ©fono"}</span>
+                            <span>Teléfono: {user.phone || "Sin teléfono"}</span>
                             <span>Email: {user.email}</span>
                           </div>
                         </div>
@@ -658,7 +658,7 @@ const AdminReservationsView = () => {
                 ) : (
                   <div className="admin-reservations-empty">
                     <div>No se encontraron usuarios.</div>
-                    <div style={{ fontSize: 12, marginTop: 6, color: "#888" }}>Puedes crear la reserva manualmente con nombre y telÃ©fono.</div>
+                    <div style={{ fontSize: 12, marginTop: 6, color: "#888" }}>Puedes crear la reserva manualmente con nombre y teléfono.</div>
                   </div>
                 )}
               </div>
@@ -678,7 +678,7 @@ const AdminReservationsView = () => {
                 />
               </label>
               <label className="admin-reservations-field-label">
-                TelÃ©fono del cliente
+                Teléfono del cliente
                 <input
                   type="text"
                   value={selectedUser ? selectedUser.phone || "" : manualPhone}
@@ -695,7 +695,7 @@ const AdminReservationsView = () => {
               <div className="admin-reservations-selected-user">
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   <div style={{ fontWeight: 700, fontSize: 15 }}>{selectedUser.name || selectedUser.displayName || selectedUser.email}</div>
-                  <div style={{ fontSize: 13, color: "#555" }}>TelÃ©fono: {selectedUser.phone}</div>
+                  <div style={{ fontSize: 13, color: "#555" }}>Teléfono: {selectedUser.phone}</div>
                   <div style={{ fontSize: 13, color: "#666" }}>Email: {selectedUser.email}</div>
                 </div>
                 <button
@@ -801,7 +801,7 @@ const AdminReservationsView = () => {
           {selectedReservation ? (
             <>
               <div className="admin-reservations-info-section">
-                <strong>Reserva:</strong> {selectedReservation.userName || "Cliente"} â€” {selectedReservation.date} {selectedReservation.time}
+                <strong>Reserva:</strong> {selectedReservation.userName || "Cliente"} — {selectedReservation.date} {selectedReservation.time}
               </div>
               <div className="admin-reservations-info-section">
                 <strong>Mesas asignadas:</strong>{" "}
@@ -813,12 +813,12 @@ const AdminReservationsView = () => {
                   <div className="admin-reservations-empty">No hay mesas disponibles para esta fecha/hora.</div>
                 ) : (
                   <>
-                    {/* Sugerencia automÃ¡tica */}
+                    {/* Sugerencia automática */}
                     {formState.peopleCount && availableTables.length > 0 && (
                       <div className="admin-reservations-info-section admin-reservations-suggestion">
-                        <strong>Sugerencia:</strong> {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"} â€” 
+                        <strong>Sugerencia:</strong> {formState.peopleCount} {formState.peopleCount === 1 ? "persona" : "personas"} —
                         {availableTables.filter(t => t.capacity >= formState.peopleCount).length > 0
-                          ? ` Selecciona una mesa con capacidad â‰¥ ${formState.peopleCount} o fusiona varias.`
+                          ? ` Selecciona una mesa con capacidad ≥ ${formState.peopleCount} o fusiona varias.`
                           : " No hay mesa individual que cubra. Considera fusionar varias."}
                       </div>
                     )}

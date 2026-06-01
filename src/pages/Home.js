@@ -5,7 +5,7 @@
  */
 
 // Vista: Home.js
-// PÃ¡gina de inicio con carrusel estructural y ofertas dinÃ¡micas reubicadas
+// Página de inicio con carrusel estructural y ofertas dinámicas reubicadas
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -17,7 +17,7 @@ import menuService from "../models/MenuService";
 
 const OfferCard = ({ offer, onSelect }) => {
   const imagenUrl = offer.imageUrl || ""; 
-  const textoTitulo = offer.title || "PromociÃ³n Especial";
+  const textoTitulo = offer.title || "Promoción Especial";
   const textoDescuento = offer.discount ? `-${offer.discount}%` : "Oferta";
 
   return (
@@ -65,7 +65,7 @@ const OfferCard = ({ offer, onSelect }) => {
         zIndex: 1
       }} />
 
-      {/* Bloque de InformaciÃ³n Fijo en la Base */}
+      {/* Bloque de Información Fijo en la Base */}
       <div 
         style={{
           position: "absolute",
@@ -93,7 +93,7 @@ const OfferCard = ({ offer, onSelect }) => {
           {textoDescuento}
         </span>
 
-        {/* TÃ­tulo de la Oferta */}
+        {/* Título de la Oferta */}
         <h3 style={{ 
           fontFamily: "Georgia, serif", 
           fontSize: "22px", 
@@ -127,7 +127,7 @@ const Home = () => {
     }
   };
 
-  // LÃ³gica de validaciÃ³n temporal exacta sanitizada para evitar fallos de zona horaria
+  // Lógica de validación temporal exacta sanitizada para evitar fallos de zona horaria
   const isEnVigor = (offer) => {
     if (!offer.active) return false;
     
@@ -155,7 +155,7 @@ const Home = () => {
         const response = await menuService.getAllOffers(); 
         
         if (response.success && response.data) {
-          // Filtrar Ãºnicamente las ofertas que estÃ¡n activas y en vigor segÃºn la fecha actual
+          // Filtrar únicamente las ofertas que están activas y en vigor según la fecha actual
           const validOffers = response.data.filter(isEnVigor);
           setOffers(validOffers);
         }
@@ -221,19 +221,19 @@ const Home = () => {
 
   return (
     <div className="editorial-shell">
-      {/* SECCIÃ“N HERO */}
+      {/* SECCIÓN HERO */}
       <section className="home-hero editorial-frame">
         <div className="home-hero-copy">
-          <p className="editorial-kicker">Cocina fusiÃ³n Â· Madrid</p>
-          <h1 className="home-title editorial-serif">Tsinghe Cocina FusiÃ³n</h1>
+          <p className="editorial-kicker">Cocina fusión · Madrid</p>
+          <h1 className="home-title editorial-serif">Tsinghe Cocina Fusión</h1>
           <p className="home-lede">
-            Una experiencia de mesa serena, precisa y contemporÃ¡nea, donde la
+            Una experiencia de mesa serena, precisa y contemporánea, donde la
             cocina china se presenta con ritmo editorial y producto cuidado.
           </p>
 
           <div className="home-actions">
             <button onClick={goToMenu} className="editorial-button">
-              Ver menÃº
+              Ver menú
             </button>
             <button onClick={goToReservation} className="editorial-button">
               Reservar mesa
@@ -249,7 +249,7 @@ const Home = () => {
                 }
                 className="editorial-button"
               >
-                Iniciar sesiÃ³n
+                Iniciar sesión
               </button>
             )}
           </div>
@@ -275,15 +275,15 @@ const Home = () => {
         </div>
       </section>
 
-      {/* SECCIÃ“N MÃXIMAS RESTAURANTE */}
+      {/* SECCIÓN MÁXIMAS RESTAURANTE */}
       <section className="editorial-section editorial-frame">
         <div className="editorial-grid-3">
           <article className="editorial-cell">
             <p className="editorial-kicker">Producto</p>
-            <h3>Origen y precisiÃ³n</h3>
+            <h3>Origen y precisión</h3>
             <p>
-              Recetas de inspiraciÃ³n china preparadas con ingredientes cuidados
-              y una presentaciÃ³n limpia.
+              Recetas de inspiración china preparadas con ingredientes cuidados
+              y una presentación limpia.
             </p>
           </article>
 
@@ -298,7 +298,7 @@ const Home = () => {
 
           <article className="editorial-cell">
             <p className="editorial-kicker">Reserva</p>
-            <h3>Mesa sin fricciÃ³n</h3>
+            <h3>Mesa sin fricción</h3>
             <p>
               Reserva online, consulta disponibilidad y gestiona tus datos desde
               un panel simple.
@@ -307,7 +307,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 1. CARRUSEL DE IMÃGENES */}
+      {/* 1. CARRUSEL DE IMÁGENES */}
       <section
         className="editorial-section editorial-frame"
         style={{ margin: "20px 0", padding: "24px 0", width: "100%" }}
@@ -363,7 +363,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 2. SECCIÃ“N DE OFERTAS DINÃMICAS */}
+      {/* 2. SECCIÓN DE OFERTAS DINÁMICAS */}
       {!loadingOffers && offers.length > 0 && (
         <section className="editorial-section editorial-frame" style={{ paddingTop: "20px", marginBottom: "40px" }}>
           <p className="editorial-kicker" style={{ textAlign: "center" }}>Experiencias de temporada</p>
@@ -389,19 +389,19 @@ const Home = () => {
         </section>
       )}
 
-      {/* 3. SECCIÃ“N INTERMEDIA DE REDIRECCIÃ“N */}
+      {/* 3. SECCIÓN INTERMEDIA DE REDIRECCIÓN */}
       <section className="editorial-section editorial-frame">
         <div className="editorial-grid-2">
           <article className="editorial-cell">
             <p className="editorial-kicker">Carta</p>
-            <h3>Platos, alÃ©rgenos y disponibilidad</h3>
+            <h3>Platos, alérgenos y disponibilidad</h3>
             <p>
-              Explora la carta completa con filtros por alÃ©rgenos y acceso claro
-              a cada categorÃ­a.
+              Explora la carta completa con filtros por alérgenos y acceso claro
+              a cada categoría.
             </p>
             <div className="home-actions">
               <button onClick={goToMenu} className="editorial-button">
-                Ver menÃº
+                Ver menú
               </button>
             </div>
           </article>
@@ -410,7 +410,7 @@ const Home = () => {
             <p className="editorial-kicker">Mesa</p>
             <h3>Reserva en el momento adecuado</h3>
             <p>
-              Accede a tu cuenta para reservar y mantener tus prÃ³ximas visitas
+              Accede a tu cuenta para reservar y mantener tus próximas visitas
               organizadas.
             </p>
             <div className="home-actions">
@@ -422,7 +422,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* SECCIÃ“N SEGUNDO VIDEO INFERIOR */}
+      {/* SECCIÓN SEGUNDO VIDEO INFERIOR */}
       <section className="editorial-section editorial-frame home-access-section">
         <div className="home-access-video-wrapper" aria-hidden="true">
           <video className="home-access-video-bg" autoPlay muted loop playsInline>
@@ -452,13 +452,13 @@ const Home = () => {
           {user ? (
             <div className="home-actions">
               <button onClick={logout} className="editorial-button">
-                Cerrar sesiÃ³n
+                Cerrar sesión
               </button>
             </div>
           ) : (
             <div className="home-actions">
               <Link to="/login" className="editorial-button">
-                Iniciar sesiÃ³n
+                Iniciar sesión
               </Link>
               <Link to="/register" className="editorial-button">
                 Registrarse
@@ -529,7 +529,7 @@ const Home = () => {
                     zIndex: 10
                   }}
                 >
-                  âœ•
+                  ✕
                 </button>
               </div>
             )}
@@ -557,7 +557,7 @@ const Home = () => {
                 fontWeight: "normal",
                 lineHeight: "1.2"
               }}>
-                {selectedOffer.title || "PromociÃ³n Especial"}
+                {selectedOffer.title || "Promoción Especial"}
               </h2>
 
               <p style={{
@@ -567,7 +567,7 @@ const Home = () => {
                 margin: "0 0 28px 0",
                 fontWeight: "300"
               }}>
-                {selectedOffer.description || "Sin descripciÃ³n disponible."}
+                {selectedOffer.description || "Sin descripción disponible."}
               </p>
 
               <button 

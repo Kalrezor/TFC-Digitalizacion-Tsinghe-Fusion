@@ -96,7 +96,7 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
     try {
       const reservation = reservationDetails[table.id];
       if (!reservation || !reservation.id) {
-        setActionError("No se encontrÃ³ la reserva asociada a esta mesa.");
+        setActionError("No se encontró la reserva asociada a esta mesa.");
         return;
       }
 
@@ -148,7 +148,7 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
         {/* LIBRES */}
         <div className="table-availability-section">
           <h4 className="table-availability-section-title table-availability-section-title-free">
-            âœ“ Libres ({activeTables.length})
+            ✓ Libres ({activeTables.length})
           </h4>
           <div className="table-availability-table-group">
             {activeTables && activeTables.length > 0 ? (
@@ -183,7 +183,7 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
         {/* OCUPADAS */}
         <div className="table-availability-section">
           <h4 className="table-availability-section-title table-availability-section-title-busy">
-            âš  Ocupadas ({reservedTables.length})
+            ⚠ Ocupadas ({reservedTables.length})
           </h4>
           <div className="table-availability-table-group">
             {reservedTables && reservedTables.length > 0 ? (
@@ -234,7 +234,7 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
         {/* INACTIVAS */}
         <div className="table-availability-section">
           <h4 className="table-availability-section-title table-availability-section-title-inactive">
-            âœ— Inactivas ({inactiveTables.length})
+            ✗ Inactivas ({inactiveTables.length})
           </h4>
           <div className="table-availability-table-group">
             {inactiveTables && inactiveTables.length > 0 ? (

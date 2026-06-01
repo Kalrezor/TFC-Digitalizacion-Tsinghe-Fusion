@@ -5,9 +5,9 @@
  */
 
 // Modelo: AuthService.js
-// Este archivo contiene la lÃ³gica de negocio para la autenticaciÃ³n usando Firebase Auth.
-// Maneja el login de usuarios, incluyendo soporte para autenticaciÃ³n de doble factor (MFA).
-// Ahora extendido para incluir Firestore y gestiÃ³n de roles de usuario.
+// Este archivo contiene la lógica de negocio para la autenticación usando Firebase Auth.
+// Maneja el login de usuarios, incluyendo soporte para autenticación de doble factor (MFA).
+// Ahora extendido para incluir Firestore y gestión de roles de usuario.
 
 import {
   signInWithEmailAndPassword,
@@ -26,7 +26,7 @@ import {
 import { auth, db } from "../firebase";
 
 class AuthService {
-  // MÃ©todo auxiliar para generar token de 3 caracteres
+  // Método auxiliar para generar token de 3 caracteres
   generateToken() {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let token = "";
@@ -35,7 +35,7 @@ class AuthService {
     }
     return token;
   }
-  // MÃ©todo para login con email y contraseÃ±a
+  // Método para login con email y contraseña
   async loginWithEmail(email, password) {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -46,7 +46,7 @@ class AuthService {
       const user = userCredential.user;
       return { success: true, user };
     } catch (error) {
-      // Si el usuario no tiene contraseÃ±a pero existe con Google
+      // Si el usuario no tiene contraseña pero existe con Google
       if (
         error.code === "auth/user-not-found" ||
         error.code === "auth/invalid-credential"
@@ -54,7 +54,7 @@ class AuthService {
         return {
           success: false,
           errorCode: error.code,
-          error: "Usuario no encontrado. Â¿Quieres registrarte ahora?",
+          error: "Usuario no encontrado. ¿Quieres registrarte ahora?",
           suggestion: "provider",
         };
       }
@@ -62,7 +62,7 @@ class AuthService {
         return {
           success: false,
           errorCode: error.code,
-          error: "ContraseÃ±a incorrecta.",
+          error: "Contraseña incorrecta.",
           suggestion: "password",
         };
       }
@@ -70,7 +70,7 @@ class AuthService {
         return {
           success: false,
           errorCode: error.code,
-          error: "El email no es vÃ¡lido. RevÃ­salo e intenta de nuevo.",
+          error: "El email no es válido. Revísalo e intenta de nuevo.",
           suggestion: "email",
         };
       }
@@ -78,32 +78,32 @@ class AuthService {
         return {
           success: false,
           errorCode: error.code,
-          error: "Tu cuenta estÃ¡ deshabilitada. Contacta con soporte.",
+          error: "Tu cuenta está deshabilitada. Contacta con soporte.",
         };
       }
       if (error.code === "auth/too-many-requests") {
         return {
           success: false,
           errorCode: error.code,
-          error: "Has intentado iniciar sesiÃ³n demasiadas veces. Intenta de nuevo mÃ¡s tarde.",
+          error: "Has intentado iniciar sesión demasiadas veces. Intenta de nuevo más tarde.",
         };
       }
       console.error("Error en login:", error);
-      return { success: false, error: "Error al iniciar sesiÃ³n. Revisa tus datos y vuelve a intentarlo." };
+      return { success: false, error: "Error al iniciar sesión. Revisa tus datos y vuelve a intentarlo." };
     }
   }
 
-  // MÃ©todo para registro con email y contraseÃ±a
+  // Método para registro con email y contraseña
   async registerWithEmail(email, password, name, phone) {
     try {
-      // Validar que name no estÃ© vacÃ­o
+      // Validar que name no esté vacío
       if (!name || name.trim() === "") {
         throw new Error("El nombre es requerido para el registro");
       }
 
-      // Validar telÃ©fono
+      // Validar teléfono
       if (!phone || phone.trim() === "") {
-        throw new Error("El nÃºmero de telÃ©fono es requerido para el registro");
+        throw new Error("El número de teléfono es requerido para el registro");
       }
 
       // 1. Crear usuario en Firebase Auth
@@ -120,12 +120,12 @@ class AuthService {
       const existingDoc = await getDoc(userDocRef);
 
       if (existingDoc.exists()) {
-        // El usuario ya existÃ­a (creado por admin), actualizar como verificado
+        // El usuario ya existía (creado por admin), actualizar como verificado
         await updateDoc(userDocRef, {
           name: name.trim(),
           phone: phone.trim(),
           status: "active",
-          emailVerified: true, // El usuario verificÃ³ su correo
+          emailVerified: true, // El usuario verificó su correo
           role: existingDoc.data().role || "comensal", // Mantener rol original
         });
       } else {
@@ -147,14 +147,14 @@ class AuthService {
 
       return { success: true, user };
     } catch (error) {
-      console.error("âŒ Error en registro:", error.code, error.message);
+      console.error("❌ Error en registro:", error.code, error.message);
 
-      // Manejar errores especÃ­ficos de Firebase
+      // Manejar errores específicos de Firebase
       if (error.code === "auth/email-already-in-use") {
         return {
           success: false,
           errorCode: error.code,
-          error: "Este email ya estÃ¡ registrado. Â¿Quieres iniciar sesiÃ³n?",
+          error: "Este email ya está registrado. ¿Quieres iniciar sesión?",
           suggestion: "login",
         };
       }
@@ -162,7 +162,7 @@ class AuthService {
         return {
           success: false,
           errorCode: error.code,
-          error: "La contraseÃ±a es demasiado dÃ©bil. Usa al menos 6 caracteres.",
+          error: "La contraseña es demasiado débil. Usa al menos 6 caracteres.",
           suggestion: "password",
         };
       }
@@ -170,7 +170,7 @@ class AuthService {
         return {
           success: false,
           errorCode: error.code,
-          error: "El email no es vÃ¡lido.",
+          error: "El email no es válido.",
           suggestion: "email",
         };
       }
@@ -179,7 +179,7 @@ class AuthService {
     }
   }
 
-  // MÃ©todo para logout
+  // Método para logout
   async logout() {
     try {
       await auth.signOut();
@@ -190,12 +190,12 @@ class AuthService {
     }
   }
 
-  // MÃ©todo para obtener el usuario actual
+  // Método para obtener el usuario actual
   getCurrentUser() {
     return auth.currentUser;
   }
 
-  // Nuevo: MÃ©todo para obtener el rol del usuario desde Firestore
+  // Nuevo: Método para obtener el rol del usuario desde Firestore
   async getUserRole(uid) {
     try {
       const userDoc = await getDoc(doc(db, "users", uid));
@@ -219,7 +219,7 @@ class AuthService {
     }
   }
 
-  // Nuevo: MÃ©todo para obtener documento del usuario
+  // Nuevo: Método para obtener documento del usuario
   async getUserDoc(uid) {
     try {
       const userDoc = await getDoc(doc(db, "users", uid));
@@ -233,7 +233,7 @@ class AuthService {
     }
   }
 
-  // Nuevo: MÃ©todo para completar perfil (telÃ©fono y contraseÃ±a opcional)
+  // Nuevo: Método para completar perfil (teléfono y contraseña opcional)
   async completeProfile(phone, password = null) {
     try {
       const currentUser = auth.currentUser;
@@ -261,7 +261,7 @@ class AuthService {
     }
   }
 
-  // MÃ©todo para login con Google
+  // Método para login con Google
   async loginWithGoogle() {
     try {
       const googleProvider = new GoogleAuthProvider();
@@ -288,13 +288,13 @@ class AuthService {
         await this.sendWelcomeEmail(user.email, user.displayName);
       }
 
-      // Verificar si el usuario ya configurÃ³ su contraseÃ±a
+      // Verificar si el usuario ya configuró su contraseña
       const passwordConfigured = userDoc.exists()
         ? userDoc.data().passwordConfigured
         : false;
 
-      // Requerir contraseÃ±a solo si es nuevo usuario
-      // o si es un usuario existente que aÃºn no ha configurado contraseÃ±a
+      // Requerir contraseña solo si es nuevo usuario
+      // o si es un usuario existente que aún no ha configurado contraseña
       const requiresPassword = isNewUser || !passwordConfigured;
 
       return {
@@ -310,7 +310,7 @@ class AuthService {
       if (error?.code === "auth/popup-closed-by-user") {
         return {
           success: false,
-          error: "Inicio de sesiÃ³n cancelado. Si quieres, vuelve a intentarlo.",
+          error: "Inicio de sesión cancelado. Si quieres, vuelve a intentarlo.",
           canceledByUser: true,
         };
       }
@@ -318,22 +318,22 @@ class AuthService {
       if (error?.code === "auth/popup-blocked") {
         return {
           success: false,
-          error: "El navegador bloqueÃ³ la ventana de Google. Comprueba la configuraciÃ³n de popups e intÃ©ntalo de nuevo.",
+          error: "El navegador bloqueó la ventana de Google. Comprueba la configuración de popups e inténtalo de nuevo.",
         };
       }
 
       if (error?.code === "auth/cancelled-popup-request") {
         return {
           success: false,
-          error: "Ya hay un intento de inicio de sesiÃ³n en curso. Por favor, intÃ©ntalo de nuevo.",
+          error: "Ya hay un intento de inicio de sesión en curso. Por favor, inténtalo de nuevo.",
         };
       }
 
-      return { success: false, error: error.message || "Error al iniciar sesiÃ³n con Google." };
+      return { success: false, error: error.message || "Error al iniciar sesión con Google." };
     }
   }
 
-  // MÃ©todo para enviar email de bienvenida
+  // Método para enviar email de bienvenida
   async sendWelcomeEmail(email, displayName) {
     try {
       const response = await fetch(
@@ -353,11 +353,11 @@ class AuthService {
       }
     } catch (error) {
       console.error("Error enviando email:", error);
-      // No fallar el registro si el email no se envÃ­a
+      // No fallar el registro si el email no se envía
     }
   }
 
-  // MÃ©todo para solicitar reset de contraseÃ±a con token
+  // Método para solicitar reset de contraseña con token
   async requestPasswordReset(email) {
     try {
       // Generar token
@@ -381,11 +381,11 @@ class AuthService {
         console.error("Error enviando email de reset:", response.statusText);
         return {
           success: false,
-          error: "Error al enviar el email de recuperaciÃ³n",
+          error: "Error al enviar el email de recuperación",
         };
       }
 
-      // Guardar token en Firestore en una colecciÃ³n temporal
+      // Guardar token en Firestore en una colección temporal
       await setDoc(doc(db, "passwordResets", email), {
         token: token,
         expiresAt: expiresAt,
@@ -397,15 +397,15 @@ class AuthService {
         message: `Token enviado a ${email}. Expira en 15 minutos.`,
       };
     } catch (error) {
-      console.error("âŒ Error en reset de contraseÃ±a:", error.message);
+      console.error("❌ Error en reset de contraseña:", error.message);
       return { success: false, error: error.message };
     }
   }
 
-  // MÃ©todo para validar token y resetear contraseÃ±a
+  // Método para validar token y resetear contraseña
   async resetPasswordWithToken(email, token, newPassword) {
     try {
-      // La Cloud Function valida el token y cambia la contraseÃ±a con Admin SDK.
+      // La Cloud Function valida el token y cambia la contraseña con Admin SDK.
       const response = await fetch(
         "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/resetPasswordWithToken",
         {
@@ -422,12 +422,12 @@ class AuthService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         console.error(
-          "Error reseteando contraseÃ±a:",
+          "Error reseteando contraseña:",
           errorData || response.statusText,
         );
         return {
           success: false,
-          error: errorData?.error || "Error al resetear la contraseÃ±a",
+          error: errorData?.error || "Error al resetear la contraseña",
         };
       }
 
@@ -438,15 +438,15 @@ class AuthService {
 
       return {
         success: true,
-        message: data.message || "ContraseÃ±a actualizada exitosamente",
+        message: data.message || "Contraseña actualizada exitosamente",
       };
     } catch (error) {
-      console.error("âŒ Error validando token:", error.message);
+      console.error("❌ Error validando token:", error.message);
       return { success: false, error: error.message };
     }
   }
 
-  // MÃ©todo para que usuarios con Google agreguen una contraseÃ±a (para poder entrar con email/password)
+  // Método para que usuarios con Google agreguen una contraseña (para poder entrar con email/password)
   async addPasswordToGoogleUser(password) {
     try {
       const user = auth.currentUser;
@@ -457,28 +457,28 @@ class AuthService {
       // Usar updatePassword de Firebase Auth
       await updatePassword(user, password);
 
-      // Marcar en Firestore que el usuario ya configurÃ³ su contraseÃ±a
+      // Marcar en Firestore que el usuario ya configuró su contraseña
       await setDoc(
         doc(db, "users", user.uid),
         { passwordConfigured: true },
         { merge: true },
       );
 
-      return { success: true, message: "ContraseÃ±a creada exitosamente" };
+      return { success: true, message: "Contraseña creada exitosamente" };
     } catch (error) {
-      console.error("âŒ Error agregando contraseÃ±a:", error.message);
+      console.error("❌ Error agregando contraseña:", error.message);
 
       if (error.code === "auth/weak-password") {
         return {
           success: false,
-          error: "La contraseÃ±a es demasiado dÃ©bil. Usa al menos 6 caracteres.",
+          error: "La contraseña es demasiado débil. Usa al menos 6 caracteres.",
         };
       }
       if (error.code === "auth/requires-recent-login") {
         return {
           success: false,
           error:
-            "Necesitas iniciar sesiÃ³n nuevamente para cambiar la contraseÃ±a",
+            "Necesitas iniciar sesión nuevamente para cambiar la contraseña",
         };
       }
 

@@ -5,8 +5,8 @@
  */
 
 // Vista: ForgotPassword.js
-// RecuperaciÃ³n de contraseÃ±a con token
-// TambiÃ©n se usa para usuarios Google que crean contraseÃ±a local
+// Recuperación de contraseña con token
+// También se usa para usuarios Google que crean contraseña local
 
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
@@ -38,7 +38,7 @@ const ForgotPassword = () => {
     const code = err?.code || err?.errorCode || "";
 
     if (code === "auth/weak-password" || message.includes("auth/weak-password")) {
-      return "La contraseÃ±a debe tener al menos 6 caracteres";
+      return "La contraseña debe tener al menos 6 caracteres";
     }
 
     return message || "Error inesperado";
@@ -52,7 +52,7 @@ const ForgotPassword = () => {
       toastSuccess("Token enviado a tu email");
     } catch (err) {
       setStep(2);
-      toastInfo("Si hay una cuenta registrada, recibirÃ¡s el token en tu email.");
+      toastInfo("Si hay una cuenta registrada, recibirás el token en tu email.");
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ const ForgotPassword = () => {
     }
 
     if (!validateEmail(email)) {
-      toastError("Por favor ingresa un email vÃ¡lido");
+      toastError("Por favor ingresa un email válido");
       return;
     }
 
@@ -99,33 +99,33 @@ const ForgotPassword = () => {
 
     if (isGoogleSetup) {
       if (!phone.trim()) {
-        toastError("El nÃºmero de telÃ©fono es obligatorio");
+        toastError("El número de teléfono es obligatorio");
         return;
       }
       const phoneRegex = /^\+?[0-9\s\-\(\)]{7,15}$/;
       if (!phoneRegex.test(phone.trim())) {
-        toastError("Por favor ingresa un nÃºmero de telÃ©fono vÃ¡lido");
+        toastError("Por favor ingresa un número de teléfono válido");
         return;
       }
     }
 
     if (!newPassword) {
-      toastError("Ingresa una nueva contraseÃ±a");
+      toastError("Ingresa una nueva contraseña");
       return;
     }
 
     if (newPassword.length < 6) {
-      toastError("La contraseÃ±a debe tener al menos 6 caracteres");
+      toastError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
 
     if (!confirmPassword) {
-      toastError("Confirma tu nueva contraseÃ±a");
+      toastError("Confirma tu nueva contraseña");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toastError("Las contraseÃ±as no coinciden");
+      toastError("Las contraseñas no coinciden");
       return;
     }
 
@@ -138,7 +138,7 @@ const ForgotPassword = () => {
 
       if (result.success) {
         sessionStorage.removeItem("googlePasswordSetupPending");
-        toastSuccess("ContraseÃ±a actualizada exitosamente");
+        toastSuccess("Contraseña actualizada exitosamente");
         setTimeout(() => {
           navigate(isGoogleSetup ? "/dashboard" : "/login");
         }, 2000);
@@ -157,14 +157,14 @@ const ForgotPassword = () => {
       <div className="editorial-auth-card">
         <div style={{ marginBottom: "28px", textAlign: "center" }}>
           <h1>
-            {isGoogleSetup ? "Completar Registro" : "Recuperar ContraseÃ±a"}
+            {isGoogleSetup ? "Completar Registro" : "Recuperar Contraseña"}
           </h1>
           <p>
             {isGoogleSetup
-              ? "Proporciona tu nÃºmero de telÃ©fono y crea una contraseÃ±a"
+              ? "Proporciona tu número de teléfono y crea una contraseña"
               : step === 1
               ? "Ingresa tu email para recibir un token"
-              : "Ingresa el token y tu nueva contraseÃ±a"}
+              : "Ingresa el token y tu nueva contraseña"}
           </p>
         </div>
 
@@ -205,7 +205,7 @@ const ForgotPassword = () => {
 
             {isGoogleSetup && (
               <div className="form-group">
-                <label>NÃºmero de TelÃ©fono *</label>
+                <label>Número de Teléfono *</label>
                 <input
                   type="tel"
                   placeholder="Ej: +34 600 123 456"
@@ -237,20 +237,20 @@ const ForgotPassword = () => {
             )}
 
             <div className="form-group">
-              <label>Nueva ContraseÃ±a</label>
+              <label>Nueva Contraseña</label>
               <input
                 type="password"
-                placeholder="MÃ­nimo 6 caracteres"
+                placeholder="Mínimo 6 caracteres"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label>Confirmar ContraseÃ±a</label>
+              <label>Confirmar Contraseña</label>
               <input
                 type="password"
-                placeholder="Repite tu contraseÃ±a"
+                placeholder="Repite tu contraseña"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -262,7 +262,7 @@ const ForgotPassword = () => {
               className="btn btn-primary"
               style={{ width: "100%" }}
             >
-              {loading ? "Actualizando..." : "Actualizar ContraseÃ±a"}
+              {loading ? "Actualizando..." : "Actualizar Contraseña"}
             </button>
           </form>
         )}
@@ -270,12 +270,12 @@ const ForgotPassword = () => {
         <div className="editorial-auth-links">
           {step === 1 ? (
             <>
-              Â¿Recuerdas tu contraseÃ±a? {" "}
-              <Link to="/login">Inicia sesiÃ³n</Link>
+              ¿Recuerdas tu contraseña? {" "}
+              <Link to="/login">Inicia sesión</Link>
             </>
           ) : (
             <>
-              Â¿Necesitas un nuevo token? {" "}
+              ¿Necesitas un nuevo token? {" "}
               <button
                 onClick={() => {
                   setStep(1);

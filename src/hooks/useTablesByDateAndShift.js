@@ -7,7 +7,7 @@
 /**
  * HOOK: useTablesByDateAndShift.js
  * 
- * Responsabilidad: Cargar estado de mesas para una fecha y turno especÃ­fico.
+ * Responsabilidad: Cargar estado de mesas para una fecha y turno específico.
  * 
  * Uso:
  * const { active, reserved, inactive, loading, error } = useTablesByDateAndShift(date, shift);
@@ -18,7 +18,7 @@
  * - inactive: array de mesas inactivas
  * - loading: boolean
  * - error: string (si hay error)
- * - refetch: funciÃ³n para recargar datos
+ * - refetch: función para recargar datos
  */
 
 import { useState, useEffect, useCallback } from "react";

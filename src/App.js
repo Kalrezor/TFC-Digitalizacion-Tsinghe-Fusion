@@ -19,7 +19,7 @@ import RestaurantChatbot from "./components/RestaurantChatbot";
 import CookieBanner from "./components/CookieBanner";
 import LegalFooter from "./components/LegalFooter";
 
-// Vistas pÃºblicas
+// Vistas públicas
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import Login from "./pages/Login";
@@ -65,12 +65,12 @@ const getChatbotSettings = () => {
 
 const normalizeChatbotRole = (role) => (role === "admin" ? "admin" : "comensal");
 
-// â”€â”€ Pantalla de Carga â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Pantalla de Carga ────────────────────────────────────────────────────────
 const LoadingScreen = () => (
   <div className="app-loading-screen">
     <div className="app-loading-content">
       <div className="app-loading-text">
-        Cargando autenticaciÃ³n...
+        Cargando autenticación...
       </div>
     </div>
   </div>
@@ -119,7 +119,7 @@ const AdminRoute = ({ children, isAuthenticated, loading, role }) => {
   return role === "admin" ? children : <Navigate to="/dashboard" replace />;
 };
 
-// â”€â”€ App Principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── App Principal ───────────────────────────────────────────────────────────
 function App() {
   const { user, userName, userEmail, role, loading, logout } = useAuth();
   const [chatbotSettings, setChatbotSettings] = useState(getChatbotSettings);
@@ -153,7 +153,7 @@ function App() {
     });
   };
 
-  // IMPORTANTE: El chequeo de loading debe ir AQUÃ dentro
+  // IMPORTANTE: El chequeo de loading debe ir AQUÍ dentro
   if (loading) {
     return <LoadingScreen />;
   }
@@ -172,7 +172,7 @@ function App() {
 
         <main className="app-content">
           <Routes>
-        {/* Rutas pÃºblicas */}
+        {/* Rutas públicas */}
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -181,7 +181,7 @@ function App() {
         <Route path="/politica-privacidad" element={<PoliticaPrivacidad />} />
         <Route path="/politica-cookies" element={<PoliticaCookies />} />
 
-        {/* LÃ³gica de Login mejorada */}
+        {/* Lógica de Login mejorada */}
         <Route
           path="/login"
           element={

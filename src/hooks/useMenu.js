@@ -21,7 +21,7 @@ const useMenu = () => {
         setLoading(true);
         setError(null);
 
-        // PLATOS (colecciÃ³n: plate)
+        // PLATOS (colección: plate)
         const platosSnap = await getDocs(collection(db, "plate"));
         const platosData = platosSnap.docs.map(doc => ({
           id: doc.id,
@@ -29,7 +29,7 @@ const useMenu = () => {
         }));
         setPlatos(platosData);
 
-        // CATEGORÃAS (colecciÃ³n: category)
+        // CATEGORÍAS (colección: category)
         const categoriasSnap = await getDocs(collection(db, "category"));
         const categoriasData = categoriasSnap.docs.map(doc => {
           const data = doc.data();
@@ -42,7 +42,7 @@ const useMenu = () => {
         });
         setCategorias(categoriasData);
 
-        // ALÃ‰RGENOS (colecciÃ³n: allergen)
+        // ALÉRGENOS (colección: allergen)
         const alergenosSnap = await getDocs(collection(db, "allergen"));
         const alergenosData = alergenosSnap.docs.map(doc => {
           const data = doc.data();
@@ -51,14 +51,14 @@ const useMenu = () => {
 
           if (!imagen) {
             const emojiMap = {
-              "Gluten": "ðŸŒ¾",
-              "LÃ¡cteos": "ðŸ¥›",
-              "Huevos": "ðŸ¥š",
-              "Frutos secos": "ðŸ¥œ",
-              "Mariscos": "ðŸ¦",
-              "Soja": "ðŸ«˜"
+              "Gluten": "🌾",
+              "Lácteos": "🥛",
+              "Huevos": "🥚",
+              "Frutos secos": "🥜",
+              "Mariscos": "🦐",
+              "Soja": "🫘"
             };
-            imagen = emojiMap[nombre] || "âš ï¸";
+            imagen = emojiMap[nombre] || "⚠️";
           }
 
           return {
@@ -71,7 +71,7 @@ const useMenu = () => {
         setAlergenos(alergenosData);
 
       } catch (error) {
-        console.error("Error al cargar datos del menÃº:", error);
+        console.error("Error al cargar datos del menú:", error);
         setError(error.message || "Error desconocido al cargar datos");
       } finally {
         setLoading(false);

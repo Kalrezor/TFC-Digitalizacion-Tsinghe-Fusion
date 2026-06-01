@@ -6,7 +6,7 @@
 
 // Modelo: TableService.js
 // Servicio para gestionar mesas en Firestore con actualizaciones en tiempo real.
-// Incluye CRUD bÃ¡sico para mesas.
+// Incluye CRUD básico para mesas.
 
 import {
   collection,
@@ -122,13 +122,13 @@ class TableService {
 
     return `F${nextNumber}`;
   }
-  // Fusionar mÃºltiples mesas para una reserva (SOLO PARA RESERVAS > 4 COMENSALES)
+  // Fusionar múltiples mesas para una reserva (SOLO PARA RESERVAS > 4 COMENSALES)
   async mergeTables(reservationId, tableIds, guestCount) {
     try {
       if (guestCount <= 4) {
         return {
           success: false,
-          error: "La fusiÃ³n de mesas solo es posible para reservas con mÃ¡s de 4 comensales",
+          error: "La fusión de mesas solo es posible para reservas con más de 4 comensales",
         };
       }
 
@@ -280,7 +280,7 @@ class TableService {
   }
 
   /**
-   * VALIDACIÃ“N: Verificar si una mesa puede ser eliminada.
+   * VALIDACIÓN: Verificar si una mesa puede ser eliminada.
    * Solo permite eliminar si NO tiene reservas futuras.
    * 
    * @param {string} tableId - ID de la mesa
@@ -333,13 +333,13 @@ class TableService {
           : undefined,
       };
     } catch (error) {
-      console.error("Error validando eliminaciÃ³n de mesa:", error);
+      console.error("Error validando eliminación de mesa:", error);
       return { success: false, error: error.message };
     }
   }
 
   /**
-   * ELIMINAR CON VALIDACIÃ“N: Elimina una mesa solo si no tiene reservas futuras.
+   * ELIMINAR CON VALIDACIÓN: Elimina una mesa solo si no tiene reservas futuras.
    * 
    * @param {string} tableId - ID de la mesa
    * @returns {Promise} { success: boolean, error?: string }
@@ -366,20 +366,20 @@ class TableService {
       await deleteDoc(doc(db, "tables", tableId));
       return { success: true };
     } catch (error) {
-      console.error("Error eliminando mesa con validaciÃ³n:", error);
+      console.error("Error eliminando mesa con validación:", error);
       return { success: false, error: error.message };
     }
   }
 
   /**
-   * BÃšSQUEDA: Obtener mesas por nÃºmero visible.
+   * BÚSQUEDA: Obtener mesas por número visible.
    * 
-   * @param {number} tableNumber - NÃºmero de la mesa
+   * @param {number} tableNumber - Número de la mesa
    * @returns {Promise} { success: boolean, table?: object, error?: string }
    */
   async getTableByNumber(tableNumber) {
     if (tableNumber === undefined || tableNumber === null) {
-      return { success: false, error: "NÃºmero de mesa requerido" };
+      return { success: false, error: "Número de mesa requerido" };
     }
 
     try {
@@ -400,15 +400,15 @@ class TableService {
         return { success: true, table: null };
       }
     } catch (error) {
-      console.error("Error buscando mesa por nÃºmero:", error);
+      console.error("Error buscando mesa por número:", error);
       return { success: false, error: error.message };
     }
   }
 
   /**
-   * FILTRO: Obtener mesas por capacidad mÃ­nima.
+   * FILTRO: Obtener mesas por capacidad mínima.
    * 
-   * @param {number} minCapacity - Capacidad mÃ­nima requerida
+   * @param {number} minCapacity - Capacidad mínima requerida
    * @returns {Promise} { success: boolean, tables: array, error?: string }
    */
   async getTablesByCapacity(minCapacity) {
@@ -435,7 +435,7 @@ class TableService {
   }
 
   /**
-   * ESTADÃSTICAS: Obtener resumen de mesas.
+   * ESTADÍSTICAS: Obtener resumen de mesas.
    * 
    * @returns {Promise} { success: boolean, stats: { total, active, inactive }, error?: string }
    */
@@ -466,13 +466,13 @@ class TableService {
         },
       };
     } catch (error) {
-      console.error("Error obteniendo estadÃ­sticas de mesas:", error);
+      console.error("Error obteniendo estadísticas de mesas:", error);
       return { success: false, error: error.message };
     }
   }
 
   /**
-   * CREAR CON VALIDACIÃ“N: Crea una mesa con campos requeridos.
+   * CREAR CON VALIDACIÓN: Crea una mesa con campos requeridos.
    * 
    * @param {object} tableData - { number, capacity, available }
    * @returns {Promise} { success: boolean, id?: string, error?: string }
@@ -487,19 +487,19 @@ class TableService {
 
     // Validaciones
     if (normalizedNumber === undefined || normalizedNumber === null) {
-      return { success: false, error: "NÃºmero de mesa requerido" };
+      return { success: false, error: "Número de mesa requerido" };
     }
 
     if (Number(capacity) <= 0) {
       return { success: false, error: "Capacidad debe ser mayor a 0" };
     }
 
-    // Verificar que no exista una mesa con el mismo nÃºmero
+    // Verificar que no exista una mesa con el mismo número
     const existingTable = await this.getTableByNumber(normalizedNumber);
     if (existingTable.table) {
       return {
         success: false,
-        error: `Ya existe una mesa con el nÃºmero ${normalizedNumber}`,
+        error: `Ya existe una mesa con el número ${normalizedNumber}`,
       };
     }
 
@@ -516,7 +516,7 @@ class TableService {
       const docRef = await addDoc(collection(db, "tables"), payload);
       return { success: true, id: docRef.id };
     } catch (error) {
-      console.error("Error creando mesa con validaciÃ³n:", error);
+      console.error("Error creando mesa con validación:", error);
       return { success: false, error: error.message };
     }
   }

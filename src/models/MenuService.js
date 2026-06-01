@@ -5,7 +5,7 @@
  */
 
 // Modelo: MenuService.js
-// Servicio para gestionar menÃºs en Firestore.
+// Servicio para gestionar menús en Firestore.
 
 import {
   collection,
@@ -21,7 +21,7 @@ import { db } from "../firebase";
 
 class MenuService {
 
-  // Obtener todos los alÃ©rgenos por ID
+  // Obtener todos los alérgenos por ID
   async getAllAllergens() {
     try {
       const querySnapshot = await getDocs(collection(db, "allergen"));
@@ -31,12 +31,12 @@ class MenuService {
       });
       return { success: true, data: allergens };
     } catch (error) {
-      console.error("Error obteniendo alÃ©rgenos:", error);
+      console.error("Error obteniendo alérgenos:", error);
       return { success: false, error: error.message };
     }
   }
 
-  // Obtener todas las categorÃ­as
+  // Obtener todas las categorías
   async getAllCategories() {
     try {
       const querySnapshot = await getDocs(collection(db, "category"));
@@ -46,12 +46,12 @@ class MenuService {
       }));
       return { success: true, data: categories };
     } catch (error) {
-      console.error("Error obteniendo categorÃ­as:", error);
+      console.error("Error obteniendo categorías:", error);
       return { success: false, error: error.message };
     }
   }
 
-  /* MÃ©todos de la tabla 'PLATE' */
+  /* Métodos de la tabla 'PLATE' */
 
   // Obtener todos los platos
   async getAllPlates() {
@@ -83,7 +83,7 @@ class MenuService {
     }
   }
 
-  // Actualizar categorÃ­a solo admin
+  // Actualizar categoría solo admin
   async updateCategory(id, categoryData, isAdmin = false) {
     try {
       if (!isAdmin) return { success: false, error: "No autorizado" };
@@ -93,7 +93,7 @@ class MenuService {
       });
       return { success: true };
     } catch (error) {
-      console.error("Error actualizando categorÃ­a:", error);
+      console.error("Error actualizando categoría:", error);
       return { success: false, error: error.message };
     }
   }
@@ -146,7 +146,7 @@ class MenuService {
     }
   }
 
-  /* MÃ‰TODO DE OFERTAS */
+  /* MÉTODO DE OFERTAS */
   async getAllOffers() {
     try {
       const querySnapshot = await getDocs(collection(db, "offers"));
@@ -161,7 +161,7 @@ class MenuService {
     }
   }
 
-  /* MÃ‰TODOS DE COMPATIBILIDAD */
+  /* MÉTODOS DE COMPATIBILIDAD */
   async getAllMenus() { return this.getAllPlates(); }
   async createMenu(data, isAdmin) { return this.createPlate(data, isAdmin); }
   async updateMenu(id, data, isAdmin) { return this.updatePlate(id, data, isAdmin); }

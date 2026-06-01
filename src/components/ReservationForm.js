@@ -6,7 +6,7 @@
 
 // Componente: ReservationForm.js
 // Formulario para crear/editar reservas
-// Detecta automÃ¡ticamente cuando hay > 4 comensales y sugiere fusiÃ³n de mesas
+// Detecta automáticamente cuando hay > 4 comensales y sugiere fusión de mesas
 
 import React, { useState, useEffect, useCallback } from "react";
 import ReservationService from "../services/ReservationService";
@@ -52,7 +52,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   
-  // âœ¨ NUEVO: Estados para detectar fusiÃ³n necesaria
+  // ✨ NUEVO: Estados para detectar fusión necesaria
   const [mergingInfo, setMergingInfo] = useState(null);
 
   const loadAvailableTables = useCallback(async () => {
@@ -83,7 +83,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
     }
   }, [formData.reservationDate, formData.reservationTime, formData.numberOfPeople]);
 
-  // âœ¨ NUEVO: Validar si se necesita fusiÃ³n cuando cambia nÃºmero de personas
+  // ✨ NUEVO: Validar si se necesita fusión cuando cambia número de personas
   useEffect(() => {
     const checkMerging = async () => {
       if (formData.reservationDate && formData.reservationTime && formData.numberOfPeople > 4) {
@@ -166,7 +166,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
     }
 
     if (formData.numberOfPeople < 1 || formData.numberOfPeople > 10) {
-      setError("El nÃºmero de personas debe estar entre 1 y 10");
+      setError("El número de personas debe estar entre 1 y 10");
       return;
     }
 
@@ -212,7 +212,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
           onReservationCreated(result.reservationId);
         }
 
-        // Mostrar mensaje de Ã©xito
+        // Mostrar mensaje de éxito
         setTimeout(() => {
           setSuccess(false);
         }, 3000);
@@ -226,10 +226,10 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
     }
   };
 
-  // Obtener fecha mÃ­nima (hoy)
+  // Obtener fecha mínima (hoy)
   const today = new Date().toISOString().split("T")[0];
 
-  // Obtener fecha mÃ¡xima (30 dÃ­as adelante)
+  // Obtener fecha máxima (30 días adelante)
   const maxDate = new Date();
   maxDate.setDate(maxDate.getDate() + 30);
   const maxDateString = maxDate.toISOString().split("T")[0];
@@ -237,7 +237,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
   return (
     <div className="reservation-form-container">
       <div className="reservation-form-card">
-        <h2>Ã°Å¸â€œâ€¦ Nueva Reserva</h2>
+        <h2>📅 Nueva Reserva</h2>
 
         <form noValidate onSubmit={handleSubmit} className="reservation-form">
           {/* Fecha */}
@@ -266,7 +266,7 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
               required
             >
               <option value="">Selecciona una hora</option>
-              <option value="12:00">12:00 - MediodÃ­a</option>
+              <option value="12:00">12:00 - Mediodía</option>
               <option value="13:00">13:00</option>
               <option value="14:00">14:00</option>
               <option value="15:00">15:00</option>
@@ -279,9 +279,9 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
             </select>
           </div>
 
-          {/* NÃºmero de personas */}
+          {/* Número de personas */}
           <div className="form-group">
-            <label htmlFor="numberOfPeople">NÃºmero de personas</label>
+            <label htmlFor="numberOfPeople">Número de personas</label>
             <input
               id="numberOfPeople"
               type="number"
@@ -334,14 +334,14 @@ const ReservationForm = ({ userId, userName, userEmail, onReservationCreated, us
             <textarea
               id="specialRequests"
               name="specialRequests"
-              placeholder="Ej: CumpleaÃ±os, aniversario, alergias, etc."
+              placeholder="Ej: Cumpleaños, aniversario, alergias, etc."
               value={formData.specialRequests}
               onChange={handleInputChange}
               rows="3"
             />
           </div>
 
-          {/* BotÃ³n de envÃ­o */}
+          {/* Botón de envío */}
           <button
             type="submit"
             disabled={loading || availableTables.length === 0}

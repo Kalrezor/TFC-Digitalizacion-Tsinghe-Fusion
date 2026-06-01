@@ -34,9 +34,9 @@ const useReservations = (userId = null) => {
     setLoading(true);
     let unsubscribe = () => {};
 
-    // Usar listener en tiempo real si estÃ¡ disponible
+    // Usar listener en tiempo real si está disponible
     if (userId) {
-      // Para usuario especÃ­fico
+      // Para usuario específico
       unsubscribe = ReservationService.subscribeToUserReservations(
         userId,
         (result) => {
@@ -73,7 +73,7 @@ const useReservations = (userId = null) => {
   // Crear reserva
   const createReservation = async (reservationData) => {
     const result = await ReservationService.createReservation(reservationData);
-    // No necesitamos llamar a loadReservations, el listener actualizarÃ¡ automÃ¡ticamente
+    // No necesitamos llamar a loadReservations, el listener actualizará automáticamente
     return result;
   };
 
@@ -83,14 +83,14 @@ const useReservations = (userId = null) => {
       id,
       reservationData,
     );
-    // No necesitamos llamar a loadReservations, el listener actualizarÃ¡ automÃ¡ticamente
+    // No necesitamos llamar a loadReservations, el listener actualizará automáticamente
     return result;
   };
 
   // Eliminar/cancelar reserva
   const deleteReservation = async (id) => {
     const result = await ReservationService.cancelReservation(id);
-    // No necesitamos llamar a loadReservations, el listener actualizarÃ¡ automÃ¡ticamente
+    // No necesitamos llamar a loadReservations, el listener actualizará automáticamente
     return result;
   };
 

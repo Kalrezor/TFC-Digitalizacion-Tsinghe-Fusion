@@ -37,7 +37,7 @@ const ReservationsView = ({ role, userId }) => {
       <h2
         className="reservations-view-title"
       >
-        GestiÃ³n de Reservas
+        Gestión de Reservas
       </h2>
 
       <div className="reservations-list">

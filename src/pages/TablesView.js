@@ -61,7 +61,7 @@ const TablesView = ({ role }) => {
         <form noValidate onSubmit={handleSubmit}>
           <input
             type="number"
-            placeholder="NÃºmero de mesa"
+            placeholder="Número de mesa"
             value={formData.number}
             onChange={(e) => setFormData({ ...formData, number: parseInt(e.target.value) })}
             min="1"

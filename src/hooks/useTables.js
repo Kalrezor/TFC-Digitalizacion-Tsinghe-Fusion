@@ -65,21 +65,21 @@ const useTables = () => {
   // Crear mesa
   const createTable = async (tableData) => {
     const result = await TableService.createTable(tableData);
-    // No necesitamos llamar a loadTables, el listener actualizarÃ¡ automÃ¡ticamente
+    // No necesitamos llamar a loadTables, el listener actualizará automáticamente
     return result;
   };
 
   // Actualizar mesa
   const updateTable = async (id, tableData) => {
     const result = await TableService.updateTable(id, tableData);
-    // No necesitamos llamar a loadTables, el listener actualizarÃ¡ automÃ¡ticamente
+    // No necesitamos llamar a loadTables, el listener actualizará automáticamente
     return result;
   };
 
   // Eliminar mesa
   const deleteTable = async (id) => {
     const result = await TableService.deleteTable(id);
-    // No necesitamos llamar a loadTables, el listener actualizarÃ¡ automÃ¡ticamente
+    // No necesitamos llamar a loadTables, el listener actualizará automáticamente
     return result;
   };
 

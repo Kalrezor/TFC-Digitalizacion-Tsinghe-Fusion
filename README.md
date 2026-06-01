@@ -1,3 +1,3 @@
-### feat: recuperación de la funcionalidad de movimiento a las politicas y el mensaje de inicio
+### feat: arreglo de problemas con utf-8 y merge con feat/caloto
 
-He vuelto a agregar el footer con las politicas y el aviso legal, ademas se a arreglado el movimiento a sus respectivas paginas para poder visualizarlos, por último ya sale tambien la opción de aceptar o denegar nuestra política de cookies
+He arreglado lo problemas con utf-8 de toda la web y tambien he integrado mis cambios de la política en el registro y login

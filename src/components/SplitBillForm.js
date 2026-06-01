@@ -11,7 +11,7 @@ const SplitBillForm = () => {
   const [total, setTotal] = useState("");
   const [people, setPeople] = useState("");
 
-  // CÃ¡lculos dinÃ¡micos en tiempo real basados en los inputs
+  // Cálculos dinámicos en tiempo real basados en los inputs
   const totalAmount = parseFloat(total) || 0;
   const numberOfPeople = parseInt(people) || 1;
   const perPerson = numberOfPeople > 0 ? (totalAmount / numberOfPeople).toFixed(2) : "0.00";
@@ -34,7 +34,7 @@ const SplitBillForm = () => {
           Dividir Cuenta 
         </h2>
         <p style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.15em", color: "#71717a", marginTop: "6px" }}>
-          Herramienta de cÃ¡lculo rÃ¡pido â€¢ Tsinghe FusiÃ³n
+          Herramienta de cálculo rápido • Tsinghe Fusión
         </p>
       </div>
 
@@ -47,13 +47,13 @@ const SplitBillForm = () => {
           alignItems: "start",
         }}
       >
-        {/* COLUMNA IZQUIERDA: ConfiguraciÃ³n de la cuenta */}
+        {/* COLUMNA IZQUIERDA: Configuración de la cuenta */}
         <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
           
           {/* Input: Importe Total */}
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <label style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: "700", color: "#050505" }}>
-              Importe Total de la Cuenta (â‚¬)
+              Importe Total de la Cuenta (€)
             </label>
             <input
               type="number"
@@ -73,10 +73,10 @@ const SplitBillForm = () => {
             />
           </div>
 
-          {/* Input: NÃºmero de comensales */}
+          {/* Input: Número de comensales */}
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <label style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.15em", fontWeight: "700", color: "#050505" }}>
-              NÃºmero de Personas
+              Número de Personas
             </label>
             <input
               type="number"
@@ -106,14 +106,14 @@ const SplitBillForm = () => {
             flexDirection: "column",
             justifyContent: "space-between",
             minHeight: "260px",
-            boxShadow: "6px 6px 0px 0px #050505", // Sombreado rÃ­gido de estilo editorial moderno
+            boxShadow: "6px 6px 0px 0px #050505", // Sombreado rígido de estilo editorial moderno
           }}
         >
           {/* Desglose de conceptos */}
           <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed #ccc", paddingBottom: "12px" }}>
               <span style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.1em", color: "#71717a" }}>Total de la mesa</span>
-              <span style={{ fontSize: "15px", fontFamily: "monospace", fontWeight: "600" }}>{totalAmount.toFixed(2)} â‚¬</span>
+              <span style={{ fontSize: "15px", fontFamily: "monospace", fontWeight: "600" }}>{totalAmount.toFixed(2)} €</span>
             </div>
             
             <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "4px" }}>
@@ -153,7 +153,7 @@ const SplitBillForm = () => {
                 fontWeight: "400",
               }}
             >
-              {perPerson} â‚¬
+              {perPerson} €
             </p>
           </div>
         </div>

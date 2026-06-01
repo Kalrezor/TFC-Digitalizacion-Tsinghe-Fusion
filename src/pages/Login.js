@@ -26,7 +26,7 @@ const Login = () => {
     setError(null);
 
     if (!email.trim() || !password.trim()) {
-      toastError("Completa email y contraseÃ±a para continuar");
+      toastError("Completa email y contraseña para continuar");
       return;
     }
 
@@ -35,12 +35,12 @@ const Login = () => {
     setLoading(false);
 
     if (result.success) {
-      toastSuccess("SesiÃ³n iniciada correctamente");
+      toastSuccess("Sesión iniciada correctamente");
       setEmail("");
       setPassword("");
       navigate(nextPath ? nextPath : "/home", { replace: true });
     } else {
-      toastError(result.error || "Error al iniciar sesiÃ³n");
+      toastError(result.error || "Error al iniciar sesión");
     }
   };
 
@@ -52,7 +52,7 @@ const Login = () => {
       const result = await AuthService.loginWithGoogle();
 
       if (result.success) {
-        toastSuccess("Inicio de sesiÃ³n con Google exitoso");
+        toastSuccess("Inicio de sesión con Google exitoso");
         if (result.requiresPassword) {
           sessionStorage.setItem("googlePasswordSetupPending", "true");
           navigate(
@@ -65,13 +65,13 @@ const Login = () => {
           navigate(nextPath ? nextPath : "/home", { replace: true });
         }
       } else if (result.canceledByUser) {
-        // El usuario cerrÃ³ la ventana de Google sin elegir cuenta.
+        // El usuario cerró la ventana de Google sin elegir cuenta.
         // No mostramos un error agresivo para no interferir con la experiencia.
       } else {
-        toastError(result.error || "Error al iniciar sesiÃ³n con Google");
+        toastError(result.error || "Error al iniciar sesión con Google");
       }
     } catch (err) {
-      toastError(err.message || "Error inesperado al iniciar sesiÃ³n");
+      toastError(err.message || "Error inesperado al iniciar sesión");
     } finally {
       setLoading(false);
     }
@@ -88,7 +88,7 @@ const Login = () => {
       <div className="login-background-overlay" />
       <div className="editorial-auth-card">
         <div className="editorial-auth-header">
-          <h1>Iniciar SesiÃ³n</h1>
+          <h1>Iniciar Sesión</h1>
           <p>Accede a tu cuenta en Tsinghe</p>
         </div>
 
@@ -104,10 +104,10 @@ const Login = () => {
           </div>
 
           <div className="form-group">
-            <label>ContraseÃ±a</label>
+            <label>Contraseña</label>
             <input
               type="password"
-              placeholder="Tu contraseÃ±a"
+              placeholder="Tu contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -118,7 +118,7 @@ const Login = () => {
             disabled={loading}
             className="btn btn-primary btn-full-width"
           >
-            {loading ? "Iniciando..." : "Iniciar SesiÃ³n"}
+            {loading ? "Iniciando..." : "Iniciar Sesión"}
           </button>
         </form>
 
@@ -141,11 +141,14 @@ const Login = () => {
             to="/forgot-password"
             className="editorial-auth-forgot-link"
           >
-            Â¿Olvidaste tu contraseÃ±a?
+            ¿Olvidaste tu contraseña?
           </Link>
           <br />
-          <span>Â¿No tienes cuenta? </span>
-          <Link to="/register">RegÃ­strate aquÃ­</Link>
+          <span>¿No tienes cuenta? </span>
+          <Link to="/register">Regístrate aquí</Link>
+        </div>
+        <div className="editorial-auth-text editorial-auth-legal-note">
+        Al realizar el Registro en nuestra Web aceptas nuestra <Link to="/politica-privacidad">Política de Privacidad</Link>
         </div>
       </div>
     </div>

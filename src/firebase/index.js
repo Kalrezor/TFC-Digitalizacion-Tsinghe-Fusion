@@ -4,10 +4,10 @@
  * Nota: Cabecera documental; no modifica la logica del fichero.
  */
 
-// ConfiguraciÃ³n de Firebase
-// AquÃ­ debes colocar tu configuraciÃ³n de Firebase obtenida desde la consola de Firebase.
-// Ve a https://console.firebase.google.com/, selecciona tu proyecto, y en "ConfiguraciÃ³n del proyecto" > "General" > "Tus apps" > "ConfiguraciÃ³n del SDK".
-// Copia el objeto de configuraciÃ³n aquÃ­.
+// Configuración de Firebase
+// Aquí debes colocar tu configuración de Firebase obtenida desde la consola de Firebase.
+// Ve a https://console.firebase.google.com/, selecciona tu proyecto, y en "Configuración del proyecto" > "General" > "Tus apps" > "Configuración del SDK".
+// Copia el objeto de configuración aquí.
 
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
@@ -37,6 +37,6 @@ export const db = getFirestore(app); // Exportado para usar en modelos
 // Obtener la instancia de Storage
 export const storage = getStorage(app); // Exportado para usar en uploads
 
-// Nota: Para autenticaciÃ³n de doble factor (MFA), Firebase Auth lo maneja automÃ¡ticamente.
+// Nota: Para autenticación de doble factor (MFA), Firebase Auth lo maneja automáticamente.
 // Puedes configurar MFA en la consola de Firebase bajo "Authentication" > "Sign-in method" > "Multi-factor authentication".
 // Para pruebas, puedes usar cuentas de prueba en Firebase Auth.

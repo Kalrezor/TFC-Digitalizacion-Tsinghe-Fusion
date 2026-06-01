@@ -59,18 +59,18 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
     const numberValue = String(formData.number || "").trim();
     const capacityValue = String(formData.capacity || "").trim();
 
-    // Validar nÃºmero
+    // Validar número
     if (!numberValue) {
-      newErrors.number = "El nÃºmero de mesa es requerido";
+      newErrors.number = "El número de mesa es requerido";
     } else if (isNaN(numberValue)) {
-      newErrors.number = "El nÃºmero debe ser numÃ©rico";
+      newErrors.number = "El número debe ser numérico";
     } else {
       const parsedNumber = parseInt(numberValue, 10);
       const currentTableNumber = editingTable
         ? Number(editingTable.tableNumber ?? editingTable.number)
         : null;
 
-      // Validar unicidad si es nueva mesa o cambia el nÃºmero al editar
+      // Validar unicidad si es nueva mesa o cambia el número al editar
       if (!editingTable || parsedNumber !== currentTableNumber) {
         const existing = await tableService.getTableByNumber(parsedNumber);
         if (existing.table) {
@@ -140,14 +140,14 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
             className="table-form-close"
             disabled={loading}
           >
-            âœ•
+            ✕
           </button>
         </div>
 
         <form noValidate onSubmit={handleSubmit} className="table-form-body">
           <div className="table-form-group">
             <label className="table-form-label">
-              NÃºmero de Mesa <span className="table-form-required">*</span>
+              Número de Mesa <span className="table-form-required">*</span>
             </label>
             <input
               type="number"

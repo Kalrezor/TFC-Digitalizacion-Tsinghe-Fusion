@@ -43,7 +43,7 @@ const UsersView = () => {
 
   return (
     <div>
-      <h2>GestiÃ³n de Usuarios</h2>
+      <h2>Gestión de Usuarios</h2>
       <form noValidate onSubmit={handleSubmit}>
         <input
           type="email"

@@ -21,7 +21,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 
-// Generar token aleatorio de 20 caracteres para confirmaciÃ³n
+// Generar token aleatorio de 20 caracteres para confirmación
 const generateConfirmationToken = () => {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -39,7 +39,7 @@ const sendReservationStatusNotification = async (reservation, newStatus) => {
   const recipientEmail = reservation?.userEmail || reservation?.email;
 
   if (!recipientEmail) {
-    console.warn("âš ï¸ No hay email de cliente para notificar el cambio de estado.", {
+    console.warn("⚠️ No hay email de cliente para notificar el cambio de estado.", {
       reservationId: reservation?.id,
       newStatus,
     });
@@ -74,10 +74,10 @@ const sendReservationStatusNotification = async (reservation, newStatus) => {
     });
 
     if (!response.ok) {
-      console.error("âš ï¸ Error enviando email de estado de reserva:", response.statusText);
+      console.error("⚠️ Error enviando email de estado de reserva:", response.statusText);
     }
   } catch (error) {
-    console.error("âš ï¸ Error enviando email de estado de reserva:", error);
+    console.error("⚠️ Error enviando email de estado de reserva:", error);
   }
 };
 
@@ -101,12 +101,12 @@ class ReservationService {
 
       const docRef = await addDoc(collection(db, "reservations"), {
         ...reservationData,
-        status: "pendiente", // pendiente, confirmada, cancelada, no-asistiÃ³
+        status: "pendiente", // pendiente, confirmada, cancelada, no-asistió
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
 
-      // Generar token de confirmaciÃ³n
+      // Generar token de confirmación
       const confirmationToken = generateConfirmationToken();
       await addDoc(collection(db, "reservationConfirmations"), {
         reservationId: docRef.id,
@@ -116,7 +116,7 @@ class ReservationService {
         createdAt: serverTimestamp(),
       });
 
-      // Enviar email de confirmaciÃ³n (llamar Cloud Function)
+      // Enviar email de confirmación (llamar Cloud Function)
       try {
         await fetch(
           "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/sendReservationConfirmation",
@@ -138,13 +138,13 @@ class ReservationService {
           },
         );
       } catch (emailError) {
-        console.error("âš ï¸ Error enviando email de confirmaciÃ³n:", emailError);
-        // No fallar la creaciÃ³n de reserva si el email falla
+        console.error("⚠️ Error enviando email de confirmación:", emailError);
+        // No fallar la creación de reserva si el email falla
       }
 
       return { success: true, reservationId: docRef.id };
     } catch (error) {
-      console.error("âŒ Error creando reserva:", error.message);
+      console.error("❌ Error creando reserva:", error.message);
       return { success: false, error: error.message };
     }
   }
@@ -372,11 +372,11 @@ class ReservationService {
     }
   }
 
-  // Marcar como no-asistiÃ³
+  // Marcar como no-asistió
   async markAsNoShow(reservationId) {
     try {
       await updateDoc(doc(db, "reservations", reservationId), {
-        status: "no-asistiÃ³",
+        status: "no-asistió",
         updatedAt: serverTimestamp(),
       });
 
@@ -462,24 +462,24 @@ class ReservationService {
     }
   }
 
-  // âœ¨ VALIDAR SI UNA RESERVA NECESITA FUSIÃ“N DE MESAS
+  // ✨ VALIDAR SI UNA RESERVA NECESITA FUSIÓN DE MESAS
   // Retorna: { needsMerging: boolean, message: string, suggestedTables: number }
   async checkIfMergingNeeded(numberOfPeople, date, time) {
     try {
       const guestCount = Number(numberOfPeople) || 1;
       
-      // Solo > 4 comensales necesitan fusiÃ³n
+      // Solo > 4 comensales necesitan fusión
       if (guestCount <= 4) {
         return { 
           success: true,
           needsMerging: false,
-          message: "No se requiere fusiÃ³n de mesas",
+          message: "No se requiere fusión de mesas",
           guestCount
         };
       }
 
-      // Si > 4, necesita fusiÃ³n
-      // Calcular cuÃ¡ntas mesas se sugieren (4 personas por mesa aprox)
+      // Si > 4, necesita fusión
+      // Calcular cuántas mesas se sugieren (4 personas por mesa aprox)
       const suggestedTableCount = Math.ceil(guestCount / 4);
 
       // Verificar disponibilidad
@@ -497,7 +497,7 @@ class ReservationService {
       return {
         success: true,
         needsMerging: true,
-        message: `Se necesita fusiÃ³n de ${suggestedTableCount} mesa${suggestedTableCount > 1 ? 's' : ''} para ${guestCount} comensales`,
+        message: `Se necesita fusión de ${suggestedTableCount} mesa${suggestedTableCount > 1 ? 's' : ''} para ${guestCount} comensales`,
         guestCount,
         suggestedTableCount,
         availableTablesCount: availableCount,
@@ -505,7 +505,7 @@ class ReservationService {
         requiresAdmin: true, // Solo admins pueden fusionar
       };
     } catch (error) {
-      console.error("Error verificando necesidad de fusiÃ³n:", error);
+      console.error("Error verificando necesidad de fusión:", error);
       return { success: false, error: error.message };
     }
   }

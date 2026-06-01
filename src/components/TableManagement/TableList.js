@@ -89,7 +89,7 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
       {confirmDeleteTable && (
         <div className="table-list-confirm">
           <div className="table-list-confirm-text">
-            Â¿Eliminar mesa #{confirmDeleteTable.tableNumber ?? confirmDeleteTable.number}?
+            ¿Eliminar mesa #{confirmDeleteTable.tableNumber ?? confirmDeleteTable.number}?
             <span className="table-list-confirm-meta">
               Capacidad: {confirmDeleteTable.capacity} personas
             </span>
@@ -135,7 +135,7 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
                   <span
                     className="table-list-badge" style={{ backgroundColor: table.available ? "#d1fae5" : "#fee2e2", color: table.available ? "#065f46" : "#7f1d1d" }}
                   >
-                    {table.available ? "âœ“ Disponible" : "âœ— Inactiva"}
+                    {table.available ? "✓ Disponible" : "✗ Inactiva"}
                   </span>
                 </td>
                 <td className="table-list-td">
@@ -145,7 +145,7 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
                       className="table-list-edit"
                       title="Editar mesa"
                     >
-                      âœŽ Editar
+                      ✎ Editar
                     </button>
                     <button
                       onClick={() => handleDeleteClick(table)}
@@ -153,7 +153,7 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
                       disabled={deletingId === table.id}
                       title="Eliminar mesa"
                     >
-                      {deletingId === table.id ? "..." : "ðŸ—‘ Eliminar"}
+                      {deletingId === table.id ? "..." : "🗑 Eliminar"}
                     </button>
                   </div>
                 </td>

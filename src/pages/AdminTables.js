@@ -47,12 +47,12 @@ const AdminTables = ({ userId, userRole }) => {
   useEffect(() => {
     if (!userId) return;
 
-    // La ruta AdminRoute ya verificÃ³ que es admin, asÃ­ que confiamos en userRole
+    // La ruta AdminRoute ya verificó que es admin, así que confiamos en userRole
     if (userRole === "admin") {
       setIsAdmin(true);
     }
 
-    // Listener en tiempo real para el PIN (SINCRONIZACIÃ“N)
+    // Listener en tiempo real para el PIN (SINCRONIZACIÓN)
     const unsubscribe = onSnapshot(doc(db, "users", userId), (doc) => {
       if (doc.exists()) {
         const userData = doc.data();
@@ -71,7 +71,7 @@ const AdminTables = ({ userId, userRole }) => {
     return () => unsubscribe();
   }, [userId, userRole]);
 
-  // 3. LÃ“GICA DE SELECCIÃ“N (FUSIÃ“N)
+  // 3. LÓGICA DE SELECCIÓN (FUSIÓN)
   const handleTableClick = (table) => {
     // Validar que sea admin
     if (!isAdmin) {
@@ -82,13 +82,13 @@ const AdminTables = ({ userId, userRole }) => {
     // Si no hay una reserva pendiente de asignar, el clic no hace nada
     if (!pendingRes || !table.active) return;
 
-    // Si la mesa ya estÃ¡ ocupada por OTRA reserva, no deja seleccionarla
+    // Si la mesa ya está ocupada por OTRA reserva, no deja seleccionarla
     if (table.reservationId && table.reservationId !== pendingRes.resId) {
-      toastError("Esta mesa ya estÃ¡ ocupada.");
+      toastError("Esta mesa ya está ocupada.");
       return;
     }
 
-    // Toggle de selecciÃ³n
+    // Toggle de selección
     if (selectedMultiple.find((t) => t.tableNumber === table.tableNumber)) {
       setSelectedMultiple(
         selectedMultiple.filter((t) => t.tableNumber !== table.tableNumber),
@@ -98,7 +98,7 @@ const AdminTables = ({ userId, userRole }) => {
     }
   };
 
-  // 4. CONFIRMAR FUSIÃ“N (USAR NUEVO MÃ‰TODO)
+  // 4. CONFIRMAR FUSIÓN (USAR NUEVO MÉTODO)
   const handleConfirmFusion = async () => {
     if (!isAdmin) {
       toastError("Solo administradores pueden fusionar mesas.");
@@ -117,7 +117,7 @@ const AdminTables = ({ userId, userRole }) => {
         .filter(t => t.id)
         .map(t => t.id);
 
-      // Usar el nuevo mÃ©todo mergeTables de TableService
+      // Usar el nuevo método mergeTables de TableService
       const result = await tableService.mergeTables(
         pendingRes.resId,
         tableIds,
@@ -132,7 +132,7 @@ const AdminTables = ({ userId, userRole }) => {
         toastError(result.error || "Error al fusionar mesas");
       }
     } catch (error) {
-      console.error("Error en fusiÃ³n:", error);
+      console.error("Error en fusión:", error);
       toastError("Error al fusionar mesas: " + error.message);
     } finally {
       setLoading(false);
@@ -147,12 +147,12 @@ const AdminTables = ({ userId, userRole }) => {
     }
 
     if (!table.reservationId) {
-      toastError("Esta mesa no estÃ¡ fusionada.");
+      toastError("Esta mesa no está fusionada.");
       return;
     }
 
     // Solicitar PIN
-    const confirmPass = await toastInput("Mesa fusionada. Ingresa PIN de 4 dÃ­gitos:", {
+    const confirmPass = await toastInput("Mesa fusionada. Ingresa PIN de 4 dígitos:", {
       inputType: "password",
       maxLength: 4,
       placeholder: "PIN",
@@ -180,7 +180,7 @@ const AdminTables = ({ userId, userRole }) => {
         .filter(t => t.id)
         .map(t => t.id);
 
-      // Usar el nuevo mÃ©todo unmergeTables
+      // Usar el nuevo método unmergeTables
       const result = await tableService.unmergeTables(tableIdsToUnmerge);
 
       if (result.success) {
@@ -202,7 +202,7 @@ const AdminTables = ({ userId, userRole }) => {
       return;
     }
 
-    const confirmPass = await toastInput("Mesa ocupada. Ingresa PIN de 4 dÃ­gitos:", {
+    const confirmPass = await toastInput("Mesa ocupada. Ingresa PIN de 4 dígitos:", {
       inputType: "password",
       maxLength: 4,
       placeholder: "PIN",
@@ -248,7 +248,7 @@ const AdminTables = ({ userId, userRole }) => {
     }
 
     if (table.reservationId || (!table.available && table.active !== false)) {
-      toastError("Esta mesa estÃ¡ ocupada o fusionada. LibÃ©rala con PIN antes de modificarla.");
+      toastError("Esta mesa está ocupada o fusionada. Libérala con PIN antes de modificarla.");
       return;
     }
 
@@ -287,17 +287,17 @@ const AdminTables = ({ userId, userRole }) => {
       return;
     }
 
-    // Validar nuevo PIN (4 dÃ­gitos)
+    // Validar nuevo PIN (4 dígitos)
     if (!newPin || !/^\d{4}$/.test(newPin)) {
-      setPinError("El nuevo PIN debe ser 4 dÃ­gitos numÃ©ricos");
-      toastError("El nuevo PIN debe ser 4 dÃ­gitos numÃ©ricos");
+      setPinError("El nuevo PIN debe ser 4 dígitos numéricos");
+      toastError("El nuevo PIN debe ser 4 dígitos numéricos");
       return;
     }
 
     try {
       setLoading(true);
       
-      // Actualizar en Firestore (con validaciÃ³n en reglas)
+      // Actualizar en Firestore (con validación en reglas)
       await updateDoc(doc(db, "users", userId), { 
         adminPin: newPin 
       });
@@ -308,7 +308,7 @@ const AdminTables = ({ userId, userRole }) => {
       setCurrentPinInput("");
       setNewPin("");
       
-      // El listener en tiempo real actualizarÃ¡ dbPin automÃ¡ticamente
+      // El listener en tiempo real actualizará dbPin automáticamente
       setTimeout(() => {
         setShowPinSettings(false);
         setPinSuccess(false);
@@ -326,7 +326,7 @@ const AdminTables = ({ userId, userRole }) => {
   if (!isAdmin) {
     return (
       <div style={{ padding: "20px", textAlign: "center" }}>
-        <h2>âš ï¸ Acceso Denegado</h2>
+        <h2>⚠️ Acceso Denegado</h2>
         <p>Solo administradores pueden acceder a esta vista.</p>
         <button 
           onClick={() => navigate("/")}
@@ -358,16 +358,16 @@ const AdminTables = ({ userId, userRole }) => {
           marginBottom: "20px",
         }}
       >
-        <h2>â›©ï¸ Plano de Mesas</h2>
+        <h2>⛩️ Plano de Mesas</h2>
         <button onClick={() => setShowPinSettings(!showPinSettings)}>
-          âš™ï¸ Ajustes PIN
+          ⚙️ Ajustes PIN
         </button>
       </div>
 
-      {/* Banner de FusiÃ³n: Solo aparece si vienes de Reservas */}
+      {/* Banner de Fusión: Solo aparece si vienes de Reservas */}
       {pendingRes && (
         <div className="admin-tables-fusion-banner">
-          <h3>ðŸ“ Asignando a: {pendingRes.userName}</h3>
+          <h3>📍 Asignando a: {pendingRes.userName}</h3>
           <p>Selecciona las mesas en el plano y pulsa Vincular</p>
           <button
             onClick={handleConfirmFusion}
@@ -401,11 +401,11 @@ const AdminTables = ({ userId, userRole }) => {
 
       {showPinSettings && (
         <div className="admin-tables-pin-settings">
-          <h3>ðŸ” Cambiar PIN de Seguridad</h3>
+          <h3>🔐 Cambiar PIN de Seguridad</h3>
           
           <input
             type="password"
-            placeholder="PIN Actual (4 dÃ­gitos)"
+            placeholder="PIN Actual (4 dígitos)"
             value={currentPinInput}
             onChange={(e) => setCurrentPinInput(e.target.value.slice(0, 4))}
             maxLength="4"
@@ -414,7 +414,7 @@ const AdminTables = ({ userId, userRole }) => {
           
           <input
             type="password"
-            placeholder="Nuevo PIN (4 dÃ­gitos)"
+            placeholder="Nuevo PIN (4 dígitos)"
             value={newPin}
             onChange={(e) => setNewPin(e.target.value.slice(0, 4))}
             maxLength="4"
@@ -427,7 +427,7 @@ const AdminTables = ({ userId, userRole }) => {
               disabled={loading}
               className="admin-tables-button"
             >
-              {loading ? "Guardando..." : "ðŸ’¾ Guardar PIN"}
+              {loading ? "Guardando..." : "💾 Guardar PIN"}
             </button>
             
             <button

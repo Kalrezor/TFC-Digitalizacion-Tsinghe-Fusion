@@ -5,7 +5,7 @@
  */
 
 // Vista: AdminOffers.js
-// CRUD completo de ofertas - CorrecciÃ³n del botÃ³n Editar y sincronizaciÃ³n de datos.
+// CRUD completo de ofertas - Corrección del botón Editar y sincronización de datos.
 
 import React, { useState, useEffect } from "react";
 import { toastSuccess, toastError, toastConfirm } from "../services/ToastService";
@@ -85,7 +85,7 @@ const AdminOffers = () => {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      toastError("La imagen supera el lÃ­mite permitido de 2MB.");
+      toastError("La imagen supera el límite permitido de 2MB.");
       return;
     }
 
@@ -109,7 +109,7 @@ const AdminOffers = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.discount) {
-      toastError("El tÃ­tulo y el porcentaje de descuento son obligatorios.");
+      toastError("El título y el porcentaje de descuento son obligatorios.");
       return;
     }
     const discount = Number.parseInt(formData.discount, 10);
@@ -131,7 +131,7 @@ const AdminOffers = () => {
 
     setLoading(false);
     if (result.success) {
-      toastSuccess(editingId ? "Oferta actualizada con Ã©xito." : "Oferta publicada correctamente.");
+      toastSuccess(editingId ? "Oferta actualizada con éxito." : "Oferta publicada correctamente.");
       setShowForm(false);
       setFormData(EMPTY_FORM);
       setSelDishes([]);
@@ -143,7 +143,7 @@ const AdminOffers = () => {
   };
 
   const handleDelete = async (id) => {
-    const confirmed = await toastConfirm("Â¿Seguro que deseas eliminar esta oferta?", {
+    const confirmed = await toastConfirm("¿Seguro que deseas eliminar esta oferta?", {
       confirmText: "Eliminar",
     });
     if (!confirmed) return;
@@ -211,7 +211,7 @@ const AdminOffers = () => {
       {/* Cabecera Principal */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <h1 style={{ color: "#050505", fontFamily: "Georgia, 'Times New Roman', serif", fontSize: "42px", fontWeight: 400, margin: 0 }}>
-          AdministraciÃ³n de Ofertas
+          Administración de Ofertas
         </h1>
         <button onClick={openNew} disabled={loading} className="admin-offers-main-button">
           + Nueva Oferta
@@ -231,13 +231,13 @@ const AdminOffers = () => {
               {/* Bloque Izquierdo */}
               <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
                 <div>
-                  <label className="admin-offers-label">TÃ­tulo de la Oferta *</label>
+                  <label className="admin-offers-label">Título de la Oferta *</label>
                   <input name="title" value={formData.title} onChange={handleChange}
                     placeholder="Ej: Descuento Fin de Semana" className="admin-offers-input" />
                 </div>
 
                 <div>
-                  <label className="admin-offers-label">DescripciÃ³n</label>
+                  <label className="admin-offers-label">Descripción</label>
                   <textarea name="description" value={formData.description} onChange={handleChange}
                     rows={4} placeholder="Describe los detalles o condiciones de la oferta..." className="admin-offers-input admin-offers-textarea" />
                 </div>
@@ -359,7 +359,7 @@ const AdminOffers = () => {
         </select>
       </div>
 
-      {/* Cuadros de EstadÃ­sticas */}
+      {/* Cuadros de Estadísticas */}
       <div style={{ display: "flex", gap: "16px", marginBottom: "30px", flexWrap: "wrap" }}>
         {[
           { label: "Total Ofertas",     value: offers.length },

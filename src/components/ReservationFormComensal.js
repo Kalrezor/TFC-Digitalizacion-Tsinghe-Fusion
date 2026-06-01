@@ -38,7 +38,7 @@ const ReservationFormComensal = () => {
           setProfilePhone(userDoc.data().phone || "");
         }
       } catch (err) {
-        console.error("Error obteniendo telÃ©fono del usuario:", err);
+        console.error("Error obteniendo teléfono del usuario:", err);
       }
     };
     loadPhone();
@@ -74,15 +74,15 @@ const ReservationFormComensal = () => {
       return;
     }
     if (!time || !isValidReservationTime(time)) {
-      setError("Selecciona una hora vÃ¡lida dentro del turno.");
+      setError("Selecciona una hora válida dentro del turno.");
       return;
     }
     if (!profilePhone) {
-      setError("Tu perfil debe tener un telÃ©fono registrado.");
+      setError("Tu perfil debe tener un teléfono registrado.");
       return;
     }
     if (peopleCount < 1 || peopleCount > 10) {
-      setError("El nÃºmero de personas debe estar entre 1 y 10.");
+      setError("El número de personas debe estar entre 1 y 10.");
       return;
     }
 
@@ -102,7 +102,7 @@ const ReservationFormComensal = () => {
       );
 
       if (result.success) {
-        setSuccess("Reserva creada correctamente. Espera confirmaciÃ³n.");
+        setSuccess("Reserva creada correctamente. Espera confirmación.");
         setDate(new Date().toISOString().split("T")[0]);
         setTime("");
         setPeopleCount(2);
@@ -200,13 +200,13 @@ const ReservationFormComensal = () => {
                 onChange={(e) => setSpecialRequests(e.target.value)}
                 rows={4}
                 className="comensal-reservation-input comensal-reservation-textarea"
-                placeholder="Ej: mesa tranquila, alergias, cumpleaÃ±os..."
+                placeholder="Ej: mesa tranquila, alergias, cumpleaños..."
               />
             </label>
 
             <div className="comensal-reservation-footer">
               <div className="comensal-reservation-profile-phone">
-                TelÃ©fono en tu perfil: <strong>{profilePhone || "no disponible"}</strong>
+                Teléfono en tu perfil: <strong>{profilePhone || "no disponible"}</strong>
               </div>
               <button type="submit" disabled={loading} className="comensal-reservation-submit">
                 {loading ? "Creando reserva..." : "Solicitar reserva"}

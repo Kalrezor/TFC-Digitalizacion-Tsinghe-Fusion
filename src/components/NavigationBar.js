@@ -79,13 +79,13 @@ const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
                     onClick={() => setShowUserMenu(false)}
                     className="editorial-menu-item editorial-ui"
                   >
-                    ConfiguraciÃ³n de perfil
+                    Configuración de perfil
                   </Link>
                   <button
                     onClick={handleLogout}
                     className="editorial-menu-item editorial-ui"
                   >
-                    Cerrar sesiÃ³n
+                    Cerrar sesión
                   </button>
                 </div>
               )}

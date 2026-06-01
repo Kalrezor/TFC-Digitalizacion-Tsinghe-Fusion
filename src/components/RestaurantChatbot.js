@@ -16,7 +16,7 @@ const getWelcomeMessage = (role) => {
     return "Hola. Puedo ayudarte con carta, reservas, mesas, usuarios y consultas internas del restaurante.";
   }
 
-  return "Hola. Puedo ayudarte con la carta, alÃ©rgenos, reservas, ofertas y navegaciÃ³n por la web.";
+  return "Hola. Puedo ayudarte con la carta, alérgenos, reservas, ofertas y navegación por la web.";
 };
 
 const normalizeRole = (role) => {
@@ -142,7 +142,7 @@ const RestaurantChatbot = ({ user, role, userName, enabled = true }) => {
               placeholder={
                 effectiveRole === "admin"
                   ? "Reservas de hoy, mesas libres..."
-                  : "Platos, alÃ©rgenos, reservas..."
+                  : "Platos, alérgenos, reservas..."
               }
               aria-label="Mensaje para el chatbot"
             />

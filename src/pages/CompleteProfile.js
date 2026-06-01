@@ -5,8 +5,8 @@
  */
 
 // Vista: CompleteProfile.js
-// Pantalla para completar datos faltantes despuÃ©s de login con Google
-// Pide telÃ©fono obligatorio y contraseÃ±a opcional
+// Pantalla para completar datos faltantes después de login con Google
+// Pide teléfono obligatorio y contraseña opcional
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +36,7 @@ const CompleteProfile = () => {
       try {
         const userDoc = await AuthService.getUserDoc(currentUser.uid);
         if (userDoc && userDoc.phone) {
-          // Ya tiene telÃ©fono, redirigir
+          // Ya tiene teléfono, redirigir
           navigate("/dashboard");
           return;
         }
@@ -69,26 +69,26 @@ const CompleteProfile = () => {
 
   const validateForm = () => {
     if (!formData.phone.trim()) {
-      setError("El nÃºmero de telÃ©fono es obligatorio");
+      setError("El número de teléfono es obligatorio");
       return false;
     }
     const phoneRegex = /^\+?[0-9\s\-\(\)]{7,15}$/;
     if (!phoneRegex.test(formData.phone.trim())) {
-      setError("Por favor ingresa un nÃºmero de telÃ©fono vÃ¡lido");
+      setError("Por favor ingresa un número de teléfono válido");
       return false;
     }
 
     if (requiresPassword) {
       if (!formData.password) {
-        setError("La contraseÃ±a es requerida");
+        setError("La contraseña es requerida");
         return false;
       }
       if (formData.password.length < 6) {
-        setError("La contraseÃ±a debe tener al menos 6 caracteres");
+        setError("La contraseña debe tener al menos 6 caracteres");
         return false;
       }
       if (formData.password !== formData.confirmPassword) {
-        setError("Las contraseÃ±as no coinciden");
+        setError("Las contraseñas no coinciden");
         return false;
       }
     }
@@ -156,7 +156,7 @@ const CompleteProfile = () => {
 
         <form noValidate onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>NÃºmero de TelÃ©fono *</label>
+            <label>Número de Teléfono *</label>
             <input
               type="tel"
               name="phone"
@@ -170,19 +170,19 @@ const CompleteProfile = () => {
           {requiresPassword && (
             <>
               <div className="form-group">
-                <label>ContraseÃ±a *</label>
+                <label>Contraseña *</label>
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  placeholder="MÃ­nimo 6 caracteres"
+                  placeholder="Mínimo 6 caracteres"
                 />
               </div>
 
               <div className="form-group">
-                <label>Confirmar ContraseÃ±a *</label>
+                <label>Confirmar Contraseña *</label>
                 <input
                   type="password"
                   name="confirmPassword"

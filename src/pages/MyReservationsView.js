@@ -30,7 +30,7 @@ const MyReservationsView = ({ userId }) => {
 
       {reservations.length === 0 ? (
         <div className="my-reservations-empty">
-          AÃºn no tienes reservas. Puedes crear una nueva desde la secciÃ³n "Reservas".
+          Aún no tienes reservas. Puedes crear una nueva desde la sección "Reservas".
         </div>
       ) : (
         <div className="my-reservations-grid">
