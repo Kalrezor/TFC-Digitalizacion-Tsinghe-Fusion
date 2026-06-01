@@ -39,8 +39,8 @@
   gap: 12px;
   background: #ffffff;
   padding: 12px;
-  border-radius: 0;
-  border: 1px solid #050505;
+  border-radius: 0;  
+  border: 1px solid #050505;   
   width: fit-content;
 }
 
@@ -49,7 +49,7 @@
   font-weight: 700;
 }
 
-.availableCheckbox { 
+.availableCheckbox {
   width: 18px;
   height: 18px;
   cursor: pointer;
