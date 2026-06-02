@@ -1,11 +1,11 @@
 /**
  * HOOK: useTablesByDateAndShift.js
- * 
+ *
  * Responsabilidad: Cargar estado de mesas para una fecha y turno específico.
- * 
+ *
  * Uso:
  * const { active, reserved, inactive, loading, error } = useTablesByDateAndShift(date, shift);
- * 
+ *
  * Retorna:
  * - active: array de mesas libres
  * - reserved: array de mesas ocupadas
@@ -38,10 +38,11 @@ const useTablesByDateAndShift = (date, shift) => {
     setError(null);
 
     try {
-      const result = await TableAvailabilityService.getTableStatusByDateAndShift(
-        date,
-        shift
-      );
+      const result =
+        await TableAvailabilityService.getTableStatusByDateAndShift(
+          date,
+          shift,
+        );
 
       if (result.success) {
         setActive(result.tables.active || []);

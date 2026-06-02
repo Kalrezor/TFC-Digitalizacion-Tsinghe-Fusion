@@ -96,7 +96,6 @@ class TableService {
     }
   }
 
-
   getNextFusionCode(tables) {
     const usedNumbers = new Set();
 
@@ -122,7 +121,8 @@ class TableService {
       if (guestCount <= 4) {
         return {
           success: false,
-          error: "La fusión de mesas solo es posible para reservas con más de 4 comensales",
+          error:
+            "La fusión de mesas solo es posible para reservas con más de 4 comensales",
         };
       }
 
@@ -176,7 +176,7 @@ class TableService {
   }
 
   // Desvincular/desanclar mesas (requiere PIN valido)
-  async unmergeTables(tableIds, validationRequired = true) {
+  async unmergeTables(tableIds) {
     try {
       if (!tableIds || tableIds.length === 0) {
         return { success: false, error: "No hay mesas que desvincular" };
@@ -229,7 +229,7 @@ class TableService {
     try {
       const querySnapshot = await getDocs(collection(db, "tables"));
       const tables = [];
-      
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         if (data.reservationId === reservationId) {
@@ -264,7 +264,7 @@ class TableService {
         (error) => {
           console.error("Error en listener de mesas:", error);
           callback({ success: false, error: error.message });
-        }
+        },
       );
       return unsubscribe;
     } catch (error) {
@@ -276,7 +276,7 @@ class TableService {
   /**
    * VALIDACIÓN: Verificar si una mesa puede ser eliminada.
    * Solo permite eliminar si NO tiene reservas futuras.
-   * 
+   *
    * @param {string} tableId - ID de la mesa
    * @returns {Promise} { success: boolean, canDelete: boolean, error?: string }
    */
@@ -293,25 +293,25 @@ class TableService {
       }
 
       // Buscar reservas que usen esta mesa (no canceladas)
-      const reservationsSnapshot = await getDocs(collection(db, "reservations"));
+      const reservationsSnapshot = await getDocs(
+        collection(db, "reservations"),
+      );
       const today = new Date().toISOString().split("T")[0];
       let hasActiveReservations = false;
 
       reservationsSnapshot.forEach((doc) => {
         const reservation = doc.data();
-        const reservationDate = reservation.reservationDate || reservation.date || "";
+        const reservationDate =
+          reservation.reservationDate || reservation.date || "";
         const status = reservation.status || "";
 
         // Si tiene reservas futuras (no canceladas)
-        if (
-          reservationDate >= today &&
-          status !== "cancelada"
-        ) {
+        if (reservationDate >= today && status !== "cancelada") {
           const tableIds = Array.isArray(reservation.tableIds)
             ? reservation.tableIds
             : reservation.tableId
-            ? [reservation.tableId]
-            : [];
+              ? [reservation.tableId]
+              : [];
 
           if (tableIds.includes(tableId)) {
             hasActiveReservations = true;
@@ -334,7 +334,7 @@ class TableService {
 
   /**
    * ELIMINAR CON VALIDACIÓN: Elimina una mesa solo si no tiene reservas futuras.
-   * 
+   *
    * @param {string} tableId - ID de la mesa
    * @returns {Promise} { success: boolean, error?: string }
    */
@@ -367,7 +367,7 @@ class TableService {
 
   /**
    * BÚSQUEDA: Obtener mesas por número visible.
-   * 
+   *
    * @param {number} tableNumber - Número de la mesa
    * @returns {Promise} { success: boolean, table?: object, error?: string }
    */
@@ -401,7 +401,7 @@ class TableService {
 
   /**
    * FILTRO: Obtener mesas por capacidad mínima.
-   * 
+   *
    * @param {number} minCapacity - Capacidad mínima requerida
    * @returns {Promise} { success: boolean, tables: array, error?: string }
    */
@@ -421,7 +421,10 @@ class TableService {
         }
       });
 
-      return { success: true, tables: tables.sort((a, b) => (a.number || 0) - (b.number || 0)) };
+      return {
+        success: true,
+        tables: tables.sort((a, b) => (a.number || 0) - (b.number || 0)),
+      };
     } catch (error) {
       console.error("Error filtrando mesas por capacidad:", error);
       return { success: false, error: error.message };
@@ -430,7 +433,7 @@ class TableService {
 
   /**
    * ESTADÍSTICAS: Obtener resumen de mesas.
-   * 
+   *
    * @returns {Promise} { success: boolean, stats: { total, active, inactive }, error?: string }
    */
   async getTableStats() {
@@ -467,7 +470,7 @@ class TableService {
 
   /**
    * CREAR CON VALIDACIÓN: Crea una mesa con campos requeridos.
-   * 
+   *
    * @param {object} tableData - { number, capacity, available }
    * @returns {Promise} { success: boolean, id?: string, error?: string }
    */

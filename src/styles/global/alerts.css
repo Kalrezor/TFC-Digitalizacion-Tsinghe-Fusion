@@ -1,0 +1,27 @@
+/* ============================================================
+   MENSAJES Y ALERTAS
+   ============================================================ */
+.success-message {
+  background-color: rgba(46, 139, 87, 0.08);
+  border-left: 3px solid var(--emerald);
+  color: var(--emerald);
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin: 12px 0;
+}
+.error-message {
+  background-color: rgba(220, 53, 69, 0.08);
+  border-left: 3px solid #dc3545;
+  color: #dc3545;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin: 12px 0;
+}
+.info-message {
+  background-color: rgba(255, 215, 0, 0.1);
+  border-left: 3px solid var(--gold);
+  color: var(--text-dark);
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin: 12px 0;
+}

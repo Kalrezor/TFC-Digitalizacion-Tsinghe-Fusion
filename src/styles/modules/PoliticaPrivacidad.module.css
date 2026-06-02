@@ -1,0 +1,12 @@
+.academicNotice {
+  font-style: italic;
+  border-left: 3px solid currentColor;
+  padding-left: 10px;
+  margin: 20px 0;
+}
+
+.backButton.backButton {
+  cursor: pointer;
+  background: none;
+  border: 1px solid currentColor;
+}

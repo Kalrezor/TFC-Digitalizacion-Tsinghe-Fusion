@@ -37,7 +37,8 @@ class OfferService {
       const now = new Date();
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        const startDate = data.startDate?.toDate?.() || new Date(data.startDate);
+        const startDate =
+          data.startDate?.toDate?.() || new Date(data.startDate);
         const endDate = data.endDate?.toDate?.() || new Date(data.endDate);
         if (data.active && startDate <= now && now <= endDate) {
           offers.push({ id: doc.id, ...data });
@@ -105,7 +106,10 @@ class OfferService {
   async createOffer(offerData, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden crear ofertas" };
+        return {
+          success: false,
+          error: "Solo administradores pueden crear ofertas",
+        };
       }
       const docRef = await addDoc(collection(db, "offers"), {
         ...offerData,
@@ -123,7 +127,10 @@ class OfferService {
   async updateOffer(id, offerData, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden actualizar ofertas" };
+        return {
+          success: false,
+          error: "Solo administradores pueden actualizar ofertas",
+        };
       }
       await updateDoc(doc(db, "offers", id), {
         ...offerData,
@@ -140,7 +147,10 @@ class OfferService {
   async deleteOffer(id, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden eliminar ofertas" };
+        return {
+          success: false,
+          error: "Solo administradores pueden eliminar ofertas",
+        };
       }
       await deleteDoc(doc(db, "offers", id));
       return { success: true };
@@ -154,7 +164,10 @@ class OfferService {
   async toggleOfferStatus(id, active, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden cambiar el estado de ofertas" };
+        return {
+          success: false,
+          error: "Solo administradores pueden cambiar el estado de ofertas",
+        };
       }
       await updateDoc(doc(db, "offers", id), { active });
       return { success: true };
@@ -168,10 +181,16 @@ class OfferService {
   async applyDiscount(id, discountPercentage, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden aplicar descuentos" };
+        return {
+          success: false,
+          error: "Solo administradores pueden aplicar descuentos",
+        };
       }
       if (discountPercentage < 0 || discountPercentage > 100) {
-        return { success: false, error: "El descuento debe estar entre 0 y 100" };
+        return {
+          success: false,
+          error: "El descuento debe estar entre 0 y 100",
+        };
       }
       await updateDoc(doc(db, "offers", id), {
         discount: discountPercentage,
@@ -188,7 +207,10 @@ class OfferService {
   async extendOfferDate(id, newEndDate, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden extender ofertas" };
+        return {
+          success: false,
+          error: "Solo administradores pueden extender ofertas",
+        };
       }
       await updateDoc(doc(db, "offers", id), {
         endDate: newEndDate,

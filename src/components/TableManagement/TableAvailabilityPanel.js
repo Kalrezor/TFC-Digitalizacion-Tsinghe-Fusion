@@ -4,7 +4,14 @@ import ReservationTableService from "../../services/ReservationTableService";
 import { toastError, toastSuccess } from "../../services/ToastService";
 
 const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
-  const { active: activeTables = [], reserved: reservedTables = [], inactive: inactiveTables = [], loading, error, refetch } = useTablesByDateAndShift(selectedDate, selectedShift);
+  const {
+    active: activeTables = [],
+    reserved: reservedTables = [],
+    inactive: inactiveTables = [],
+    loading,
+    error,
+    refetch,
+  } = useTablesByDateAndShift(selectedDate, selectedShift);
   const [reservationDetails, setReservationDetails] = useState({});
   const [actionLoading, setActionLoading] = useState({});
   const [actionMessage, setActionMessage] = useState("");
@@ -40,8 +47,15 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
         const details = {};
         for (const table of reservedTables) {
           try {
-            const result = await ReservationTableService.getReservationsByTable(table.id, selectedDate);
-            if (result.success && result.reservations && result.reservations.length > 0) {
+            const result = await ReservationTableService.getReservationsByTable(
+              table.id,
+              selectedDate,
+            );
+            if (
+              result.success &&
+              result.reservations &&
+              result.reservations.length > 0
+            ) {
               details[table.id] = result.reservations[0]; // Tomar la primera reserva
             }
           } catch (err) {
@@ -62,15 +76,18 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
     setActionLoading((prev) => ({ ...prev, [table.id]: true }));
 
     try {
-      const result = await ReservationTableService.createManualOccupancyReservation({
-        date: selectedDate,
-        shift: selectedShift,
-        tableIds: [table.id],
-        createdBy: "admin",
-      });
+      const result =
+        await ReservationTableService.createManualOccupancyReservation({
+          date: selectedDate,
+          shift: selectedShift,
+          tableIds: [table.id],
+          createdBy: "admin",
+        });
 
       if (result.success) {
-        setActionMessage(`Mesa ${table.tableNumber ?? table.number} ocupada correctamente.`);
+        setActionMessage(
+          `Mesa ${table.tableNumber ?? table.number} ocupada correctamente.`,
+        );
         await refetch();
       } else {
         setActionError(result.error || "No se pudo ocupar la mesa.");
@@ -94,9 +111,14 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
         return;
       }
 
-      const result = await ReservationTableService.releaseTableFromReservation(reservation.id, table.id);
+      const result = await ReservationTableService.releaseTableFromReservation(
+        reservation.id,
+        table.id,
+      );
       if (result.success) {
-        setActionMessage(`Mesa ${table.tableNumber ?? table.number} liberada correctamente.`);
+        setActionMessage(
+          `Mesa ${table.tableNumber ?? table.number} liberada correctamente.`,
+        );
         await refetch();
       } else {
         setActionError(result.error || "No se pudo liberar la mesa.");
@@ -112,7 +134,9 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
   if (loading) {
     return (
       <div className="table-availability-panel">
-        <div className="table-availability-loading">Cargando disponibilidad...</div>
+        <div className="table-availability-loading">
+          Cargando disponibilidad...
+        </div>
       </div>
     );
   }
@@ -120,7 +144,9 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
   if (error) {
     return (
       <div className="table-availability-panel">
-        <div className="table-availability-loading">No se pudo cargar la disponibilidad.</div>
+        <div className="table-availability-loading">
+          No se pudo cargar la disponibilidad.
+        </div>
       </div>
     );
   }
@@ -129,8 +155,10 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
     if (!reservation) return null;
     return {
       time: reservation.time || "N/A",
-      customerName: reservation.userName || reservation.customerName || "No especificado",
-      numberOfPeople: reservation.peopleCount || reservation.numberOfPeople || 0,
+      customerName:
+        reservation.userName || reservation.customerName || "No especificado",
+      numberOfPeople:
+        reservation.peopleCount || reservation.numberOfPeople || 0,
     };
   };
 
@@ -149,8 +177,12 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
               activeTables.map((table) => (
                 <div key={table.id} className="table-availability-card">
                   <div className="table-availability-card-header table-availability-card-header-free">
-                    <span className="table-availability-table-number">Mesa #{table.tableNumber ?? table.number}</span>
-                    <span className="table-availability-capacity">{table.capacity} pax</span>
+                    <span className="table-availability-table-number">
+                      Mesa #{table.tableNumber ?? table.number}
+                    </span>
+                    <span className="table-availability-capacity">
+                      {table.capacity} pax
+                    </span>
                   </div>
                   <div className="table-availability-status">
                     <span className="table-availability-badge table-availability-badge-free">
@@ -163,7 +195,9 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
                       disabled={Boolean(actionLoading[table.id])}
                       onClick={() => handleOccupyTable(table)}
                     >
-                      {actionLoading[table.id] ? "Procesando..." : "Marcar ocupada"}
+                      {actionLoading[table.id]
+                        ? "Procesando..."
+                        : "Marcar ocupada"}
                     </button>
                   </div>
                 </div>
@@ -182,12 +216,18 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
           <div className="table-availability-table-group">
             {reservedTables && reservedTables.length > 0 ? (
               reservedTables.map((table) => {
-                const resInfo = getReservationInfo(reservationDetails[table.id]);
+                const resInfo = getReservationInfo(
+                  reservationDetails[table.id],
+                );
                 return (
                   <div key={table.id} className="table-availability-card">
                     <div className="table-availability-card-header table-availability-card-header-busy">
-                      <span className="table-availability-table-number">Mesa #{table.tableNumber ?? table.number}</span>
-                      <span className="table-availability-capacity">{table.capacity} pax</span>
+                      <span className="table-availability-table-number">
+                        Mesa #{table.tableNumber ?? table.number}
+                      </span>
+                      <span className="table-availability-capacity">
+                        {table.capacity} pax
+                      </span>
                     </div>
                     <div className="table-availability-status">
                       <span className="table-availability-badge table-availability-badge-busy">
@@ -213,14 +253,18 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
                         disabled={Boolean(actionLoading[table.id])}
                         onClick={() => handleReleaseTable(table)}
                       >
-                        {actionLoading[table.id] ? "Procesando..." : "Liberar mesa"}
+                        {actionLoading[table.id]
+                          ? "Procesando..."
+                          : "Liberar mesa"}
                       </button>
                     </div>
                   </div>
                 );
               })
             ) : (
-              <p className="table-availability-no-data">No hay mesas ocupadas</p>
+              <p className="table-availability-no-data">
+                No hay mesas ocupadas
+              </p>
             )}
           </div>
         </div>
@@ -235,8 +279,12 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
               inactiveTables.map((table) => (
                 <div key={table.id} className="table-availability-card">
                   <div className="table-availability-card-header table-availability-card-header-inactive">
-                    <span className="table-availability-table-number">Mesa #{table.tableNumber ?? table.number}</span>
-                    <span className="table-availability-capacity">{table.capacity} pax</span>
+                    <span className="table-availability-table-number">
+                      Mesa #{table.tableNumber ?? table.number}
+                    </span>
+                    <span className="table-availability-capacity">
+                      {table.capacity} pax
+                    </span>
                   </div>
                   <div className="table-availability-status">
                     <span className="table-availability-badge table-availability-badge-inactive">
@@ -246,7 +294,9 @@ const TableAvailabilityPanel = ({ selectedDate, selectedShift }) => {
                 </div>
               ))
             ) : (
-              <p className="table-availability-no-data">No hay mesas inactivas</p>
+              <p className="table-availability-no-data">
+                No hay mesas inactivas
+              </p>
             )}
           </div>
         </div>

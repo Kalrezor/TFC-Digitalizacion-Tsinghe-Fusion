@@ -10,6 +10,8 @@ import {
 import useAuth from "./hooks/useAuth";
 import NavigationBar from "./components/NavigationBar";
 import RestaurantChatbot from "./components/RestaurantChatbot";
+import CookieBanner from "./components/CookieBanner";
+import LegalFooter from "./components/LegalFooter";
 
 // Vistas públicas
 import Home from "./pages/Home";
@@ -19,6 +21,9 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ConfirmReservation from "./pages/ConfirmReservation";
 import Reservations from "./pages/Reservations";
+import AvisoLegal from "./pages/AvisoLegal";
+import PoliticaPrivacidad from "./pages/PoliticaPrivacidad";
+import PoliticaCookies from "./pages/PoliticaCookies";
 
 // Vistas de usuario autenticado
 import Dashboard from "./pages/Dashboard";
@@ -31,7 +36,7 @@ import AdminTables from "./pages/AdminTables";
 import AdminOffers from "./pages/AdminOffers";
 
 import { Toaster } from "react-hot-toast";
-import "./styles/MinimalStyle.css";
+import "./styles/index.css";
 
 const CHATBOT_SETTINGS_KEY = "tsinghe-chatbot-settings";
 const DEFAULT_CHATBOT_SETTINGS = {
@@ -47,23 +52,32 @@ const getChatbotSettings = () => {
       ...DEFAULT_CHATBOT_SETTINGS,
       ...JSON.parse(storedSettings),
     };
-  } catch (error) {
+  } catch {
     return DEFAULT_CHATBOT_SETTINGS;
   }
 };
 
-const normalizeChatbotRole = (role) => (role === "admin" ? "admin" : "comensal");
+const normalizeChatbotRole = (role) =>
+  role === "admin" ? "admin" : "comensal";
 
 // ── Pantalla de Carga ────────────────────────────────────────────────────────
 const LoadingScreen = () => (
   <div className="app-loading-screen">
     <div className="app-loading-content">
-      <div className="app-loading-text">
-        Cargando autenticación...
-      </div>
+      <div className="app-loading-text">Cargando autenticación...</div>
     </div>
   </div>
 );
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+
+  return null;
+};
 
 const LoginRoute = ({ isAuthenticated, loading, needsGooglePasswordSetup }) => {
   const location = useLocation();
@@ -139,113 +153,135 @@ function App() {
 
   return (
     <Router>
-      <NavigationBar
-        isAuthenticated={isAuthenticated}
-        user={user}
-        userName={userName}
-        role={role}
-        logout={logout}
-      />
+      <ScrollToTop />
+      <div className="app-shell">
+        <NavigationBar
+          isAuthenticated={isAuthenticated}
+          user={user}
+          userName={userName}
+          role={role}
+          logout={logout}
+        />
 
-      <Routes>
-        {/* Rutas públicas */}
-        <Route path="/" element={<Home />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/confirm-reservation" element={<ConfirmReservation />} />
-
-        {/* Lógica de Login mejorada */}
-        <Route
-          path="/login"
-          element={
-            <LoginRoute
-              isAuthenticated={isAuthenticated}
-              loading={loading}
-              needsGooglePasswordSetup={needsGooglePasswordSetup}
+        <main className="app-content">
+          <Routes>
+            {/* Rutas públicas */}
+            <Route path="/" element={<Home />} />
+            <Route path="/menu" element={<Menu />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route
+              path="/confirm-reservation"
+              element={<ConfirmReservation />}
             />
-          }
-        />
+            <Route path="/aviso-legal" element={<AvisoLegal />} />
+            <Route
+              path="/politica-privacidad"
+              element={<PoliticaPrivacidad />}
+            />
+            <Route path="/politica-cookies" element={<PoliticaCookies />} />
 
-        <Route
-          path="/register"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Register />
-            )
-          }
-        />
+            {/* Lógica de Login mejorada */}
+            <Route
+              path="/login"
+              element={
+                <LoginRoute
+                  isAuthenticated={isAuthenticated}
+                  loading={loading}
+                  needsGooglePasswordSetup={needsGooglePasswordSetup}
+                />
+              }
+            />
 
-        {/* Rutas protegidas (Usuario) */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-              <Dashboard
-                role={role}
-                userId={user?.uid}
-                userName={userName}
-                userEmail={userEmail}
-                logout={logout}
-                chatbotSettings={chatbotSettings}
-                onToggleChatbot={toggleChatbot}
-              />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reservations"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated} loading={loading}>
-              <Reservations userId={user?.uid} />
-            </ProtectedRoute>
-          }
-        />
+            <Route
+              path="/register"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Register />
+                )
+              }
+            />
 
-        {/* Rutas protegidas (Admin) */}
-        <Route
-          path="/admin/menu"
-          element={
-            <AdminRoute
-              isAuthenticated={isAuthenticated}
-              loading={loading}
-              role={role}
-            >
-              <AdminMenu />
-            </AdminRoute>
-          }
-        />
+            {/* Rutas protegidas (Usuario) */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  loading={loading}
+                >
+                  <Dashboard
+                    role={role}
+                    userId={user?.uid}
+                    userName={userName}
+                    userEmail={userEmail}
+                    logout={logout}
+                    chatbotSettings={chatbotSettings}
+                    onToggleChatbot={toggleChatbot}
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reservations"
+              element={
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  loading={loading}
+                >
+                  <Reservations userId={user?.uid} />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/admin/tables"
-          element={
-            <AdminRoute
-              isAuthenticated={isAuthenticated}
-              loading={loading}
-              role={role}
-            >
-              <AdminTables userId={user?.uid} userRole={role} />
-            </AdminRoute>
-          }
-        />
+            {/* Rutas protegidas (Admin) */}
+            <Route
+              path="/admin/menu"
+              element={
+                <AdminRoute
+                  isAuthenticated={isAuthenticated}
+                  loading={loading}
+                  role={role}
+                >
+                  <AdminMenu />
+                </AdminRoute>
+              }
+            />
 
-        <Route
-          path="/admin/offers"
-          element={
-            <AdminRoute
-              isAuthenticated={isAuthenticated}
-              loading={loading}
-              role={role}
-            >
-              <AdminOffers />
-            </AdminRoute>
-          }
-        />
+            <Route
+              path="/admin/tables"
+              element={
+                <AdminRoute
+                  isAuthenticated={isAuthenticated}
+                  loading={loading}
+                  role={role}
+                >
+                  <AdminTables userId={user?.uid} userRole={role} />
+                </AdminRoute>
+              }
+            />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+            <Route
+              path="/admin/offers"
+              element={
+                <AdminRoute
+                  isAuthenticated={isAuthenticated}
+                  loading={loading}
+                  role={role}
+                >
+                  <AdminOffers />
+                </AdminRoute>
+              }
+            />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+
+        <LegalFooter />
+      </div>
 
       {isAuthenticated && (
         <RestaurantChatbot
@@ -263,6 +299,7 @@ function App() {
           },
         }}
       />
+      <CookieBanner />
     </Router>
   );
 }

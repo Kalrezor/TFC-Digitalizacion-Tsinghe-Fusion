@@ -63,13 +63,19 @@ const ProfileForm = ({ userId }) => {
         }
       }
 
-      setMessage({ type: "success", text: "Perfil actualizado correctamente." });
+      setMessage({
+        type: "success",
+        text: "Perfil actualizado correctamente.",
+      });
       setTimeout(() => {
         window.location.reload();
       }, 250);
     } catch (err) {
       console.error("Error guardando perfil:", err);
-      setMessage({ type: "error", text: "No se pudo guardar. Intenta de nuevo." });
+      setMessage({
+        type: "error",
+        text: "No se pudo guardar. Intenta de nuevo.",
+      });
     } finally {
       setSaving(false);
     }

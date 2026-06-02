@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import { toastSuccess, toastError } from "../../services/ToastService";
 import tableService from "../../services/TableService";
 
-const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate }) => {
+const TableList = ({
+  tables,
+  loading,
+  onTableEdit,
+  onTableDelete,
+  onTableCreate,
+}) => {
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDeleteTable, setConfirmDeleteTable] = useState(null);
 
@@ -12,7 +18,9 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
       const canDelete = await tableService.canDeleteTable(table.id);
 
       if (!canDelete) {
-        toastError("No se puede eliminar esta mesa. Tiene reservas futuras asignadas.");
+        toastError(
+          "No se puede eliminar esta mesa. Tiene reservas futuras asignadas.",
+        );
         setDeletingId(null);
         return;
       }
@@ -74,7 +82,9 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
   return (
     <div className="table-list">
       <div className="table-list-header">
-        <h3 className="table-list-title">Mesas Registradas ({tables.length})</h3>
+        <h3 className="table-list-title">
+          Mesas Registradas ({tables.length})
+        </h3>
         <button onClick={onTableCreate} className="table-list-create">
           + Nueva Mesa
         </button>
@@ -83,7 +93,8 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
       {confirmDeleteTable && (
         <div className="table-list-confirm">
           <div className="table-list-confirm-text">
-            ¿Eliminar mesa #{confirmDeleteTable.tableNumber ?? confirmDeleteTable.number}?
+            ¿Eliminar mesa #
+            {confirmDeleteTable.tableNumber ?? confirmDeleteTable.number}?
             <span className="table-list-confirm-meta">
               Capacidad: {confirmDeleteTable.capacity} personas
             </span>
@@ -94,9 +105,14 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
               className="table-list-confirm-button"
               disabled={deletingId === confirmDeleteTable.id}
             >
-              {deletingId === confirmDeleteTable.id ? "Eliminando..." : "Confirmar"}
+              {deletingId === confirmDeleteTable.id
+                ? "Eliminando..."
+                : "Confirmar"}
             </button>
-            <button onClick={handleCancelDelete} className="table-list-cancel-button">
+            <button
+              onClick={handleCancelDelete}
+              className="table-list-cancel-button"
+            >
               Cancelar
             </button>
           </div>
@@ -117,17 +133,26 @@ const TableList = ({ tables, loading, onTableEdit, onTableDelete, onTableCreate 
             {tables.map((table) => (
               <tr
                 key={table.id}
-                className="table-list-row" style={{ opacity: table.available ? 1 : 0.6 }}
+                className="table-list-row"
+                style={{ opacity: table.available ? 1 : 0.6 }}
               >
                 <td className="table-list-td">
-                  <span className="table-list-number">#{table.tableNumber ?? table.number}</span>
+                  <span className="table-list-number">
+                    #{table.tableNumber ?? table.number}
+                  </span>
                 </td>
                 <td className="table-list-td">
-                  <span className="table-list-capacity">{table.capacity} pax</span>
+                  <span className="table-list-capacity">
+                    {table.capacity} pax
+                  </span>
                 </td>
                 <td className="table-list-td">
                   <span
-                    className="table-list-badge" style={{ backgroundColor: table.available ? "#d1fae5" : "#fee2e2", color: table.available ? "#065f46" : "#7f1d1d" }}
+                    className="table-list-badge"
+                    style={{
+                      backgroundColor: table.available ? "#d1fae5" : "#fee2e2",
+                      color: table.available ? "#065f46" : "#7f1d1d",
+                    }}
                   >
                     {table.available ? "✓ Disponible" : "✗ Inactiva"}
                   </span>

@@ -1,0 +1,32 @@
+/* ============================================================
+   ACCENTS Y DETALLES
+   ============================================================ */
+/* ============================================================
+   ACCENTS Y DETALLES
+   ============================================================ */
+.accent-line {
+  display: inline-block;
+  height: 2px;
+  background-color: var(--gold);
+  margin: 12px 0;
+}
+.text-gold {
+  color: var(--gold);
+  font-weight: 700;
+}
+.text-sage {
+  color: var(--sage);
+  font-weight: 600;
+}
+.text-emerald {
+  color: var(--emerald);
+  font-weight: 600;
+}
+.bg-pearl {
+  background-color: var(--pearl);
+}
+.bg-gold-light {
+  background-color: rgba(255, 215, 0, 0.1);
+  border-left: 3px solid var(--gold);
+  padding-left: 12px;
+}

@@ -1,7 +1,7 @@
 import chatbotContextService from "./ChatbotContextService";
 
 const SUPPORT_PHONE =
-  process.env.REACT_APP_RESTAURANT_SUPPORT_PHONE || "+34 600 123 456";
+  import.meta.env.VITE_RESTAURANT_SUPPORT_PHONE || "+34 600 123 456";
 
 const DEFAULT_GEMINI_MODELS = [
   "gemini-2.5-flash",
@@ -10,7 +10,7 @@ const DEFAULT_GEMINI_MODELS = [
 ];
 
 const getConfiguredModels = () => {
-  const configured = process.env.REACT_APP_GEMINI_MODEL || "";
+  const configured = import.meta.env.VITE_GEMINI_MODEL || "";
   const models = configured
     .split(",")
     .map((model) => model.trim())
@@ -91,7 +91,14 @@ const ADMIN_KEYWORDS = [
 ];
 
 const GREETING_KEYWORDS = ["hola", "buenas", "buenos dias", "buenas tardes"];
-const COURTESY_KEYWORDS = ["gracias", "muchas gracias", "ok", "vale", "perfecto", "genial"];
+const COURTESY_KEYWORDS = [
+  "gracias",
+  "muchas gracias",
+  "ok",
+  "vale",
+  "perfecto",
+  "genial",
+];
 
 const UNCLEAR_MESSAGE = `No he entendido bien la consulta. ¿Podrías hacer la pregunta nuevamente? Por ejemplo: "qué reservas hay hoy?", "qué ofertas hay?" o "qué platos tienen alérgenos?". Si necesitas ayuda directa, contacta con soporte del restaurante: ${SUPPORT_PHONE}.`;
 
@@ -111,7 +118,9 @@ const normalizeText = (value) =>
 
 const containsAny = (message, keywords) => {
   const normalized = normalizeText(message);
-  return keywords.some((keyword) => normalized.includes(normalizeText(keyword)));
+  return keywords.some((keyword) =>
+    normalized.includes(normalizeText(keyword)),
+  );
 };
 
 const typoHint = (message) => {
@@ -134,10 +143,18 @@ const typoHint = (message) => {
     normalized,
   );
 
-  return fixedWords !== normalized ? `El usuario pudo querer decir: "${fixedWords}".` : "";
+  return fixedWords !== normalized
+    ? `El usuario pudo querer decir: "${fixedWords}".`
+    : "";
 };
 
-const buildSystemInstruction = ({ role, userName, userEmail, locationPath, firebaseContext }) => {
+const buildSystemInstruction = ({
+  role,
+  userName,
+  userEmail,
+  locationPath,
+  firebaseContext,
+}) => {
   const effectiveRole = normalizeRole(role);
   const baseRules = [
     "Eres el chatbot interno de Tsinghe Cocina Fusión.",
@@ -178,13 +195,17 @@ const buildSystemInstruction = ({ role, userName, userEmail, locationPath, fireb
 
 const extractGeminiText = (data) => {
   const parts = data?.candidates?.[0]?.content?.parts || [];
-  const text = parts.map((part) => part.text).filter(Boolean).join("\n").trim();
+  const text = parts
+    .map((part) => part.text)
+    .filter(Boolean)
+    .join("\n")
+    .trim();
   return text || "No he podido generar una respuesta clara ahora mismo.";
 };
 
 class ChatbotService {
   getApiKey() {
-    return process.env.REACT_APP_GEMINI_API_KEY || "";
+    return import.meta.env.VITE_GEMINI_API_KEY || "";
   }
 
   validateMessage(message, role) {
@@ -231,7 +252,10 @@ class ChatbotService {
       };
     }
 
-    if (effectiveRole !== "admin" && containsAny(cleanMessage, ADMIN_KEYWORDS)) {
+    if (
+      effectiveRole !== "admin" &&
+      containsAny(cleanMessage, ADMIN_KEYWORDS)
+    ) {
       return {
         allowed: false,
         reason:
@@ -284,7 +308,8 @@ class ChatbotService {
 
     if (!response.ok) {
       const errorBody = await response.json().catch(() => null);
-      const message = errorBody?.error?.message || "Gemini no respondio correctamente.";
+      const message =
+        errorBody?.error?.message || "Gemini no respondio correctamente.";
       const error = new Error(message);
       error.status = response.status;
       error.model = model;
@@ -309,7 +334,7 @@ class ChatbotService {
 
     const apiKey = this.getApiKey();
     if (!apiKey) {
-      throw new Error("Falta configurar REACT_APP_GEMINI_API_KEY.");
+      throw new Error("Falta configurar VITE_GEMINI_API_KEY.");
     }
 
     const firebaseContext = await chatbotContextService.buildContext({
@@ -328,7 +353,8 @@ class ChatbotService {
               userName,
               userEmail: user?.email,
               locationPath,
-              firebaseContext: `${typoHint(message)}\n${firebaseContext}`.trim(),
+              firebaseContext:
+                `${typoHint(message)}\n${firebaseContext}`.trim(),
             }),
           },
         ],

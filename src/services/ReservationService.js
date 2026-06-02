@@ -33,10 +33,13 @@ const sendReservationStatusNotification = async (reservation, newStatus) => {
   const recipientEmail = reservation?.userEmail || reservation?.email;
 
   if (!recipientEmail) {
-    console.warn("⚠️ No hay email de cliente para notificar el cambio de estado.", {
-      reservationId: reservation?.id,
-      newStatus,
-    });
+    console.warn(
+      "⚠️ No hay email de cliente para notificar el cambio de estado.",
+      {
+        reservationId: reservation?.id,
+        newStatus,
+      },
+    );
     return;
   }
 
@@ -54,21 +57,30 @@ const sendReservationStatusNotification = async (reservation, newStatus) => {
         email: recipientEmail,
         newStatus,
         reservationDetails: {
-          userName: reservation.userName || reservation.name || recipientEmail.split("@")[0],
+          userName:
+            reservation.userName ||
+            reservation.name ||
+            recipientEmail.split("@")[0],
           date: reservation.reservationDate || reservation.date || "",
           time: reservation.reservationTime || reservation.time || "",
-          numberOfPeople: reservation.numberOfPeople ?? reservation.peopleCount ?? "",
+          numberOfPeople:
+            reservation.numberOfPeople ?? reservation.peopleCount ?? "",
           tableNumber: Array.isArray(reservation.tableIds)
             ? reservation.tableIds.join(", ")
             : reservation.tableId || reservation.tableNumber || "Por asignar",
-          tableIds: Array.isArray(reservation.tableIds) ? reservation.tableIds : [],
+          tableIds: Array.isArray(reservation.tableIds)
+            ? reservation.tableIds
+            : [],
           specialRequests: reservation.specialRequests || "",
         },
       }),
     });
 
     if (!response.ok) {
-      console.error("⚠️ Error enviando email de estado de reserva:", response.statusText);
+      console.error(
+        "⚠️ Error enviando email de estado de reserva:",
+        response.statusText,
+      );
     }
   } catch (error) {
     console.error("⚠️ Error enviando email de estado de reserva:", error);
@@ -205,7 +217,7 @@ class ReservationService {
         (error) => {
           console.error("Error en listener de reservas del usuario:", error);
           callback({ success: false, error: error.message });
-        }
+        },
       );
       return unsubscribe;
     } catch (error) {
@@ -250,7 +262,7 @@ class ReservationService {
         (error) => {
           console.error("Error en listener de reservas:", error);
           callback({ success: false, error: error.message });
-        }
+        },
       );
       return unsubscribe;
     } catch (error) {
@@ -439,8 +451,8 @@ class ReservationService {
         const reservedIds = Array.isArray(reservationData.tableIds)
           ? reservationData.tableIds
           : reservationData.tableId
-          ? [reservationData.tableId]
-          : [];
+            ? [reservationData.tableId]
+            : [];
         reservedIds.forEach((id) => reservedTableIds.add(id));
       });
 
@@ -461,14 +473,14 @@ class ReservationService {
   async checkIfMergingNeeded(numberOfPeople, date, time) {
     try {
       const guestCount = Number(numberOfPeople) || 1;
-      
+
       // Solo > 4 comensales necesitan fusión
       if (guestCount <= 4) {
-        return { 
+        return {
           success: true,
           needsMerging: false,
           message: "No se requiere fusión de mesas",
-          guestCount
+          guestCount,
         };
       }
 
@@ -479,9 +491,9 @@ class ReservationService {
       // Verificar disponibilidad
       const availableResult = await this.getAvailableTables(date, time);
       if (!availableResult.success) {
-        return { 
-          success: false, 
-          error: "Error verificando disponibilidad de mesas" 
+        return {
+          success: false,
+          error: "Error verificando disponibilidad de mesas",
         };
       }
 
@@ -491,7 +503,7 @@ class ReservationService {
       return {
         success: true,
         needsMerging: true,
-        message: `Se necesita fusión de ${suggestedTableCount} mesa${suggestedTableCount > 1 ? 's' : ''} para ${guestCount} comensales`,
+        message: `Se necesita fusión de ${suggestedTableCount} mesa${suggestedTableCount > 1 ? "s" : ""} para ${guestCount} comensales`,
         guestCount,
         suggestedTableCount,
         availableTablesCount: availableCount,

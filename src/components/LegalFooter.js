@@ -9,7 +9,8 @@ const LegalFooter = () => (
       <Link to="/politica-cookies">Política de Cookies</Link>
     </div>
     <div className="editorial-legal-copy">
-      © {new Date().getFullYear()} Tsinghe Cocina Fusión. Todos los derechos reservados.
+      © {new Date().getFullYear()} Tsinghe Cocina Fusión. Todos los derechos
+      reservados.
     </div>
   </footer>
 );

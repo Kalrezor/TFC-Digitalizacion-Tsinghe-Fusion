@@ -1,0 +1,15 @@
+.selectedUserEmail {
+  font-size: 12px;
+  color: #666;
+}
+
+.unverifiedWarning {
+  font-size: 12px;
+  color: #FF6B6B;
+  margin-top: 4px;
+}
+
+.newUserActions {
+  display: flex;
+  gap: 12px;
+}

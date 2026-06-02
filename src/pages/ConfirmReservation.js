@@ -30,7 +30,7 @@ const ConfirmReservation = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token }),
-          }
+          },
         );
 
         const result = await response.json();
@@ -38,7 +38,7 @@ const ConfirmReservation = () => {
         if (response.ok && result.success) {
           setStatus("success");
           setMessage(
-            "¡Reserva confirmada exitosamente! Será redirigido en 3 segundos..."
+            "¡Reserva confirmada exitosamente! Será redirigido en 3 segundos...",
           );
           setEmail(result.email);
 
@@ -46,7 +46,7 @@ const ConfirmReservation = () => {
           if (!result.userExists) {
             setShowRegister(true);
             setMessage(
-              "¡Reserva confirmada! Ahora crea una cuenta para gestionar tu reserva."
+              "¡Reserva confirmada! Ahora crea una cuenta para gestionar tu reserva.",
             );
           } else {
             setTimeout(() => {
@@ -84,7 +84,8 @@ const ConfirmReservation = () => {
             {showRegister && (
               <div className="register-cta">
                 <p>
-                  Crea una cuenta para poder gestionar tu reserva y acceder a más funciones.
+                  Crea una cuenta para poder gestionar tu reserva y acceder a
+                  más funciones.
                 </p>
                 <button
                   onClick={() => navigate(`/register?email=${email}`)}
@@ -96,7 +97,10 @@ const ConfirmReservation = () => {
             )}
 
             {!showRegister && (
-              <button onClick={() => navigate("/login")} className="btn-primary">
+              <button
+                onClick={() => navigate("/login")}
+                className="btn-primary"
+              >
                 Ir a Iniciar Sesión
               </button>
             )}
@@ -118,4 +122,3 @@ const ConfirmReservation = () => {
 };
 
 export default ConfirmReservation;
-

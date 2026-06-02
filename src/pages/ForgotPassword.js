@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toastSuccess, toastError, toastInfo } from "../services/ToastService";
 import AuthService from "../services/AuthService";
+import styles from "../styles/modules/ForgotPassword.module.css";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const ForgotPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [, setError] = useState(null);
   const [step, setStep] = useState(isGoogleSetup ? 2 : 1);
 
   const validateEmail = (emailValue) => {
@@ -28,10 +29,14 @@ const ForgotPassword = () => {
   };
 
   const getPasswordErrorMessage = (err) => {
-    const message = typeof err === "string" ? err : err?.message || err?.error || "";
+    const message =
+      typeof err === "string" ? err : err?.message || err?.error || "";
     const code = err?.code || err?.errorCode || "";
 
-    if (code === "auth/weak-password" || message.includes("auth/weak-password")) {
+    if (
+      code === "auth/weak-password" ||
+      message.includes("auth/weak-password")
+    ) {
       return "La contraseña debe tener al menos 6 caracteres";
     }
 
@@ -44,9 +49,11 @@ const ForgotPassword = () => {
       await AuthService.requestPasswordReset(emailValue);
       setStep(2);
       toastSuccess("Token enviado a tu email");
-    } catch (err) {
+    } catch {
       setStep(2);
-      toastInfo("Si hay una cuenta registrada, recibirás el token en tu email.");
+      toastInfo(
+        "Si hay una cuenta registrada, recibirás el token en tu email.",
+      );
     } finally {
       setLoading(false);
     }
@@ -96,7 +103,7 @@ const ForgotPassword = () => {
         toastError("El número de teléfono es obligatorio");
         return;
       }
-      const phoneRegex = /^\+?[0-9\s\-\(\)]{7,15}$/;
+      const phoneRegex = /^\+?[0-9\s\-()]{7,15}$/;
       if (!phoneRegex.test(phone.trim())) {
         toastError("Por favor ingresa un número de teléfono válido");
         return;
@@ -149,7 +156,7 @@ const ForgotPassword = () => {
   return (
     <div className="editorial-auth-page">
       <div className="editorial-auth-card">
-        <div style={{ marginBottom: "28px", textAlign: "center" }}>
+        <div className={styles.header}>
           <h1>
             {isGoogleSetup ? "Completar Registro" : "Recuperar Contraseña"}
           </h1>
@@ -157,13 +164,17 @@ const ForgotPassword = () => {
             {isGoogleSetup
               ? "Proporciona tu número de teléfono y crea una contraseña"
               : step === 1
-              ? "Ingresa tu email para recibir un token"
-              : "Ingresa el token y tu nueva contraseña"}
+                ? "Ingresa tu email para recibir un token"
+                : "Ingresa el token y tu nueva contraseña"}
           </p>
         </div>
 
         {step === 1 && (
-          <form noValidate onSubmit={handleRequestToken} style={{ marginBottom: "20px" }}>
+          <form
+            noValidate
+            onSubmit={handleRequestToken}
+            className={styles.form}
+          >
             <div className="form-group">
               <label>Email</label>
               <input
@@ -177,8 +188,7 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary"
-              style={{ width: "100%" }}
+              className={`btn btn-primary ${styles.fullWidthButton}`}
             >
               {loading ? "Enviando..." : "Enviar Token"}
             </button>
@@ -186,7 +196,11 @@ const ForgotPassword = () => {
         )}
 
         {step === 2 && (
-          <form noValidate onSubmit={handleResetPassword} style={{ marginBottom: "20px" }}>
+          <form
+            noValidate
+            onSubmit={handleResetPassword}
+            className={styles.form}
+          >
             <div className="form-group">
               <label>Email</label>
               <input
@@ -219,12 +233,7 @@ const ForgotPassword = () => {
                   onChange={(e) => setToken(e.target.value.toUpperCase())}
                   maxLength="3"
                 />
-                <small style={{
-                  fontSize: "12px",
-                  color: "#999999",
-                  display: "block",
-                  marginTop: "4px",
-                }}>
+                <small className={styles.tokenHint}>
                   Verifica tu email y copia el token
                 </small>
               </div>
@@ -253,8 +262,7 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary"
-              style={{ width: "100%" }}
+              className={`btn btn-primary ${styles.fullWidthButton}`}
             >
               {loading ? "Actualizando..." : "Actualizar Contraseña"}
             </button>
@@ -264,12 +272,11 @@ const ForgotPassword = () => {
         <div className="editorial-auth-links">
           {step === 1 ? (
             <>
-              ¿Recuerdas tu contraseña? {" "}
-              <Link to="/login">Inicia sesión</Link>
+              ¿Recuerdas tu contraseña? <Link to="/login">Inicia sesión</Link>
             </>
           ) : (
             <>
-              ¿Necesitas un nuevo token? {" "}
+              ¿Necesitas un nuevo token?{" "}
               <button
                 onClick={() => {
                   setStep(1);
@@ -279,15 +286,7 @@ const ForgotPassword = () => {
                   setConfirmPassword("");
                   setError(null);
                 }}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#2e8b57",
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                  fontSize: "inherit",
-                }}
+                className={styles.backButton}
               >
                 Volver
               </button>
@@ -300,4 +299,3 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
-

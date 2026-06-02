@@ -1,22 +1,22 @@
 /**
  * SERVICIO: TableAvailabilityService.js
- * 
+ *
  * Responsabilidad: Lógica completa de disponibilidad real de mesas.
- * 
+ *
  * INDEPENDENCIA DE RESERVAS:
  * - Disponibilidad basada en: fecha, hora, turno, margen de 2 horas, reservas activas, capacidad
  * - El campo 'available' de la mesa indica si está ACTIVA o INACTIVA (no influye en disponibilidad real)
- * 
+ *
  * FUNCIONES:
  * - getTableStatusByDateAndShift(date, shift)
  *   → Retorna todas las mesas categorizadas por estado
- * 
+ *
  * - getTablesAvailabilityForTime(date, time)
  *   → Retorna estado de disponibilidad de cada mesa para una hora específica
- * 
+ *
  * - getAvailableTablesForCapacity(date, time, peopleCount)
  *   → Retorna mesas que pueden alojar X personas en esa fecha/hora
- * 
+ *
  * - validateTableForReservation(tableId, date, time)
  *   → Valida si una mesa puede ser asignada a una reserva
  */
@@ -41,7 +41,7 @@ class TableAvailabilityService {
   /**
    * Obtiene TODAS las mesas categorizadas por estado (libres, ocupadas, inactivas)
    * para una fecha y turno específico.
-   * 
+   *
    * @param {string} date - Fecha (YYYY-MM-DD)
    * @param {string} shift - Turno ('comida' | 'cena')
    * @returns {Promise} { success, tables: { active, reserved, inactive }, error }
@@ -65,10 +65,10 @@ class TableAvailabilityService {
       const reservationsSnapshot = await getDocs(
         query(
           collection(db, "reservations"),
-          where("reservationDate", "==", date)
+          where("reservationDate", "==", date),
           // Temporalmente se filtra el status en memoria para evitar error de índice
           // Una vez creado el índice, añadir: where("status", "!=", RESERVATION_STATUS.CANCELED)
-        )
+        ),
       );
 
       const reservations = [];
@@ -95,12 +95,13 @@ class TableAvailabilityService {
 
         // Verificar si tiene reservas activas en este turno con conflicto horario
         const hasConflict = reservations.some((res) => {
-          const resShift = res.shift || getShiftFromTime(res.time || res.reservationTime);
+          const resShift =
+            res.shift || getShiftFromTime(res.time || res.reservationTime);
           const tableIds = Array.isArray(res.tableIds)
             ? res.tableIds
             : res.tableId
-            ? [res.tableId]
-            : [];
+              ? [res.tableId]
+              : [];
 
           const usesThisTable = tableIds.includes(table.id);
           const shiftMatches = resShift === shift;
@@ -131,7 +132,7 @@ class TableAvailabilityService {
 
   /**
    * Obtiene estado de disponibilidad de TODAS las mesas para una hora específica.
-   * 
+   *
    * @param {string} date - Fecha (YYYY-MM-DD)
    * @param {string} time - Hora (HH:MM)
    * @returns {Promise} { success, tables: [{ id, number, capacity, available, status }], error }
@@ -158,8 +159,8 @@ class TableAvailabilityService {
       const reservationsSnapshot = await getDocs(
         query(
           collection(db, "reservations"),
-          where("reservationDate", "==", date)
-        )
+          where("reservationDate", "==", date),
+        ),
       );
 
       const reservations = [];
@@ -184,8 +185,8 @@ class TableAvailabilityService {
           const tableIds = Array.isArray(res.tableIds)
             ? res.tableIds
             : res.tableId
-            ? [res.tableId]
-            : [];
+              ? [res.tableId]
+              : [];
 
           const usesThisTable = tableIds.includes(table.id);
           const resTime = res.time || res.reservationTime;
@@ -198,7 +199,9 @@ class TableAvailabilityService {
 
       return {
         success: true,
-        tables: tablesWithStatus.sort((a, b) => (a.number || 0) - (b.number || 0)),
+        tables: tablesWithStatus.sort(
+          (a, b) => (a.number || 0) - (b.number || 0),
+        ),
       };
     } catch (error) {
       console.error("Error obteniendo disponibilidad de mesas:", error);
@@ -209,7 +212,7 @@ class TableAvailabilityService {
   /**
    * Obtiene SOLO las mesas disponibles que pueden alojar X personas
    * para una fecha y hora específica.
-   * 
+   *
    * @param {string} date - Fecha (YYYY-MM-DD)
    * @param {string} time - Hora (HH:MM)
    * @param {number} peopleCount - Número de personas
@@ -225,26 +228,28 @@ class TableAvailabilityService {
     }
 
     try {
-      const availabilityResult = await this.getTablesAvailabilityForTime(date, time);
+      const availabilityResult = await this.getTablesAvailabilityForTime(
+        date,
+        time,
+      );
       if (!availabilityResult.success) {
         return availabilityResult;
       }
 
       // Filtrar: mesas activas y libres
       const availableTables = availabilityResult.tables.filter(
-        (table) =>
-          table.status === "libre" && (table.capacity || 0) > 0
+        (table) => table.status === "libre" && (table.capacity || 0) > 0,
       );
 
       // Separar por capacidad
       const singleTableOptions = availableTables.filter(
-        (table) => Number(table.capacity || 0) >= Number(peopleCount)
+        (table) => Number(table.capacity || 0) >= Number(peopleCount),
       );
 
       // Calcular si necesita fusión
       const totalCapacity = availableTables.reduce(
         (sum, table) => sum + Number(table.capacity || 0),
-        0
+        0,
       );
 
       const needsMerge =
@@ -267,13 +272,13 @@ class TableAvailabilityService {
 
   /**
    * Valida si una mesa específica puede ser asignada a una reserva.
-   * 
+   *
    * Verifica:
    * - Mesa existe
    * - Mesa está activa
    * - Mesa tiene capacidad
    * - No hay conflicto horario
-   * 
+   *
    * @param {string} tableId - ID de la mesa
    * @param {string} date - Fecha (YYYY-MM-DD)
    * @param {string} time - Hora (HH:MM)
@@ -309,12 +314,17 @@ class TableAvailabilityService {
       }
 
       // Validar disponibilidad horaria
-      const availabilityResult = await this.getTablesAvailabilityForTime(date, time);
+      const availabilityResult = await this.getTablesAvailabilityForTime(
+        date,
+        time,
+      );
       if (!availabilityResult.success) {
         return availabilityResult;
       }
 
-      const tableStatus = availabilityResult.tables.find((t) => t.id === tableId);
+      const tableStatus = availabilityResult.tables.find(
+        (t) => t.id === tableId,
+      );
       if (!tableStatus) {
         return { success: true, valid: false, error: "Mesa no encontrada" };
       }
@@ -331,7 +341,7 @@ class TableAvailabilityService {
   /**
    * Obtiene el estado de ocupación de una mesa específica
    * para una fecha y hora específica.
-   * 
+   *
    * @param {string} tableId - ID de la mesa
    * @param {string} date - Fecha (YYYY-MM-DD)
    * @param {string} time - Hora (HH:MM)
@@ -359,8 +369,8 @@ class TableAvailabilityService {
       const reservationsSnapshot = await getDocs(
         query(
           collection(db, "reservations"),
-          where("reservationDate", "==", date)
-        )
+          where("reservationDate", "==", date),
+        ),
       );
 
       let hasConflict = false;
@@ -370,12 +380,12 @@ class TableAvailabilityService {
         if (reservation.status === RESERVATION_STATUS.CANCELED) {
           return; // Ignorar reservas canceladas
         }
-        
+
         const tableIds = Array.isArray(reservation.tableIds)
           ? reservation.tableIds
           : reservation.tableId
-          ? [reservation.tableId]
-          : [];
+            ? [reservation.tableId]
+            : [];
 
         const usesThisTable = tableIds.includes(tableId);
         const resTime = reservation.time || reservation.reservationTime;

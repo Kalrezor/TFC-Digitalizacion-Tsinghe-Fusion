@@ -82,18 +82,19 @@ const ReservationFormComensal = () => {
 
     setLoading(true);
     try {
-      const result = await ReservationTableService.createReservationFromComensal(
-        {
-          uid: user.uid,
-          email: userEmail,
-          displayName: userName,
-          phone: profilePhone,
-        },
-        date,
-        time,
-        peopleCount,
-        specialRequests,
-      );
+      const result =
+        await ReservationTableService.createReservationFromComensal(
+          {
+            uid: user.uid,
+            email: userEmail,
+            displayName: userName,
+            phone: profilePhone,
+          },
+          date,
+          time,
+          peopleCount,
+          specialRequests,
+        );
 
       if (result.success) {
         setSuccess("Reserva creada correctamente. Espera confirmación.");
@@ -120,9 +121,7 @@ const ReservationFormComensal = () => {
 
   return (
     <div className="comensal-reservation-form">
-      <h2 className="comensal-reservation-title">
-        Crear reserva
-      </h2>
+      <h2 className="comensal-reservation-title">Crear reserva</h2>
 
       <div className="comensal-reservation-card">
         <form noValidate onSubmit={handleSubmit}>
@@ -183,7 +182,9 @@ const ReservationFormComensal = () => {
                 <div className="comensal-reservation-detected-label">
                   Turno detectado
                 </div>
-                <div className="comensal-reservation-pill">{shift || "Selecciona hora"}</div>
+                <div className="comensal-reservation-pill">
+                  {shift || "Selecciona hora"}
+                </div>
               </div>
             </div>
 
@@ -200,9 +201,14 @@ const ReservationFormComensal = () => {
 
             <div className="comensal-reservation-footer">
               <div className="comensal-reservation-profile-phone">
-                Teléfono en tu perfil: <strong>{profilePhone || "no disponible"}</strong>
+                Teléfono en tu perfil:{" "}
+                <strong>{profilePhone || "no disponible"}</strong>
               </div>
-              <button type="submit" disabled={loading} className="comensal-reservation-submit">
+              <button
+                type="submit"
+                disabled={loading}
+                className="comensal-reservation-submit"
+              >
                 {loading ? "Creando reserva..." : "Solicitar reserva"}
               </button>
             </div>

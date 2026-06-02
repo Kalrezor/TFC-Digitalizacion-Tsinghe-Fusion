@@ -1,4 +1,5 @@
 import { toast } from "react-hot-toast";
+import styles from "../styles/modules/ToastService.module.css";
 
 const baseOptions = {
   duration: 3000,
@@ -56,10 +57,7 @@ export const toastInfo = (message) =>
 
 export const toastConfirm = (message, options = {}) =>
   new Promise((resolve) => {
-    const {
-      confirmText = "Confirmar",
-      cancelText = "Cancelar",
-    } = options;
+    const { confirmText = "Confirmar", cancelText = "Cancelar" } = options;
 
     toast.custom(
       (t) => (
@@ -72,23 +70,15 @@ export const toastConfirm = (message, options = {}) =>
             maxWidth: "360px",
           }}
         >
-          <div style={{ marginBottom: "0.75rem" }}>{message}</div>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+          <div className={styles.message}>{message}</div>
+          <div className={styles.actions}>
             <button
               type="button"
               onClick={() => {
                 toast.dismiss(t.id);
                 resolve(false);
               }}
-              style={{
-                border: "1px solid #fdba74",
-                background: "#fff",
-                color: "#7c2d12",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-                fontWeight: 700,
-                padding: "0.45rem 0.7rem",
-              }}
+              className={`${styles.button} ${styles.cancelButtonConfirm}`}
             >
               {cancelText}
             </button>
@@ -98,15 +88,7 @@ export const toastConfirm = (message, options = {}) =>
                 toast.dismiss(t.id);
                 resolve(true);
               }}
-              style={{
-                border: "1px solid #dc2626",
-                background: "#dc2626",
-                color: "#fff",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-                fontWeight: 700,
-                padding: "0.45rem 0.7rem",
-              }}
+              className={`${styles.button} ${styles.confirmButton}`}
             >
               {confirmText}
             </button>
@@ -143,7 +125,7 @@ export const toastInput = (message, options = {}) =>
             maxWidth: "360px",
           }}
         >
-          <div style={{ marginBottom: "0.75rem" }}>{message}</div>
+          <div className={styles.message}>{message}</div>
           <input
             type={inputType}
             placeholder={placeholder}
@@ -151,31 +133,16 @@ export const toastInput = (message, options = {}) =>
             onChange={(event) => {
               inputValue = event.target.value;
             }}
-            style={{
-              width: "100%",
-              boxSizing: "border-box",
-              border: "1px solid #cbd5e1",
-              borderRadius: "0.5rem",
-              marginBottom: "0.75rem",
-              padding: "0.55rem 0.7rem",
-            }}
+            className={styles.input}
           />
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+          <div className={styles.actions}>
             <button
               type="button"
               onClick={() => {
                 toast.dismiss(t.id);
                 resolve(null);
               }}
-              style={{
-                border: "1px solid #cbd5e1",
-                background: "#fff",
-                color: "#0f172a",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-                fontWeight: 700,
-                padding: "0.45rem 0.7rem",
-              }}
+              className={`${styles.button} ${styles.cancelButtonInput}`}
             >
               {cancelText}
             </button>
@@ -185,15 +152,7 @@ export const toastInput = (message, options = {}) =>
                 toast.dismiss(t.id);
                 resolve(inputValue);
               }}
-              style={{
-                border: "1px solid #0f172a",
-                background: "#0f172a",
-                color: "#fff",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-                fontWeight: 700,
-                padding: "0.45rem 0.7rem",
-              }}
+              className={`${styles.button} ${styles.submitButton}`}
             >
               {confirmText}
             </button>

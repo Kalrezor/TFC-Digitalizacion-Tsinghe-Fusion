@@ -1,0 +1,63 @@
+/* ============================================================
+   BOTONES MINIMALISTAS
+   ============================================================ */
+/* ============================================================
+   BOTONES MINIMALISTAS
+   ============================================================ */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 250ms ease;
+  text-decoration: none;
+  text-align: center;
+}
+/* Botón Primario - Verde Sage */
+.btn-primary {
+  background-color: var(--sage);
+  color: white;
+  border: 2px solid var(--sage);
+}
+.btn-primary:hover {
+  background-color: var(--sage-dark);
+  border-color: var(--sage-dark);
+  transform: translateY(-2px);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+/* Botón Secundario - Con borde */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-dark);
+  border: 2px solid var(--text-dark);
+}
+.btn-secondary:hover {
+  background-color: var(--text-dark);
+  color: white;
+  transform: translateY(-2px);
+}
+/* Botón Terciario - Dorado */
+.btn-tertiary {
+  background-color: transparent;
+  color: var(--text-dark);
+  border: 2px solid var(--text-dark);
+  font-weight: 700;
+}
+.btn-tertiary:hover {
+  background-color: var(--gold-dark);
+  color: white;
+  transform: translateY(-2px);
+}
+/* Botón Deshabilitado */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

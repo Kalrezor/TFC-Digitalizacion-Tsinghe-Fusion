@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import chatbotService from "../services/ChatbotService";
 
 const SUPPORT_PHONE =
-  process.env.REACT_APP_RESTAURANT_SUPPORT_PHONE || "+34 600 123 456";
+  import.meta.env.VITE_RESTAURANT_SUPPORT_PHONE || "+34 600 123 456";
 
 const getWelcomeMessage = (role) => {
   if (normalizeRole(role) === "admin") {
@@ -124,7 +124,9 @@ const RestaurantChatbot = ({ user, role, userName, enabled = true }) => {
               </div>
             ))}
             {loading && (
-              <div className="chatbot-message is-bot">Consultando Gemini...</div>
+              <div className="chatbot-message is-bot">
+                Consultando Gemini...
+              </div>
             )}
           </div>
 
@@ -160,4 +162,3 @@ const RestaurantChatbot = ({ user, role, userName, enabled = true }) => {
 };
 
 export default RestaurantChatbot;
-

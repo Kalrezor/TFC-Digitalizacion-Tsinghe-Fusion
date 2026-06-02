@@ -63,12 +63,15 @@ const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="editorial-button editorial-user-button"
               >
-                {userName || user?.displayName || user?.email?.split("@")[0] || "Usuario"}
+                {userName ||
+                  user?.displayName ||
+                  user?.email?.split("@")[0] ||
+                  "Usuario"}
               </button>
 
               {showUserMenu && (
                 <div className="editorial-user-menu">
-                      <Link
+                  <Link
                     to="/dashboard?section=inicio"
                     onClick={() => setShowUserMenu(false)}
                     className="editorial-menu-item editorial-ui"
@@ -101,4 +104,3 @@ const NavigationBar = ({ isAuthenticated, user, userName, role, logout }) => {
 };
 
 export default NavigationBar;
-

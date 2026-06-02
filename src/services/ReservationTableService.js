@@ -11,52 +11,25 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import TableService from "./TableService";
+import {
+  RESERVATION_SHIFTS,
+  RESERVATION_STATUS,
+  getShiftFromTime,
+  isValidReservationTime,
+  hasTimeConflict,
+  normalizeReservation,
+} from "./reservationConstants";
 
-export const RESERVATION_SHIFTS = {
-  COMIDA: "comida",
-  CENA: "cena",
-};
-
-export const RESERVATION_TIMES = {
-  [RESERVATION_SHIFTS.COMIDA]: [
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-  ],
-  [RESERVATION_SHIFTS.CENA]: [
-    "20:00",
-    "20:30",
-    "21:00",
-    "21:30",
-    "22:00",
-    "22:30",
-    "23:00",
-    "23:30",
-  ],
-};
-
-export const ALL_RESERVATION_TIMES = [
-  ...RESERVATION_TIMES[RESERVATION_SHIFTS.COMIDA],
-  ...RESERVATION_TIMES[RESERVATION_SHIFTS.CENA],
-];
-
-export const RESERVATION_STATUS = {
-  PENDING: "pendiente",
-  CONFIRMED: "confirmada",
-  CANCELED: "cancelada",
-};
-
-const parseTimeToMinutes = (timeString) => {
-  const [hours, minutes] = timeString.split(":").map(Number);
-  return hours * 60 + minutes;
-};
+// Reexportar las constantes y utilidades para mantener la API pública del
+// servicio (varios componentes las importan desde este archivo).
+export {
+  RESERVATION_SHIFTS,
+  RESERVATION_TIMES,
+  RESERVATION_STATUS,
+  getShiftFromTime,
+  isValidReservationTime,
+  hasTimeConflict,
+} from "./reservationConstants";
 
 const RESERVATION_STATUS_NOTIFICATION_URL =
   "https://us-central1-digitalizacion-tsinge-fusion.cloudfunctions.net/sendReservationStatusNotification";
@@ -65,10 +38,13 @@ const sendReservationStatusNotification = async (reservation, newStatus) => {
   const recipientEmail = reservation?.userEmail || reservation?.email;
 
   if (!recipientEmail) {
-    console.warn("⚠️ No hay email de cliente para notificar el cambio de estado.", {
-      reservationId: reservation?.id,
-      newStatus,
-    });
+    console.warn(
+      "⚠️ No hay email de cliente para notificar el cambio de estado.",
+      {
+        reservationId: reservation?.id,
+        newStatus,
+      },
+    );
     return;
   }
 
@@ -86,63 +62,35 @@ const sendReservationStatusNotification = async (reservation, newStatus) => {
         email: recipientEmail,
         newStatus,
         reservationDetails: {
-          userName: reservation.userName || reservation.name || recipientEmail.split("@")[0],
+          userName:
+            reservation.userName ||
+            reservation.name ||
+            recipientEmail.split("@")[0],
           date: reservation.reservationDate || reservation.date || "",
           time: reservation.reservationTime || reservation.time || "",
-          numberOfPeople: reservation.numberOfPeople ?? reservation.peopleCount ?? "",
+          numberOfPeople:
+            reservation.numberOfPeople ?? reservation.peopleCount ?? "",
           tableNumber: Array.isArray(reservation.tableIds)
             ? reservation.tableIds.join(", ")
             : reservation.tableId || "Por asignar",
-          tableIds: Array.isArray(reservation.tableIds) ? reservation.tableIds : [],
+          tableIds: Array.isArray(reservation.tableIds)
+            ? reservation.tableIds
+            : [],
           specialRequests: reservation.specialRequests || "",
         },
       }),
     });
 
     if (!response.ok) {
-      console.error("⚠️ Error enviando email de estado de reserva:", response.statusText);
+      console.error(
+        "⚠️ Error enviando email de estado de reserva:",
+        response.statusText,
+      );
     }
   } catch (error) {
     console.error("⚠️ Error enviando email de estado de reserva:", error);
   }
 };
-
-export const getShiftFromTime = (time) => {
-  if (RESERVATION_TIMES[RESERVATION_SHIFTS.COMIDA].includes(time)) {
-    return RESERVATION_SHIFTS.COMIDA;
-  }
-  if (RESERVATION_TIMES[RESERVATION_SHIFTS.CENA].includes(time)) {
-    return RESERVATION_SHIFTS.CENA;
-  }
-  return null;
-};
-
-export const isValidReservationTime = (time) => ALL_RESERVATION_TIMES.includes(time);
-
-export const hasTimeConflict = (existingTime, requestedTime, marginMinutes = 120) => {
-  if (!existingTime || !requestedTime) {
-    return false;
-  }
-  const existingMinutes = parseTimeToMinutes(existingTime);
-  const requestedMinutes = parseTimeToMinutes(requestedTime);
-  return Math.abs(existingMinutes - requestedMinutes) <= marginMinutes;
-};
-
-export const normalizeReservation = (reservation = {}) => ({
-  ...reservation,
-  date: reservation.date || reservation.reservationDate || "",
-  time: reservation.time || reservation.reservationTime || "",
-  shift:
-    reservation.shift ||
-    getShiftFromTime(reservation.time || reservation.reservationTime || ""),
-  peopleCount:
-    reservation.peopleCount || reservation.numberOfPeople || 0,
-  tableIds: Array.isArray(reservation.tableIds)
-    ? reservation.tableIds
-    : reservation.tableId
-    ? [reservation.tableId]
-    : [],
-});
 
 const buildReservationPayload = ({
   userId,
@@ -180,13 +128,19 @@ class ReservationTableService {
   async getReservationsByDate(date, includeCanceled = false) {
     try {
       const querySnapshot = await getDocs(
-        query(collection(db, "reservations"), where("reservationDate", "==", date)),
+        query(
+          collection(db, "reservations"),
+          where("reservationDate", "==", date),
+        ),
       );
 
       const reservations = [];
       querySnapshot.forEach((doc) => {
         const reservation = normalizeReservation(doc.data());
-        if (includeCanceled || reservation.status !== RESERVATION_STATUS.CANCELED) {
+        if (
+          includeCanceled ||
+          reservation.status !== RESERVATION_STATUS.CANCELED
+        ) {
           reservations.push({ id: doc.id, ...reservation });
         }
       });
@@ -235,7 +189,10 @@ class ReservationTableService {
       const reservations = [];
       querySnapshot.forEach((doc) => {
         const reservation = normalizeReservation(doc.data());
-        if (includeCanceled || reservation.status !== RESERVATION_STATUS.CANCELED) {
+        if (
+          includeCanceled ||
+          reservation.status !== RESERVATION_STATUS.CANCELED
+        ) {
           reservations.push({ id: doc.id, ...reservation });
         }
       });
@@ -295,15 +252,18 @@ class ReservationTableService {
       const reservations = [];
       querySnapshot.forEach((doc) => {
         const reservation = normalizeReservation(doc.data());
-        if (!includeCanceled && reservation.status === RESERVATION_STATUS.CANCELED) {
+        if (
+          !includeCanceled &&
+          reservation.status === RESERVATION_STATUS.CANCELED
+        ) {
           return;
         }
 
         const tableIds = Array.isArray(reservation.tableIds)
           ? reservation.tableIds
           : reservation.tableId
-          ? [reservation.tableId]
-          : [];
+            ? [reservation.tableId]
+            : [];
 
         if (tableIds.includes(tableId)) {
           reservations.push({ id: doc.id, ...reservation });
@@ -317,7 +277,13 @@ class ReservationTableService {
     }
   }
 
-  async createReservationFromComensal(user, date, time, peopleCount, specialRequests) {
+  async createReservationFromComensal(
+    user,
+    date,
+    time,
+    peopleCount,
+    specialRequests,
+  ) {
     if (!user) {
       return { success: false, error: "Usuario no autenticado" };
     }
@@ -332,7 +298,10 @@ class ReservationTableService {
       return { success: false, error: "El usuario debe tener un email" };
     }
     if (!user.phone) {
-      return { success: false, error: "El usuario debe tener teléfono registrado" };
+      return {
+        success: false,
+        error: "El usuario debe tener teléfono registrado",
+      };
     }
 
     try {
@@ -480,7 +449,9 @@ class ReservationTableService {
         currentReservation &&
         payload.status &&
         currentReservation.status !== payload.status &&
-        [RESERVATION_STATUS.CONFIRMED, RESERVATION_STATUS.CANCELED].includes(payload.status)
+        [RESERVATION_STATUS.CONFIRMED, RESERVATION_STATUS.CANCELED].includes(
+          payload.status,
+        )
       ) {
         await sendReservationStatusNotification(
           {
@@ -501,7 +472,10 @@ class ReservationTableService {
   async getReservedTableIds(date, time, excludeReservationId = null) {
     const shift = getShiftFromTime(time);
     if (!shift) {
-      return { success: false, error: "Turno inválido para comprobar conflictos" };
+      return {
+        success: false,
+        error: "Turno inválido para comprobar conflictos",
+      };
     }
 
     const reservationsResult = await this.getReservationsByDateAndShift(
@@ -518,7 +492,9 @@ class ReservationTableService {
         reservation.id !== excludeReservationId &&
         hasTimeConflict(reservation.time, time)
       ) {
-        reservation.tableIds?.forEach((tableId) => reservedTableIds.add(tableId));
+        reservation.tableIds?.forEach((tableId) =>
+          reservedTableIds.add(tableId),
+        );
       }
     });
 
@@ -609,8 +585,8 @@ class ReservationTableService {
       const reservationTableIds = Array.isArray(reservation.tableIds)
         ? reservation.tableIds
         : reservation.tableId
-        ? [reservation.tableId]
-        : [];
+          ? [reservation.tableId]
+          : [];
       const usesTable = reservationTableIds.includes(table.id);
       return usesTable && hasTimeConflict(reservation.time, time);
     });
@@ -631,7 +607,10 @@ class ReservationTableService {
 
     const reservation = normalizeReservation(reservationDoc.data());
     if (reservation.status === RESERVATION_STATUS.CANCELED) {
-      return { success: false, error: "No se puede asignar mesas a una reserva cancelada" };
+      return {
+        success: false,
+        error: "No se puede asignar mesas a una reserva cancelada",
+      };
     }
 
     const allTablesResult = await TableService.getAllTables();
@@ -669,8 +648,8 @@ class ReservationTableService {
     const previousTableIds = Array.isArray(reservation.tableIds)
       ? reservation.tableIds
       : reservation.tableId
-      ? [reservation.tableId]
-      : [];
+        ? [reservation.tableId]
+        : [];
 
     const tablesToRelease = previousTableIds.filter(
       (tableId) => !tableIds.includes(tableId),
@@ -703,7 +682,9 @@ class ReservationTableService {
         updatedAt: serverTimestamp(),
       };
 
-      updates.push(updateDoc(doc(db, "reservations", reservationId), reservationUpdate));
+      updates.push(
+        updateDoc(doc(db, "reservations", reservationId), reservationUpdate),
+      );
       await Promise.all(updates);
 
       return { success: true };
@@ -727,8 +708,8 @@ class ReservationTableService {
     const previousTableIds = Array.isArray(reservation.tableIds)
       ? reservation.tableIds
       : reservation.tableId
-      ? [reservation.tableId]
-      : [];
+        ? [reservation.tableId]
+        : [];
 
     try {
       const updates = [];
@@ -773,11 +754,14 @@ class ReservationTableService {
     const previousTableIds = Array.isArray(reservation.tableIds)
       ? reservation.tableIds
       : reservation.tableId
-      ? [reservation.tableId]
-      : [];
+        ? [reservation.tableId]
+        : [];
 
     if (!previousTableIds.includes(tableId)) {
-      return { success: false, error: "La mesa no está asignada a esta reserva" };
+      return {
+        success: false,
+        error: "La mesa no está asignada a esta reserva",
+      };
     }
 
     const remainingTableIds = previousTableIds.filter((id) => id !== tableId);
@@ -806,7 +790,12 @@ class ReservationTableService {
     }
   }
 
-  async createManualOccupancyReservation({ date, shift, tableIds = [], createdBy = "admin" }) {
+  async createManualOccupancyReservation({
+    date,
+    shift,
+    tableIds = [],
+    createdBy = "admin",
+  }) {
     if (!date) {
       return { success: false, error: "Fecha requerida" };
     }

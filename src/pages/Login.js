@@ -13,7 +13,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [, setError] = useState(null);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -86,7 +86,11 @@ const Login = () => {
           <p>Accede a tu cuenta en Tsinghe</p>
         </div>
 
-        <form noValidate onSubmit={handleLoginSubmit} className="editorial-auth-form">
+        <form
+          noValidate
+          onSubmit={handleLoginSubmit}
+          className="editorial-auth-form"
+        >
           <div className="form-group">
             <label>Email</label>
             <input
@@ -131,10 +135,7 @@ const Login = () => {
         </button>
 
         <div className="editorial-auth-links">
-          <Link
-            to="/forgot-password"
-            className="editorial-auth-forgot-link"
-          >
+          <Link to="/forgot-password" className="editorial-auth-forgot-link">
             ¿Olvidaste tu contraseña?
           </Link>
           <br />
@@ -147,4 +148,3 @@ const Login = () => {
 };
 
 export default Login;
-

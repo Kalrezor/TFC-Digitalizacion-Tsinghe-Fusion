@@ -9,6 +9,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   updatePassword,
+  updateProfile,
 } from "firebase/auth";
 import {
   doc,
@@ -79,11 +80,16 @@ class AuthService {
         return {
           success: false,
           errorCode: error.code,
-          error: "Has intentado iniciar sesión demasiadas veces. Intenta de nuevo más tarde.",
+          error:
+            "Has intentado iniciar sesión demasiadas veces. Intenta de nuevo más tarde.",
         };
       }
       console.error("Error en login:", error);
-      return { success: false, error: "Error al iniciar sesión. Revisa tus datos y vuelve a intentarlo." };
+      return {
+        success: false,
+        error:
+          "Error al iniciar sesión. Revisa tus datos y vuelve a intentarlo.",
+      };
     }
   }
 
@@ -107,6 +113,11 @@ class AuthService {
         password,
       );
       const user = userCredential.user;
+
+      // Actualizar el displayName en el perfil de Auth para mantener coherencia
+      if (user) {
+        await updateProfile(user, { displayName: name.trim() });
+      }
 
       // 2. Verificar si ya existe documento en Firestore (creado por admin)
       // Si existe, actualizar; si no, crear nuevo
@@ -312,18 +323,23 @@ class AuthService {
       if (error?.code === "auth/popup-blocked") {
         return {
           success: false,
-          error: "El navegador bloqueó la ventana de Google. Comprueba la configuración de popups e inténtalo de nuevo.",
+          error:
+            "El navegador bloqueó la ventana de Google. Comprueba la configuración de popups e inténtalo de nuevo.",
         };
       }
 
       if (error?.code === "auth/cancelled-popup-request") {
         return {
           success: false,
-          error: "Ya hay un intento de inicio de sesión en curso. Por favor, inténtalo de nuevo.",
+          error:
+            "Ya hay un intento de inicio de sesión en curso. Por favor, inténtalo de nuevo.",
         };
       }
 
-      return { success: false, error: error.message || "Error al iniciar sesión con Google." };
+      return {
+        success: false,
+        error: error.message || "Error al iniciar sesión con Google.",
+      };
     }
   }
 

@@ -18,31 +18,25 @@ import Home from "./Home";
 import ProfileForm from "../components/ProfileForm";
 import Menu from "./Menu";
 import SplitBillForm from "../components/SplitBillForm";
+import styles from "../styles/modules/Dashboard.module.css";
 
 // Pantalla de bienvenida segun rol
 const WelcomePanel = ({ role, userName }) => (
-  <div style={{ padding: "40px 20px", textAlign: "center" }}>
-    <div style={{ fontSize: "60px", marginBottom: "16px" }}>
+  <div className={styles.welcomePanel}>
+    <div className={styles.welcomeEmoji}>
       {role === "admin" ? "ðŸ› ï¸" : "ðŸ½ï¸"}
     </div>
-    <h2 style={{ color: "#050505", marginBottom: "8px" }}>
+    <h2 className={styles.welcomeTitle}>
       {role === "admin"
         ? `Panel de Administración`
         : `¡Bienvenido, ${userName || "Usuario"}!`}
     </h2>
     {role !== "admin" && (
-      <p style={{ color: "#888", fontSize: "14px", marginBottom: "12px" }}>
+      <p className={styles.welcomeSubtitle}>
         Tsinghe Cocina Fusión
       </p>
     )}
-    <p
-      style={{
-        color: "#555",
-        maxWidth: "480px",
-        margin: "0 auto",
-        lineHeight: "1.6",
-      }}
-    >
+    <p className={styles.welcomeDescription}>
       {role === "admin"
         ? "Desde aquí puedes gestionar el menú del restaurante, las mesas, las ofertas y todas las reservas."
         : "Aquí puedes crear, consultar y cancelar tus reservas en Tsinghe Cocina Fusión."}
@@ -50,15 +44,7 @@ const WelcomePanel = ({ role, userName }) => (
 
     {/* Tarjetas informativas para admin */}
     {role === "admin" && (
-      <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          justifyContent: "center",
-          marginTop: "32px",
-          flexWrap: "wrap",
-        }}
-      >
+      <div className={styles.cardsContainer}>
         {[
           { emoji: "🍜", label: "Menú", desc: "Platos, precios y alérgenos" },
           {
@@ -66,31 +52,21 @@ const WelcomePanel = ({ role, userName }) => (
             label: "Mesas",
             desc: "Mesas reales con estado en tiempo real",
           },
-          { emoji: "ðŸ·ï¸", label: "Ofertas", desc: "Promociones y descuentos" },
+          {
+            emoji: "ðŸ·ï¸",
+            label: "Ofertas",
+            desc: "Promociones y descuentos",
+          },
           {
             emoji: "ðŸ“‹",
             label: "Reservas",
             desc: "Todas las reservas del restaurante",
           },
         ].map((c) => (
-          <div
-            key={c.label}
-            style={{
-              background: "#fff",
-              border: "1px solid #050505",
-              borderRadius: 0,
-              padding: "20px 24px",
-              minWidth: "140px",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: "32px" }}>{c.emoji}</div>
-            <div
-              style={{ fontWeight: "bold", color: "#050505", marginTop: "8px" }}
-            >
-              {c.label}
-            </div>
-            <div style={{ fontSize: "12px", color: "#777", marginTop: "4px" }}>
+          <div key={c.label} className={styles.card}>
+            <div className={styles.cardEmoji}>{c.emoji}</div>
+            <div className={styles.cardLabel}>{c.label}</div>
+            <div className={styles.cardDesc}>
               {c.desc}
             </div>
           </div>
@@ -102,70 +78,27 @@ const WelcomePanel = ({ role, userName }) => (
 
 const ChatbotControlPanel = ({ settings, onToggle }) => {
   const controls = [
-    { key: "comensal", label: "Comensal" },
-    { key: "admin", label: "Admin" },
+    { key: "admin", label: "Comensal y Admin" },
   ];
 
   return (
-    <div style={{ padding: "40px 20px" }}>
-      <div
-        style={{
-          maxWidth: "720px",
-          margin: "0 auto",
-          background: "#fff",
-          border: "1px solid #050505",
-          padding: "28px",
-        }}
-      >
-        <p
-          style={{
-            fontSize: "11px",
-            fontWeight: 600,
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            color: "#050505",
-            marginBottom: "10px",
-          }}
-        >
+    <div className={styles.chatbotPanel}>
+      <div className={styles.chatbotCard}>
+        <p className={styles.chatbotEyebrow}>
           Panel de mando
         </p>
-        <h2 style={{ color: "#050505", marginBottom: "24px" }}>Chatbot</h2>
+        <h2 className={styles.chatbotTitle}>Chatbot</h2>
 
-        <div style={{ display: "grid", gap: "14px" }}>
+        <div className={styles.chatbotGrid}>
           {controls.map((control) => {
             const isEnabled = settings?.[control.key] !== false;
             return (
-              <div
-                key={control.key}
-                style={{
-                  border: "1px solid #050505",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "16px",
-                  padding: "16px",
-                }}
-              >
+              <div key={control.key} className={styles.chatbotRow}>
                 <div>
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: 600,
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      color: "#71717a",
-                    }}
-                  >
+                  <div className={styles.chatbotRowEyebrow}>
                     Chatbot
                   </div>
-                  <div
-                    style={{
-                      color: "#050505",
-                      fontSize: "20px",
-                      fontWeight: 600,
-                      marginTop: "4px",
-                    }}
-                  >
+                  <div className={styles.chatbotRowLabel}>
                     {control.label}
                   </div>
                 </div>
@@ -174,16 +107,10 @@ const ChatbotControlPanel = ({ settings, onToggle }) => {
                   type="button"
                   onClick={() => onToggle(control.key)}
                   aria-pressed={isEnabled}
+                  className={styles.chatbotToggleButton}
                   style={{
-                    minWidth: "92px",
-                    border: "1px solid #050505",
                     background: isEnabled ? "#050505" : "#fff",
                     color: isEnabled ? "#fff" : "#050505",
-                    padding: "12px 16px",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
                   }}
                 >
                   {isEnabled ? "ON" : "OFF"}
@@ -247,7 +174,7 @@ const renderContent = (
 
     default:
       return (
-        <div style={{ padding: "40px", textAlign: "center", color: "#888" }}>
+        <div className={styles.notFound}>
           Seccion no encontrada.
         </div>
       );
@@ -279,15 +206,26 @@ const Dashboard = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  const handleSelectOption = React.useCallback(
+    (id) => {
+      selectOption(id);
+      const params = new URLSearchParams(location.search);
+      params.set("section", id);
+      navigate(
+        { pathname: location.pathname, search: params.toString() },
+        { replace: true },
+      );
+    },
+    [location.pathname, location.search, navigate, selectOption],
+  );
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const section = params.get("section");
     if (section && availableOptions.some((opt) => opt.id === section)) {
       selectOption(section);
-      params.delete("section");
-      navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
     }
-  }, [location.pathname, location.search, availableOptions, selectOption, navigate]);
+  }, [location.search, availableOptions, selectOption]);
 
   // Proteger acceso si el usuario tiene cambio de contrasena pendiente (Google)
   useEffect(() => {
@@ -305,24 +243,18 @@ const Dashboard = ({
   }, [navigate, userEmail]);
 
   return (
-    <div style={{ display: "flex", minHeight: "calc(100vh - 63px)" }}>
+    <div className={styles.dashboardContainer}>
       {/* Sidebar Component */}
       <Sidebar
         role={role}
         userName={userName}
         selectedOption={selectedOption}
-        onSelectOption={selectOption}
+        onSelectOption={handleSelectOption}
         onLogout={logout}
       />
 
       {/* ── Contenido principal ─────────────────────────────────────────── */}
-      <main
-        style={{
-          flex: 1,
-          background: "#ffffff",
-          overflowY: "auto",
-        }}
-      >
+      <main className={styles.dashboardMain}>
         {renderContent(
           selectedOption,
           role,
@@ -338,4 +270,3 @@ const Dashboard = ({
 };
 
 export default Dashboard;
-

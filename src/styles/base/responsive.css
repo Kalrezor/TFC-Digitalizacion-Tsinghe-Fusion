@@ -1,0 +1,33 @@
+/* ============================================================
+   BREAKPOINTS RESPONSIVE GLOBALES
+   ============================================================ */
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================ */
+@media (max-width: 640px) {
+  .container {
+    padding: 0 12px;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select,
+  .btn {
+    font-size: 16px; /* Evita zoom automático en iOS */
+  }
+}
+@media (min-width: 641px) and (max-width: 1024px) {
+  .container {
+    padding: 0 20px;
+  }
+}
+@media (min-width: 1025px) {
+  .container {
+    padding: 0 24px;
+  }
+}

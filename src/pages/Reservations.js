@@ -19,4 +19,3 @@ const Reservations = ({ userId }) => (
 );
 
 export default Reservations;
-

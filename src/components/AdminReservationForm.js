@@ -6,6 +6,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import ReservationService from "../services/ReservationService";
 import UserService from "../services/UserService";
 import { toastError, toastInfo, toastSuccess } from "../services/ToastService";
+import styles from "../styles/modules/AdminReservationForm.module.css";
 
 const AdminReservationForm = ({ onReservationCreated }) => {
   const [formData, setFormData] = useState({
@@ -31,9 +32,13 @@ const AdminReservationForm = ({ onReservationCreated }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const getUserDisplayName = useCallback((user) =>
-    user?.name || user?.displayName || user?.email?.split("@")[0] || "Usuario",
-  [],
+  const getUserDisplayName = useCallback(
+    (user) =>
+      user?.name ||
+      user?.displayName ||
+      user?.email?.split("@")[0] ||
+      "Usuario",
+    [],
   );
 
   // Cargar lista de usuarios
@@ -73,7 +78,11 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     } catch (err) {
       console.error("Error cargando mesas:", err);
     }
-  }, [formData.reservationDate, formData.reservationTime, formData.numberOfPeople]);
+  }, [
+    formData.reservationDate,
+    formData.reservationTime,
+    formData.numberOfPeople,
+  ]);
 
   // Cargar usuarios al montar
   useEffect(() => {
@@ -103,7 +112,11 @@ const AdminReservationForm = ({ onReservationCreated }) => {
     ) {
       toastInfo("No hay mesas disponibles para la fecha y hora seleccionadas.");
     }
-  }, [availableTables.length, formData.reservationDate, formData.reservationTime]);
+  }, [
+    availableTables.length,
+    formData.reservationDate,
+    formData.reservationTime,
+  ]);
 
   // Filtrar usuarios por búsqueda en tiempo real
   useEffect(() => {
@@ -111,13 +124,11 @@ const AdminReservationForm = ({ onReservationCreated }) => {
       setFilteredUsers(users);
     } else {
       const term = searchTerm.toLowerCase();
-      const filtered = users.filter(
-        (user) => {
-          const displayName = getUserDisplayName(user).toLowerCase();
-          const email = (user.email || "").toLowerCase();
-          return displayName.includes(term) || email.includes(term);
-        },
-      );
+      const filtered = users.filter((user) => {
+        const displayName = getUserDisplayName(user).toLowerCase();
+        const email = (user.email || "").toLowerCase();
+        return displayName.includes(term) || email.includes(term);
+      });
       setFilteredUsers(filtered);
     }
   }, [searchTerm, users, getUserDisplayName]);
@@ -331,7 +342,9 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                           setSearchTerm("");
                         }}
                       >
-                        <div className="user-name">{getUserDisplayName(user)}</div>
+                        <div className="user-name">
+                          {getUserDisplayName(user)}
+                        </div>
                         <div className="user-email">{user.email}</div>
                         {/* Mostrar badge si emailVerified es false o undefined (usuario no verificado) */}
                         {!user.emailVerified && (
@@ -375,17 +388,11 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                 <div className="selected-user">
                   <div>
                     <strong>{getUserDisplayName(selectedUser)}</strong>
-                    <div style={{ fontSize: "12px", color: "#666" }}>
+                    <div className={styles.selectedUserEmail}>
                       {selectedUser.email}
                     </div>
                     {!selectedUser.emailVerified && (
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: "#FF6B6B",
-                          marginTop: "4px",
-                        }}
-                      >
+                      <div className={styles.unverifiedWarning}>
                         ⚠️ Pendiente de verificación de correo
                       </div>
                     )}
@@ -459,7 +466,7 @@ const AdminReservationForm = ({ onReservationCreated }) => {
                 />
               </div>
 
-              <div style={{ display: "flex", gap: "12px" }}>
+              <div className={styles.newUserActions}>
                 <button
                   type="button"
                   onClick={handleCreateNewUser}
@@ -560,7 +567,6 @@ const AdminReservationForm = ({ onReservationCreated }) => {
             {loading ? "Creando reserva..." : "Crear Reserva"}
           </button>
         </form>
-
       </div>
     </div>
   );

@@ -1,9 +1,8 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth, db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
-
-const AuthContext = createContext();
+import { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { AuthContext } from "./authContext";
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -17,13 +16,13 @@ export function AuthProvider({ children }) {
         if (user) {
           // Usuario autenticado
           setCurrentUser(user);
-          
+
           // Obtener el rol desde Firestore
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
-            setUserRole(userDoc.data().role || 'comensal');
+            setUserRole(userDoc.data().role || "comensal");
           } else {
-            setUserRole('comensal'); // rol por defecto
+            setUserRole("comensal"); // rol por defecto
           }
         } else {
           // Usuario no autenticado
@@ -31,7 +30,7 @@ export function AuthProvider({ children }) {
           setUserRole(null);
         }
       } catch (err) {
-        console.error('Error al obtener rol del usuario:', err);
+        console.error("Error al obtener rol del usuario:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -47,21 +46,9 @@ export function AuthProvider({ children }) {
     loading,
     error,
     isAuthenticated: !!currentUser,
-    isAdmin: userRole === 'admin',
-    isComensal: userRole === 'comensal'
+    isAdmin: userRole === "admin",
+    isComensal: userRole === "comensal",
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth debe ser usado dentro de AuthProvider');
-  }
-  return context;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

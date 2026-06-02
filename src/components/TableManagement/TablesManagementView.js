@@ -5,12 +5,17 @@ import TableForm from "./TableForm";
 import TableAvailabilityPanel from "./TableAvailabilityPanel";
 
 const TablesManagementView = () => {
-  const { tables, loading: tablesLoading, error: tablesError, refetch: refetchTables } = useTables();
+  const {
+    tables,
+    loading: tablesLoading,
+    error: tablesError,
+    refetch: refetchTables,
+  } = useTables();
 
   // Estado para filtros de disponibilidad
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
-    return today.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+    return today.toISOString().split("T")[0]; // Formato YYYY-MM-DD
   });
   const [selectedShift, setSelectedShift] = useState("comida");
 
@@ -51,11 +56,11 @@ const TablesManagementView = () => {
   // Formatear fecha para display
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("es-ES", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -91,7 +96,8 @@ const TablesManagementView = () => {
           </select>
         </div>
         <div className="tables-management-date-display">
-          {formatDate(selectedDate)} - {selectedShift === "comida" ? "Comida" : "Cena"}
+          {formatDate(selectedDate)} -{" "}
+          {selectedShift === "comida" ? "Comida" : "Cena"}
         </div>
       </div>
 

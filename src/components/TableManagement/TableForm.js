@@ -15,11 +15,12 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
   useEffect(() => {
     if (editingTable) {
       const currentNumber =
-        editingTable.tableNumber !== undefined && editingTable.tableNumber !== null
+        editingTable.tableNumber !== undefined &&
+        editingTable.tableNumber !== null
           ? String(editingTable.tableNumber)
           : editingTable.number !== undefined && editingTable.number !== null
-          ? String(editingTable.number)
-          : "";
+            ? String(editingTable.number)
+            : "";
 
       setFormData({
         number: currentNumber,
@@ -157,7 +158,8 @@ const TableForm = ({ isOpen, onClose, onSave, editingTable = null }) => {
 
           <div className="table-form-group">
             <label className="table-form-label">
-              Capacidad (personas) <span className="table-form-required">*</span>
+              Capacidad (personas){" "}
+              <span className="table-form-required">*</span>
             </label>
             <input
               type="number"

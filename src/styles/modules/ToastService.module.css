@@ -1,0 +1,54 @@
+/* Estilos estaticos de los toasts personalizados (toast.custom).
+   El contenedor de cada toast conserva estilo inline porque combina
+   baseOptions.style (objeto JS de react-hot-toast) con su color de fondo.
+   Aqui solo viven las partes estaticas reutilizadas. */
+
+.message {
+  margin-bottom: 0.75rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.button {
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.45rem 0.7rem;
+}
+
+.cancelButtonConfirm {
+  border: 1px solid #fdba74;
+  background: #fff;
+  color: #7c2d12;
+}
+
+.confirmButton {
+  border: 1px solid #dc2626;
+  background: #dc2626;
+  color: #fff;
+}
+
+.cancelButtonInput {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+}
+
+.submitButton {
+  border: 1px solid #0f172a;
+  background: #0f172a;
+  color: #fff;
+}

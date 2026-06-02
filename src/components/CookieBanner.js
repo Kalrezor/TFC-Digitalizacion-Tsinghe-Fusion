@@ -29,8 +29,9 @@ const CookieBanner = () => {
     <div className="cookie-banner">
       <div className="cookie-banner-content">
         <div className="cookie-banner-text">
-          <strong>Usamos cookies</strong> para mejorar tu experiencia.
-          Al continuar, aceptas nuestra <Link to="/politica-cookies">Política de Cookies</Link>.
+          <strong>Usamos cookies</strong> para mejorar tu experiencia. Al
+          continuar, aceptas nuestra{" "}
+          <Link to="/politica-cookies">Política de Cookies</Link>.
         </div>
         <div className="cookie-banner-actions">
           <button

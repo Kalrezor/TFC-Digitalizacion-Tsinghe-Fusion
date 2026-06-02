@@ -7,26 +7,18 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import useAuth from "../hooks/useAuth";
-import menuService from "../models/MenuService"; 
+import plateService from "../services/PlateService";
+import styles from "../styles/modules/Home.module.css";
 
 const OfferCard = ({ offer, onSelect }) => {
-  const imagenUrl = offer.imageUrl || ""; 
+  const imagenUrl = offer.imageUrl || "";
   const textoTitulo = offer.title || "Promoción Especial";
   const textoDescuento = offer.discount ? `-${offer.discount}%` : "Oferta";
 
   return (
-    <div 
+    <div
       onClick={() => onSelect(offer)}
-      style={{
-        position: "relative",
-        height: "380px",
-        borderRadius: "16px",
-        overflow: "hidden",
-        cursor: "pointer",
-        backgroundColor: "#121212",
-        boxShadow: "0 6px 20px rgba(0,0,0,0.06)",
-        transition: "transform 0.3s ease, box-shadow 0.3s ease"
-      }}
+      className={styles.offerCard}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-4px)";
         e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.12)";
@@ -38,66 +30,23 @@ const OfferCard = ({ offer, onSelect }) => {
     >
       {/* Imagen de fondo */}
       {imagenUrl && (
-        <img 
-          src={imagenUrl} 
-          alt={textoTitulo} 
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            display: "block",
-            opacity: 0.75 
-          }}
+        <img
+          src={imagenUrl}
+          alt={textoTitulo}
+          className={styles.offerCardImage}
         />
       )}
 
       {/* Degradado negro inferior para legibilidad */}
-      <div style={{
-        position: "absolute",
-        inset: 0,
-        background: "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)",
-        zIndex: 1
-      }} />
+      <div className={styles.offerCardGradient} />
 
       {/* Bloque de Información Fijo en la Base */}
-      <div 
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: "24px",
-          zIndex: 2,
-          color: "#ffffff"
-        }}
-      >
+      <div className={styles.offerCardInfo}>
         {/* Etiqueta / Badge del Descuento */}
-        <span style={{
-          display: "inline-block",
-          backgroundColor: "#ffffff",
-          color: "#050505",
-          fontSize: "11px",
-          fontWeight: "bold",
-          textTransform: "uppercase",
-          padding: "4px 10px",
-          borderRadius: "20px",
-          marginBottom: "10px",
-          letterSpacing: "1.2px"
-        }}>
-          {textoDescuento}
-        </span>
+        <span className={styles.offerCardBadge}>{textoDescuento}</span>
 
         {/* Título de la Oferta */}
-        <h3 style={{ 
-          fontFamily: "Georgia, serif", 
-          fontSize: "22px", 
-          color: "#ffffff", 
-          margin: "0",
-          fontWeight: "normal",
-          lineHeight: "1.3"
-        }}>
-          {textoTitulo}
-        </h3>
+        <h3 className={styles.offerCardTitle}>{textoTitulo}</h3>
       </div>
     </div>
   );
@@ -124,9 +73,9 @@ const Home = () => {
   // Lógica de validación temporal exacta sanitizada para evitar fallos de zona horaria
   const isEnVigor = (offer) => {
     if (!offer.active) return false;
-    
+
     const now = new Date();
-    
+
     const parseLocalDate = (dateStr) => {
       if (!dateStr) return null;
       const d = new Date(dateStr);
@@ -138,7 +87,7 @@ const Home = () => {
 
     if (start && now < start) return false;
     if (end && now > end) return false;
-    
+
     return true;
   };
 
@@ -146,8 +95,8 @@ const Home = () => {
     const fetchOffers = async () => {
       try {
         setLoadingOffers(true);
-        const response = await menuService.getAllOffers(); 
-        
+        const response = await plateService.getAllOffers();
+
         if (response.success && response.data) {
           // Filtrar únicamente las ofertas que están activas y en vigor según la fecha actual
           const validOffers = response.data.filter(isEnVigor);
@@ -164,12 +113,30 @@ const Home = () => {
   }, []);
 
   const carouselSlides = [
-    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel1.jpg?alt=media&token=377a5544-b0f2-489a-af29-41c6fb0542d7", alt: "Imagen 1" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel2.jpg?alt=media&token=5023391c-893d-4325-bd55-5723ef8dd37d", alt: "Imagen 2" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel3.jpg?alt=media&token=19d625f6-d629-4ccc-810a-9049d90aa47d", alt: "Imagen 3" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel4.jpg?alt=media&token=bf132fdb-2cb1-4da0-be78-098b4feb0248", alt: "Imagen 4" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel5.jpg?alt=media&token=816ccb9c-4224-404c-8e8a-a1f31f5211fe", alt: "Imagen 5" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel6.jpg?alt=media&token=048fd638-e39a-43c2-ab6a-5403b07ffc98", alt: "Imagen 6" },
+    {
+      src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel1.jpg?alt=media&token=377a5544-b0f2-489a-af29-41c6fb0542d7",
+      alt: "Imagen 1",
+    },
+    {
+      src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel2.jpg?alt=media&token=5023391c-893d-4325-bd55-5723ef8dd37d",
+      alt: "Imagen 2",
+    },
+    {
+      src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel3.jpg?alt=media&token=19d625f6-d629-4ccc-810a-9049d90aa47d",
+      alt: "Imagen 3",
+    },
+    {
+      src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel4.jpg?alt=media&token=bf132fdb-2cb1-4da0-be78-098b4feb0248",
+      alt: "Imagen 4",
+    },
+    {
+      src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel5.jpg?alt=media&token=816ccb9c-4224-404c-8e8a-a1f31f5211fe",
+      alt: "Imagen 5",
+    },
+    {
+      src: "https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcarrusel6.jpg?alt=media&token=048fd638-e39a-43c2-ab6a-5403b07ffc98",
+      alt: "Imagen 6",
+    },
   ];
 
   const sliderSettings = {
@@ -251,14 +218,26 @@ const Home = () => {
 
         <div className="home-hero-visual">
           <div className="home-hero-video-wrapper" aria-hidden="true">
-            <video className="home-hero-video-bg" autoPlay muted loop playsInline>
+            <video
+              className="home-hero-video-bg"
+              autoPlay
+              muted
+              loop
+              playsInline
+            >
               <source
                 src="https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcorte%20vertic.mp4?alt=media&token=5081065f-00a2-40d1-9fbe-9511f9acca3c"
                 type="video/mp4"
               />
             </video>
             <div className="editorial-photo">
-              <video className="home-hero-video-fg" autoPlay muted loop playsInline>
+              <video
+                className="home-hero-video-fg"
+                autoPlay
+                muted
+                loop
+                playsInline
+              >
                 <source
                   src="https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2Fcorte%20vertic.mp4?alt=media&token=5081065f-00a2-40d1-9fbe-9511f9acca3c"
                   type="video/mp4"
@@ -303,50 +282,28 @@ const Home = () => {
 
       {/* 1. CARRUSEL DE IMÁGENES */}
       <section
-        className="editorial-section editorial-frame"
-        style={{ margin: "20px 0", padding: "24px 0", width: "100%" }}
+        className={`editorial-section editorial-frame ${styles.carouselSection}`}
       >
-        <div className="home-carousel-wrapper" style={{ width: "100%" }}>
+        <div className={`home-carousel-wrapper ${styles.carouselWrapper}`}>
           <Slider {...sliderSettings} className="home-carousel">
             {carouselSlides.map((slide, index) => (
-              <div key={index} className="home-carousel-slide" style={{ padding: "0 8px" }}>
-                <div
-                  style={{
-                    borderRadius: "20px",
-                    overflow: "hidden",
-                    background: "transparent",
-                    minHeight: "260px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "100%"
-                  }}
-                >
-                  {/* Volvemos al ancho de antes para recuperar el formato vertical, 
+              <div
+                key={index}
+                className={`home-carousel-slide ${styles.carouselSlide}`}
+              >
+                <div className={styles.carouselSlideInner}>
+                  {/* Volvemos al ancho de antes para recuperar el formato vertical,
                       pero forzamos el centrado horizontal con margin: 0 auto */}
-                  <div 
-                    style={{ 
-                      width: "80%", 
-                      height: "620px", 
-                      minHeight: "620px",
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "center",
-                      margin: "0 auto",
-                      borderRadius: "20px",
-                      overflow: "hidden"
-                    }}
-                  >
+                  <div className={styles.carouselImageFrame}>
                     <img
                       src={slide.src}
                       alt={slide.alt}
                       onLoad={(e) => handleCarouselImageLoad(index, e)}
-                      style={{ 
-                        width: "100%", 
-                        height: "100%", 
-                        objectFit: stretchCarouselSlides[index] ? "fill" : "cover", 
-                        objectPosition: "center center",
-                        display: "block" 
+                      className={styles.carouselImage}
+                      style={{
+                        objectFit: stretchCarouselSlides[index]
+                          ? "fill"
+                          : "cover",
                       }}
                     />
                   </div>
@@ -359,24 +316,22 @@ const Home = () => {
 
       {/* 2. SECCIÓN DE OFERTAS DINÁMICAS */}
       {!loadingOffers && offers.length > 0 && (
-        <section className="editorial-section editorial-frame" style={{ paddingTop: "20px", marginBottom: "40px" }}>
-          <p className="editorial-kicker" style={{ textAlign: "center" }}>Experiencias de temporada</p>
-          <h2 className="editorial-serif" style={{ textAlign: "center", fontSize: "32px", marginBottom: "40px", color: "#050505" }}>
+        <section
+          className={`editorial-section editorial-frame ${styles.offersSection}`}
+        >
+          <p className={`editorial-kicker ${styles.offersKicker}`}>
+            Experiencias de temporada
+          </p>
+          <h2 className={`editorial-serif ${styles.offersHeading}`}>
             Promociones Activas
           </h2>
-          
-          <div style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", 
-            gap: "32px",
-            width: "100%",
-            padding: "0 10px"
-          }}>
+
+          <div className={styles.offersGrid}>
             {offers.map((offer) => (
-              <OfferCard 
-                key={offer.id} 
-                offer={offer} 
-                onSelect={(o) => setSelectedOffer(o)} 
+              <OfferCard
+                key={offer.id}
+                offer={offer}
+                onSelect={(o) => setSelectedOffer(o)}
               />
             ))}
           </div>
@@ -419,7 +374,13 @@ const Home = () => {
       {/* SECCIÓN SEGUNDO VIDEO INFERIOR */}
       <section className="editorial-section editorial-frame home-access-section">
         <div className="home-access-video-wrapper" aria-hidden="true">
-          <video className="home-access-video-bg" autoPlay muted loop playsInline>
+          <video
+            className="home-access-video-bg"
+            autoPlay
+            muted
+            loop
+            playsInline
+          >
             <source
               src="https://firebasestorage.googleapis.com/v0/b/digitalizacion-tsinge-fusion.firebasestorage.app/o/multimediaDesing%2FSENTADOS_2.mp4?alt=media&token=53af7f03-87ae-409e-a93a-a56052200db8"
               type="video/mp4"
@@ -428,16 +389,9 @@ const Home = () => {
           <div className="home-access-video-overlay" />
         </div>
 
-        <div className="home-access-content" style={{ maxWidth: "720px" }}>
+        <div className={`home-access-content ${styles.accessContent}`}>
           <p className="editorial-kicker">Acceso</p>
-          <h2
-            className="editorial-serif"
-            style={{
-              fontSize: "clamp(42px, 7vw, 92px)",
-              margin: "18px 0 28px",
-              textShadow: "0 0 25px rgb(255, 255, 255, 80)",
-            }}
-          >
+          <h2 className={`editorial-serif ${styles.accessHeading}`}>
             {user
               ? `Bienvenido, ${(user?.displayName || "").split(" ")[0]}`
               : "Listo para sentarte a la mesa"}
@@ -464,120 +418,45 @@ const Home = () => {
 
       {/* POP-UP / MODAL DETALLE DE OFERTA */}
       {selectedOffer && (
-        <div 
-          onClick={() => setSelectedOffer(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            backdropFilter: "blur(6px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-            padding: "20px"
-          }}
-        >
-          <div 
+        <div onClick={() => setSelectedOffer(null)} className={styles.modalOverlay}>
+          <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: "#ffffff",
-              width: "100%",
-              maxWidth: "500px",
-              borderRadius: "20px",
-              overflow: "hidden",
-              boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
-              color: "#050505"
-            }}
+            className={styles.modalCard}
           >
             {selectedOffer.imageUrl && (
-              <div style={{ width: "100%", height: "320px", position: "relative", backgroundColor: "#1a1a1a" }}>
-                <img 
-                  src={selectedOffer.imageUrl} 
-                  alt={selectedOffer.title} 
-                  style={{ 
-                    width: "100%", 
-                    height: "100%", 
-                    objectFit: "contain"
-                  }}
+              <div className={styles.modalImageWrap}>
+                <img
+                  src={selectedOffer.imageUrl}
+                  alt={selectedOffer.title}
+                  className={styles.modalImage}
                 />
-                <button 
+                <button
                   onClick={() => setSelectedOffer(null)}
-                  style={{
-                    position: "absolute",
-                    top: "16px",
-                    right: "16px",
-                    background: "rgba(255,255,255,0.9)",
-                    border: "none",
-                    borderRadius: "50%",
-                    width: "36px",
-                    height: "36px",
-                    cursor: "pointer",
-                    fontSize: "18px",
-                    fontWeight: "bold",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#050505",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-                    zIndex: 10
-                  }}
+                  className={styles.modalClose}
                 >
                   ✕
                 </button>
               </div>
             )}
 
-            <div style={{ padding: "32px" }}>
-              <span style={{
-                display: "inline-block",
-                backgroundColor: "#050505",
-                color: "#ffffff",
-                fontSize: "10px",
-                fontWeight: "bold",
-                textTransform: "uppercase",
-                padding: "4px 10px",
-                borderRadius: "20px",
-                marginBottom: "14px",
-                letterSpacing: "1.2px"
-              }}>
-                {selectedOffer.discount ? `-${selectedOffer.discount}%` : "Oferta"}
+            <div className={styles.modalBody}>
+              <span className={styles.modalBadge}>
+                {selectedOffer.discount
+                  ? `-${selectedOffer.discount}%`
+                  : "Oferta"}
               </span>
 
-              <h2 style={{
-                fontFamily: "Georgia, serif",
-                fontSize: "28px",
-                margin: "0 0 14px 0",
-                fontWeight: "normal",
-                lineHeight: "1.2"
-              }}>
+              <h2 className={styles.modalTitle}>
                 {selectedOffer.title || "Promoción Especial"}
               </h2>
 
-              <p style={{
-                fontSize: "15px",
-                lineHeight: "1.6",
-                color: "#555555",
-                margin: "0 0 28px 0",
-                fontWeight: "300"
-              }}>
+              <p className={styles.modalDescription}>
                 {selectedOffer.description || "Sin descripción disponible."}
               </p>
 
-              <button 
+              <button
                 onClick={goToReservation}
-                className="editorial-button"
-                style={{
-                  width: "100%",
-                  padding: "14px",
-                  fontSize: "13px",
-                  letterSpacing: "1px",
-                  textTransform: "uppercase",
-                  backgroundColor: "#050505",
-                  color: "#ffffff",
-                  borderColor: "#050505",
-                  cursor: "pointer"
-                }}
+                className={`editorial-button ${styles.modalButton}`}
               >
                 Aprovechar Oferta
               </button>
@@ -585,10 +464,8 @@ const Home = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
 
 export default Home;
-

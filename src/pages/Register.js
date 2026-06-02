@@ -34,7 +34,10 @@ const Register = () => {
     const message = typeof error === "string" ? error : error?.message || "";
     const code = error?.code || error?.errorCode || "";
 
-    if (code === "auth/weak-password" || message.includes("auth/weak-password")) {
+    if (
+      code === "auth/weak-password" ||
+      message.includes("auth/weak-password")
+    ) {
       return "La contraseña debe tener al menos 6 caracteres";
     }
 
@@ -45,7 +48,10 @@ const Register = () => {
       return "Este email ya está registrado. ¿Quieres iniciar sesión?";
     }
 
-    if (code === "auth/invalid-email" || message.includes("auth/invalid-email")) {
+    if (
+      code === "auth/invalid-email" ||
+      message.includes("auth/invalid-email")
+    ) {
       return "El email no es válido.";
     }
 
@@ -191,7 +197,9 @@ const Register = () => {
           ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
         </div>
         <div className="editorial-auth-text editorial-auth-legal-note">
-          Al registrarte aceptas nuestra <Link to="/politica-privacidad">Política de Privacidad</Link> y nuestra <Link to="/politica-cookies">Política de Cookies</Link>.
+          Al registrarte aceptas nuestra{" "}
+          <Link to="/politica-privacidad">Política de Privacidad</Link> y
+          nuestra <Link to="/politica-cookies">Política de Cookies</Link>.
         </div>
       </div>
     </div>
@@ -199,4 +207,3 @@ const Register = () => {
 };
 
 export default Register;
-

@@ -6,36 +6,34 @@ const MyReservationsView = ({ userId }) => {
 
   if (loading) {
     return (
-      <div className="my-reservations-loading">
-        Cargando tus reservas...
-      </div>
+      <div className="my-reservations-loading">Cargando tus reservas...</div>
     );
   }
 
   return (
     <div className="my-reservations-page">
-      <h2 className="my-reservations-title">
-        Mis Reservas
-      </h2>
+      <h2 className="my-reservations-title">Mis Reservas</h2>
 
-      {error && (
-        <div className="my-reservations-error">{error}</div>
-      )}
+      {error && <div className="my-reservations-error">{error}</div>}
 
       {reservations.length === 0 ? (
         <div className="my-reservations-empty">
-          Aún no tienes reservas. Puedes crear una nueva desde la sección "Reservas".
+          Aún no tienes reservas. Puedes crear una nueva desde la sección
+          "Reservas".
         </div>
       ) : (
         <div className="my-reservations-grid">
           {reservations
-            .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+            .sort(
+              (a, b) =>
+                a.date.localeCompare(b.date) || a.time.localeCompare(b.time),
+            )
             .map((reservation) => {
               const assignedTables = Array.isArray(reservation.tableIds)
                 ? reservation.tableIds
                 : reservation.tableId
-                ? [reservation.tableId]
-                : [];
+                  ? [reservation.tableId]
+                  : [];
 
               return (
                 <div key={reservation.id} className="my-reservation-card">
@@ -49,21 +47,27 @@ const MyReservationsView = ({ userId }) => {
                       </span>
                     </div>
                     <p className="my-reservation-meta">
-                      <strong>Fecha:</strong> {reservation.date || reservation.reservationDate}
+                      <strong>Fecha:</strong>{" "}
+                      {reservation.date || reservation.reservationDate}
                     </p>
                     <p className="my-reservation-meta">
-                      <strong>Hora:</strong> {reservation.time || reservation.reservationTime}
+                      <strong>Hora:</strong>{" "}
+                      {reservation.time || reservation.reservationTime}
                     </p>
                     <p className="my-reservation-meta">
-                      <strong>Personas:</strong> {reservation.peopleCount || reservation.numberOfPeople}
+                      <strong>Personas:</strong>{" "}
+                      {reservation.peopleCount || reservation.numberOfPeople}
                     </p>
                     <p className="my-reservation-meta">
                       <strong>Mesas:</strong>{" "}
-                      {assignedTables.length > 0 ? assignedTables.join(", ") : "Pendiente"}
+                      {assignedTables.length > 0
+                        ? assignedTables.join(", ")
+                        : "Pendiente"}
                     </p>
                     {reservation.specialRequests && (
                       <p className="my-reservation-meta">
-                        <strong>Solicitudes:</strong> {reservation.specialRequests}
+                        <strong>Solicitudes:</strong>{" "}
+                        {reservation.specialRequests}
                       </p>
                     )}
                   </div>

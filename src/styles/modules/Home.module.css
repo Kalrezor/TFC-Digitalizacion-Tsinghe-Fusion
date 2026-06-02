@@ -1,0 +1,247 @@
+/* Estilos especificos de la vista Home.
+   Extraidos de estilos inline estaticos sin cambiar valores visuales. */
+
+.offerCard {
+  position: relative;
+  height: 380px;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #121212;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.offerCardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.75;
+}
+
+.offerCardGradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.4) 60%,
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+.offerCardInfo {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  z-index: 2;
+  color: #ffffff;
+}
+
+.offerCardBadge {
+  display: inline-block;
+  background-color: #ffffff;
+  color: #050505;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  letter-spacing: 1.2px;
+}
+
+.offerCardTitle {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  color: #ffffff;
+  margin: 0;
+  font-weight: normal;
+  line-height: 1.3;
+}
+
+/* Selector doblado: estos elementos tambien llevan una clase global
+   (editorial-section, home-carousel-*). El estilo procedia de un style inline
+   que siempre ganaba; duplicamos la clase para conservar esa prioridad. */
+.carouselSection.carouselSection {
+  margin: 20px 0;
+  padding: 24px 0;
+  width: 100%;
+}
+
+.carouselWrapper.carouselWrapper {
+  width: 100%;
+}
+
+.carouselSlide.carouselSlide {
+  padding: 0 8px;
+}
+
+.carouselSlideInner {
+  border-radius: 20px;
+  overflow: hidden;
+  background: transparent;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.carouselImageFrame {
+  width: 80%;
+  height: 620px;
+  min-height: 620px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Base estatica de la imagen del carrusel; object-fit se aplica inline (dinamico). */
+.carouselImage {
+  width: 100%;
+  height: 100%;
+  object-position: center center;
+  display: block;
+}
+
+.offersSection.offersSection {
+  padding-top: 20px;
+  margin-bottom: 40px;
+}
+
+.offersKicker.offersKicker {
+  text-align: center;
+}
+
+.offersHeading.offersHeading {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 40px;
+  color: #050505;
+}
+
+.offersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.accessContent.accessContent {
+  max-width: 720px;
+}
+
+.accessHeading.accessHeading {
+  font-size: clamp(42px, 7vw, 92px);
+  margin: 18px 0 28px;
+  text-shadow: 0 0 25px rgb(255, 255, 255, 80);
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modalCard {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  color: #050505;
+}
+
+.modalImageWrap {
+  width: 100%;
+  height: 320px;
+  position: relative;
+  background-color: #1a1a1a;
+}
+
+.modalImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.modalClose {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #050505;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.modalBody {
+  padding: 32px;
+}
+
+.modalBadge {
+  display: inline-block;
+  background-color: #050505;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  letter-spacing: 1.2px;
+}
+
+.modalTitle {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  margin: 0 0 14px 0;
+  font-weight: normal;
+  line-height: 1.2;
+}
+
+.modalDescription {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #555555;
+  margin: 0 0 28px 0;
+  font-weight: 300;
+}
+
+.modalButton.modalButton {
+  width: 100%;
+  padding: 14px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background-color: #050505;
+  color: #ffffff;
+  border-color: #050505;
+  cursor: pointer;
+}

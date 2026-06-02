@@ -1,0 +1,70 @@
+.centeredMessage {
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.linkButton {
+  background: #2e7d32;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancelButton {
+  background: #757575;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.pinActions {
+  margin-top: 15px;
+}
+
+.cardBody {
+  flex: 1;
+}
+
+.cardActions {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.statusButtonBase {
+  padding: 4px 8px;
+  font-size: 10px;
+  color: white;
+  border: none;
+  border-radius: 3px;
+}
+
+.unlinkButton {
+  padding: 4px 8px;
+  font-size: 10px;
+  background: #ff5722;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}

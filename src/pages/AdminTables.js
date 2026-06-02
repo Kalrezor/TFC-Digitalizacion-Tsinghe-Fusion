@@ -4,6 +4,7 @@ import tableService from "../services/TableService";
 import { toastSuccess, toastError, toastInput } from "../services/ToastService";
 import { db } from "../firebase";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
+import styles from "../styles/modules/AdminTables.module.css";
 
 const AdminTables = ({ userId, userRole }) => {
   const location = useLocation();
@@ -16,12 +17,11 @@ const AdminTables = ({ userId, userRole }) => {
   const [dbPin, setDbPin] = useState("1234");
   const [currentPinInput, setCurrentPinInput] = useState("");
   const [newPin, setNewPin] = useState("");
-  const [pinError, setPinError] = useState(null);
-  const [pinSuccess, setPinSuccess] = useState(false);
+  const [, setPinError] = useState(null);
+  const [, setPinSuccess] = useState(false);
   const [isAdmin, setIsAdmin] = useState(userRole === "admin"); // Iniciar como true si es admin
   const [loading, setLoading] = useState(false);
   const [tablesLoading, setTablesLoading] = useState(true);
-
 
   // 1. CARGA DE MESAS REALES DESDE FIRESTORE
   useEffect(() => {
@@ -47,20 +47,24 @@ const AdminTables = ({ userId, userRole }) => {
     }
 
     // Listener en tiempo real para el PIN (SINCRONIZACIÓN)
-    const unsubscribe = onSnapshot(doc(db, "users", userId), (doc) => {
-      if (doc.exists()) {
-        const userData = doc.data();
-        // Asegurar que si viene de la ruta protegida AdminRoute, es admin
-        const isAdminFromDb = userData.role === "admin";
-        if (isAdminFromDb) {
-          setIsAdmin(true);
+    const unsubscribe = onSnapshot(
+      doc(db, "users", userId),
+      (doc) => {
+        if (doc.exists()) {
+          const userData = doc.data();
+          // Asegurar que si viene de la ruta protegida AdminRoute, es admin
+          const isAdminFromDb = userData.role === "admin";
+          if (isAdminFromDb) {
+            setIsAdmin(true);
+          }
+          const pin = String(userData.adminPin || "1234").trim();
+          setDbPin(pin);
         }
-        const pin = String(userData.adminPin || "1234").trim();
-        setDbPin(pin);
-      }
-    }, (error) => {
-      console.error("Error cargando PIN en tiempo real:", error);
-    });
+      },
+      (error) => {
+        console.error("Error cargando PIN en tiempo real:", error);
+      },
+    );
 
     return () => unsubscribe();
   }, [userId, userRole]);
@@ -106,16 +110,14 @@ const AdminTables = ({ userId, userRole }) => {
 
     try {
       setLoading(true);
-      
-      const tableIds = selectedMultiple
-        .filter(t => t.id)
-        .map(t => t.id);
+
+      const tableIds = selectedMultiple.filter((t) => t.id).map((t) => t.id);
 
       // Usar el nuevo método mergeTables de TableService
       const result = await tableService.mergeTables(
         pendingRes.resId,
         tableIds,
-        Number(pendingRes.numberOfPeople) || 2
+        Number(pendingRes.numberOfPeople) || 2,
       );
 
       if (result.success) {
@@ -146,11 +148,14 @@ const AdminTables = ({ userId, userRole }) => {
     }
 
     // Solicitar PIN
-    const confirmPass = await toastInput("Mesa fusionada. Ingresa PIN de 4 dígitos:", {
-      inputType: "password",
-      maxLength: 4,
-      placeholder: "PIN",
-    });
+    const confirmPass = await toastInput(
+      "Mesa fusionada. Ingresa PIN de 4 dígitos:",
+      {
+        inputType: "password",
+        maxLength: 4,
+        placeholder: "PIN",
+      },
+    );
     if (!confirmPass) return;
 
     // Validar PIN
@@ -161,18 +166,20 @@ const AdminTables = ({ userId, userRole }) => {
 
     try {
       setLoading(true);
-      
+
       // Obtener todas las mesas de esta reserva
-      const tablesResult = await tableService.getTablesByReservation(table.reservationId);
-      
+      const tablesResult = await tableService.getTablesByReservation(
+        table.reservationId,
+      );
+
       if (!tablesResult.success) {
         toastError("Error obteniendo mesas fusionadas");
         return;
       }
 
       const tableIdsToUnmerge = tablesResult.tables
-        .filter(t => t.id)
-        .map(t => t.id);
+        .filter((t) => t.id)
+        .map((t) => t.id);
 
       // Usar el nuevo método unmergeTables
       const result = await tableService.unmergeTables(tableIdsToUnmerge);
@@ -196,11 +203,14 @@ const AdminTables = ({ userId, userRole }) => {
       return;
     }
 
-    const confirmPass = await toastInput("Mesa ocupada. Ingresa PIN de 4 dígitos:", {
-      inputType: "password",
-      maxLength: 4,
-      placeholder: "PIN",
-    });
+    const confirmPass = await toastInput(
+      "Mesa ocupada. Ingresa PIN de 4 dígitos:",
+      {
+        inputType: "password",
+        maxLength: 4,
+        placeholder: "PIN",
+      },
+    );
     if (!confirmPass) return;
 
     if (confirmPass.trim() !== dbPin) {
@@ -242,7 +252,9 @@ const AdminTables = ({ userId, userRole }) => {
     }
 
     if (table.reservationId || (!table.available && table.active !== false)) {
-      toastError("Esta mesa está ocupada o fusionada. Libérala con PIN antes de modificarla.");
+      toastError(
+        "Esta mesa está ocupada o fusionada. Libérala con PIN antes de modificarla.",
+      );
       return;
     }
 
@@ -290,10 +302,10 @@ const AdminTables = ({ userId, userRole }) => {
 
     try {
       setLoading(true);
-      
+
       // Actualizar en Firestore (con validación en reglas)
-      await updateDoc(doc(db, "users", userId), { 
-        adminPin: newPin 
+      await updateDoc(doc(db, "users", userId), {
+        adminPin: newPin,
       });
 
       setPinSuccess(true);
@@ -301,7 +313,7 @@ const AdminTables = ({ userId, userRole }) => {
       toastSuccess("PIN actualizado correctamente");
       setCurrentPinInput("");
       setNewPin("");
-      
+
       // El listener en tiempo real actualizará dbPin automáticamente
       setTimeout(() => {
         setShowPinSettings(false);
@@ -319,10 +331,10 @@ const AdminTables = ({ userId, userRole }) => {
   // Verificar permisos
   if (!isAdmin) {
     return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
+      <div className={styles.centeredMessage}>
         <h2>⚠️ Acceso Denegado</h2>
         <p>Solo administradores pueden acceder a esta vista.</p>
-        <button 
+        <button
           onClick={() => navigate("/")}
           className="admin-tables-button admin-tables-button-blue"
         >
@@ -336,22 +348,15 @@ const AdminTables = ({ userId, userRole }) => {
 
   if (display.length === 0) {
     return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
+      <div className={styles.centeredMessage}>
         No hay mesas registradas en Firestore.
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
+    <div className={styles.container}>
+      <div className={styles.header}>
         <h2>⛩️ Plano de Mesas</h2>
         <button onClick={() => setShowPinSettings(!showPinSettings)}>
           ⚙️ Ajustes PIN
@@ -365,28 +370,13 @@ const AdminTables = ({ userId, userRole }) => {
           <p>Selecciona las mesas en el plano y pulsa Vincular</p>
           <button
             onClick={handleConfirmFusion}
-            style={{
-              background: "#2e7d32",
-              color: "white",
-              padding: "10px 20px",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
+            className={styles.linkButton}
           >
             VINCULAR ({selectedMultiple.length})
           </button>
           <button
             onClick={() => navigate("/reservations")}
-            style={{
-              background: "#757575",
-              color: "white",
-              padding: "10px 20px",
-              border: "none",
-              borderRadius: "5px",
-              marginLeft: "10px",
-              cursor: "pointer",
-            }}
+            className={styles.cancelButton}
           >
             CANCELAR
           </button>
@@ -396,7 +386,7 @@ const AdminTables = ({ userId, userRole }) => {
       {showPinSettings && (
         <div className="admin-tables-pin-settings">
           <h3>🔐 Cambiar PIN de Seguridad</h3>
-          
+
           <input
             type="password"
             placeholder="PIN Actual (4 dígitos)"
@@ -405,7 +395,7 @@ const AdminTables = ({ userId, userRole }) => {
             maxLength="4"
             className="admin-tables-input"
           />
-          
+
           <input
             type="password"
             placeholder="Nuevo PIN (4 dígitos)"
@@ -415,7 +405,7 @@ const AdminTables = ({ userId, userRole }) => {
             className="admin-tables-input"
           />
 
-          <div style={{ marginTop: "15px" }}>
+          <div className={styles.pinActions}>
             <button
               onClick={handleChangePin}
               disabled={loading}
@@ -423,7 +413,7 @@ const AdminTables = ({ userId, userRole }) => {
             >
               {loading ? "Guardando..." : "💾 Guardar PIN"}
             </button>
-            
+
             <button
               onClick={() => {
                 setShowPinSettings(false);
@@ -469,22 +459,24 @@ const AdminTables = ({ userId, userRole }) => {
                 color: bgColor === "#DAA520" ? "black" : "white",
               }}
             >
-              <div style={{ flex: 1 }}>
+              <div className={styles.cardBody}>
                 <strong>Mesa {tableLabel}</strong>
-                {fusionCode && <div className="admin-tables-fusion-code">{fusionCode}</div>}
-                {isReserved && <div className="admin-tables-status-badge">{fusionCode ? "FUSIONADA" : "RESERVADA"}</div>}
-                {isBusy && !isReserved && <div className="admin-tables-status-badge">OCUPADA</div>}
-                {isDisabled && <div className="admin-tables-status-badge">DESACTIVADA</div>}
+                {fusionCode && (
+                  <div className="admin-tables-fusion-code">{fusionCode}</div>
+                )}
+                {isReserved && (
+                  <div className="admin-tables-status-badge">
+                    {fusionCode ? "FUSIONADA" : "RESERVADA"}
+                  </div>
+                )}
+                {isBusy && !isReserved && (
+                  <div className="admin-tables-status-badge">OCUPADA</div>
+                )}
+                {isDisabled && (
+                  <div className="admin-tables-status-badge">DESACTIVADA</div>
+                )}
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: "5px",
-                  marginTop: "10px",
-                  flexWrap: "wrap",
-                }}
-              >
+              <div className={styles.cardActions}>
                 {!isBusy && (
                   <>
                     <button
@@ -493,15 +485,15 @@ const AdminTables = ({ userId, userRole }) => {
                         handleChangeTableStatus(table, "available");
                       }}
                       disabled={loading || !canChangeStatus || !isDisabled}
+                      className={styles.statusButtonBase}
                       style={{
-                        padding: "4px 8px",
-                        fontSize: "10px",
                         background: "#2e7d32",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "3px",
-                        cursor: loading || !canChangeStatus || !isDisabled ? "not-allowed" : "pointer",
-                        opacity: loading || !canChangeStatus || !isDisabled ? 0.55 : 1,
+                        cursor:
+                          loading || !canChangeStatus || !isDisabled
+                            ? "not-allowed"
+                            : "pointer",
+                        opacity:
+                          loading || !canChangeStatus || !isDisabled ? 0.55 : 1,
                       }}
                     >
                       Disponible
@@ -512,15 +504,15 @@ const AdminTables = ({ userId, userRole }) => {
                         handleChangeTableStatus(table, "disabled");
                       }}
                       disabled={loading || !canChangeStatus || isDisabled}
+                      className={styles.statusButtonBase}
                       style={{
-                        padding: "4px 8px",
-                        fontSize: "10px",
                         background: "#c62828",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "3px",
-                        cursor: loading || !canChangeStatus || isDisabled ? "not-allowed" : "pointer",
-                        opacity: loading || !canChangeStatus || isDisabled ? 0.55 : 1,
+                        cursor:
+                          loading || !canChangeStatus || isDisabled
+                            ? "not-allowed"
+                            : "pointer",
+                        opacity:
+                          loading || !canChangeStatus || isDisabled ? 0.55 : 1,
                       }}
                     >
                       Desactivar
@@ -534,15 +526,7 @@ const AdminTables = ({ userId, userRole }) => {
                       e.stopPropagation();
                       handleReleaseTable(table);
                     }}
-                    style={{
-                      padding: "4px 8px",
-                      fontSize: "10px",
-                      background: "#ff5722",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "3px",
-                      cursor: "pointer",
-                    }}
+                    className={styles.unlinkButton}
                   >
                     Desvincular
                   </button>
@@ -555,13 +539,9 @@ const AdminTables = ({ userId, userRole }) => {
                       handleReleaseBusyTable(table);
                     }}
                     disabled={loading}
+                    className={styles.statusButtonBase}
                     style={{
-                      padding: "4px 8px",
-                      fontSize: "10px",
                       background: "#ff5722",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "3px",
                       cursor: loading ? "not-allowed" : "pointer",
                       opacity: loading ? 0.6 : 1,
                     }}

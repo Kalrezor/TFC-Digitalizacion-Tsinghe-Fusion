@@ -84,7 +84,10 @@ class MenuService {
   async createMenu(menuData, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden crear menús" };
+        return {
+          success: false,
+          error: "Solo administradores pueden crear menús",
+        };
       }
       const docRef = await addDoc(collection(db, "menus"), {
         ...menuData,
@@ -101,7 +104,10 @@ class MenuService {
   async updateMenu(id, menuData, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden actualizar menús" };
+        return {
+          success: false,
+          error: "Solo administradores pueden actualizar menús",
+        };
       }
       await updateDoc(doc(db, "menus", id), {
         ...menuData,
@@ -118,7 +124,10 @@ class MenuService {
   async deleteMenu(id, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden eliminar menús" };
+        return {
+          success: false,
+          error: "Solo administradores pueden eliminar menús",
+        };
       }
       await deleteDoc(doc(db, "menus", id));
       return { success: true };
@@ -132,7 +141,10 @@ class MenuService {
   async toggleMenuAvailability(id, available, isAdmin = false) {
     try {
       if (!isAdmin) {
-        return { success: false, error: "Solo administradores pueden cambiar disponibilidad" };
+        return {
+          success: false,
+          error: "Solo administradores pueden cambiar disponibilidad",
+        };
       }
       await updateDoc(doc(db, "menus", id), { available });
       return { success: true };

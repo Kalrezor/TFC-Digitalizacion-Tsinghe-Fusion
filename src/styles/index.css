@@ -1,0 +1,44 @@
+/* ============================================================
+   PUNTO DE ENTRADA DE ESTILOS GLOBALES
+   Unico archivo CSS importado en App.js.
+   El orden de los @import reproduce exactamente la cascada
+   original de MinimalStyle.css para no alterar la apariencia.
+   ============================================================ */
+
+/* TailwindCSS (capas base/components/utilities) */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Base: tokens, reset, tipografia */
+@import "./base/variables.css";
+@import "./global/inline-constants.css";
+@import "./base/reset.css";
+@import "./base/typography.css";
+
+/* Global: componentes reutilizables */
+@import "./global/buttons.css";
+@import "./global/forms.css";
+@import "./global/cards.css";
+@import "./global/navigation.css";
+@import "./global/grid.css";
+@import "./global/utilities.css";
+@import "./global/accents.css";
+@import "./global/alerts.css";
+
+/* Breakpoints globales */
+@import "./base/responsive.css";
+
+/* Capas tematicas y de componentes */
+@import "./theme/editorial.css";
+@import "./components/chatbot.css";
+@import "./base/legacy-base.css";
+@import "./theme/chinese.css";
+@import "./theme/editorial-overrides.css";
+
+/* Estilos especificos por vista */
+@import "./views/admin-menu.css";
+@import "./views/admin.css";
+@import "./views/comensal.css";
+@import "./views/auth.css";
+@import "./views/menu.css";

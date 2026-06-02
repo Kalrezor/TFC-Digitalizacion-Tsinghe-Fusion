@@ -1,4 +1,4 @@
-import menuService from "../models/MenuService";
+import plateService from "./PlateService";
 import offerService from "./OfferService";
 import reservationService from "./ReservationService";
 import tableService from "./TableService";
@@ -6,7 +6,7 @@ import tableAvailabilityService from "./TableAvailabilityService";
 import reservationTableService from "./ReservationTableService";
 
 const SUPPORT_PHONE =
-  process.env.REACT_APP_RESTAURANT_SUPPORT_PHONE || "+34 600 123 456";
+  import.meta.env.VITE_RESTAURANT_SUPPORT_PHONE || "+34 600 123 456";
 
 const normalizeText = (value = "") =>
   value
@@ -49,7 +49,10 @@ const isSimilarWord = (word, target) => {
   const normalizedTarget = normalizeText(target);
 
   if (normalizedWord === normalizedTarget) return true;
-  if (normalizedWord.includes(normalizedTarget) || normalizedTarget.includes(normalizedWord)) {
+  if (
+    normalizedWord.includes(normalizedTarget) ||
+    normalizedTarget.includes(normalizedWord)
+  ) {
     return Math.min(normalizedWord.length, normalizedTarget.length) >= 4;
   }
 
@@ -78,7 +81,9 @@ const fuzzyIncludes = (message, words) => {
 
     const targetTokens = tokenize(word);
     return targetTokens.every((targetToken) =>
-      messageTokens.some((messageToken) => isSimilarWord(messageToken, targetToken)),
+      messageTokens.some((messageToken) =>
+        isSimilarWord(messageToken, targetToken),
+      ),
     );
   });
 };
@@ -144,7 +149,9 @@ const getExplicitRequestedDate = (message = "", fallbackDate = new Date()) => {
     return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   }
 
-  const numericMatch = normalized.match(/\b(\d{1,2})[-/](\d{1,2})(?:[-/](20\d{2}))?\b/);
+  const numericMatch = normalized.match(
+    /\b(\d{1,2})[-/](\d{1,2})(?:[-/](20\d{2}))?\b/,
+  );
   if (numericMatch) {
     const [, day, month, year] = numericMatch;
     return `${year || fallbackDate.getFullYear()}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -158,7 +165,9 @@ const getExplicitRequestedDate = (message = "", fallbackDate = new Date()) => {
     return `${year || fallbackDate.getFullYear()}-${String(MONTHS[monthName] + 1).padStart(2, "0")}-${day.padStart(2, "0")}`;
   }
 
-  const dayOnlyMatch = normalized.match(/\b(?:el|dia|para|del|al)?\s*(\d{1,2})\b/);
+  const dayOnlyMatch = normalized.match(
+    /\b(?:el|dia|para|del|al)?\s*(\d{1,2})\b/,
+  );
   if (dayOnlyMatch) {
     const day = Number(dayOnlyMatch[1]);
     if (day >= 1 && day <= 31) {
@@ -176,7 +185,10 @@ const getRequestedDate = (message = "", history = []) => {
 
   let fallbackDate = now;
   for (const previousMessage of reversedHistory) {
-    const previousDate = getExplicitRequestedDate(previousMessage, fallbackDate);
+    const previousDate = getExplicitRequestedDate(
+      previousMessage,
+      fallbackDate,
+    );
     if (previousDate) {
       fallbackDate = new Date(`${previousDate}T12:00:00`);
       break;
@@ -229,10 +241,13 @@ const getRequestedPeriod = (message = "", history = []) => {
 
 const getRequestedShift = (message = "", history = []) => {
   const historyMessages = getHistoryMessages(history);
-  const combined = normalizeText(`${historyMessages.slice(-2).join(" ")} ${message}`);
+  const combined = normalizeText(
+    `${historyMessages.slice(-2).join(" ")} ${message}`,
+  );
 
   if (fuzzyIncludes(combined, ["cena", "noche"])) return "cena";
-  if (fuzzyIncludes(combined, ["comida", "almuerzo", "medio dia", "mediodia"])) return "comida";
+  if (fuzzyIncludes(combined, ["comida", "almuerzo", "medio dia", "mediodia"]))
+    return "comida";
   return null;
 };
 
@@ -264,10 +279,25 @@ class ChatbotContextService {
       .reverse();
 
     for (const previousMessage of lastUserMessages) {
-      if (fuzzyIncludes(previousMessage, ["reserva", "reservas", "reseva", "resevas"])) {
+      if (
+        fuzzyIncludes(previousMessage, [
+          "reserva",
+          "reservas",
+          "reseva",
+          "resevas",
+        ])
+      ) {
         return "reservations";
       }
-      if (fuzzyIncludes(previousMessage, ["mesa", "mesas", "libre", "libres", "disponible"])) {
+      if (
+        fuzzyIncludes(previousMessage, [
+          "mesa",
+          "mesas",
+          "libre",
+          "libres",
+          "disponible",
+        ])
+      ) {
         return "tables";
       }
       if (fuzzyIncludes(previousMessage, ["oferta", "ofertas", "descuento"])) {
@@ -340,24 +370,42 @@ class ChatbotContextService {
       tasks.push(this.getMenuContext());
     }
 
-    if (fuzzyIncludes(cleanMessage, ["oferta", "ofertas", "descuento"]) || lastIntent === "offers") {
+    if (
+      fuzzyIncludes(cleanMessage, ["oferta", "ofertas", "descuento"]) ||
+      lastIntent === "offers"
+    ) {
       tasks.push(this.getOffersContext());
     }
 
     if (
-      fuzzyIncludes(cleanMessage, ["reserva", "reservas", "reseva", "resevas"]) ||
+      fuzzyIncludes(cleanMessage, [
+        "reserva",
+        "reservas",
+        "reseva",
+        "resevas",
+      ]) ||
       lastIntent === "reservations"
     ) {
       tasks.push(
         isAdmin
           ? this.getAdminReservationsContext(cleanMessage, history)
-          : this.getComensalReservationsContext(user?.uid, cleanMessage, history),
+          : this.getComensalReservationsContext(
+              user?.uid,
+              cleanMessage,
+              history,
+            ),
       );
     }
 
     if (
       isAdmin &&
-      (fuzzyIncludes(cleanMessage, ["mesa", "mesas", "libre", "libres", "disponible"]) ||
+      (fuzzyIncludes(cleanMessage, [
+        "mesa",
+        "mesas",
+        "libre",
+        "libres",
+        "disponible",
+      ]) ||
         lastIntent === "tables")
     ) {
       tasks.push(this.getAdminTablesContext(cleanMessage, history));
@@ -379,17 +427,22 @@ class ChatbotContextService {
   }
 
   async getMenuContext() {
-    const [platesResult, categoriesResult, allergensResult] = await Promise.all([
-      menuService.getAllPlates(),
-      menuService.getAllCategories(),
-      menuService.getAllAllergens(),
-    ]);
+    const [platesResult, categoriesResult, allergensResult] = await Promise.all(
+      [
+        plateService.getAllPlates(),
+        plateService.getAllCategories(),
+        plateService.getAllAllergens(),
+      ],
+    );
 
-    if (!platesResult.success) return "Carta: no se pudo consultar ahora mismo.";
+    if (!platesResult.success)
+      return "Carta: no se pudo consultar ahora mismo.";
 
     const categories = categoriesResult.success ? categoriesResult.data : [];
     const allergens = allergensResult.success ? allergensResult.data : {};
-    const availablePlates = platesResult.data.filter((plate) => plate.disponible !== false);
+    const availablePlates = platesResult.data.filter(
+      (plate) => plate.disponible !== false,
+    );
 
     return [
       "CONTEXTO CARTA:",
@@ -412,7 +465,8 @@ class ChatbotContextService {
 
   async getOffersContext() {
     const result = await offerService.getActiveOffers();
-    if (!result.success) return "Ofertas: no se pudieron consultar ahora mismo.";
+    if (!result.success)
+      return "Ofertas: no se pudieron consultar ahora mismo.";
 
     return [
       "CONTEXTO OFERTAS ACTIVAS:",
@@ -427,7 +481,8 @@ class ChatbotContextService {
 
   filterReservationsByPeriod(reservations = [], period) {
     return reservations.filter((reservation) => {
-      const reservationDate = reservation.reservationDate || reservation.date || "";
+      const reservationDate =
+        reservation.reservationDate || reservation.date || "";
       return reservationDate >= period.from && reservationDate <= period.to;
     });
   }
@@ -435,9 +490,13 @@ class ChatbotContextService {
   async getComensalReservationsContext(userId, message = "", history = []) {
     if (!userId) return "Reservas del comensal: usuario no identificado.";
     const result = await reservationService.getUserReservations(userId);
-    if (!result.success) return "Reservas del comensal: no se pudieron consultar.";
+    if (!result.success)
+      return "Reservas del comensal: no se pudieron consultar.";
     const period = getRequestedPeriod(message, history);
-    const reservations = this.filterReservationsByPeriod(result.reservations, period);
+    const reservations = this.filterReservationsByPeriod(
+      result.reservations,
+      period,
+    );
 
     return [
       `CONTEXTO RESERVAS PROPIAS DEL COMENSAL (${period.label}: ${period.from} a ${period.to}):`,
@@ -457,7 +516,11 @@ class ChatbotContextService {
     const result =
       period.type === "day"
         ? await reservationTableService.getReservationsByDate(period.from, true)
-        : await reservationTableService.getReservationsByDateRange(period.from, period.to, true);
+        : await reservationTableService.getReservationsByDateRange(
+            period.from,
+            period.to,
+            true,
+          );
     if (!result.success) return "Reservas admin: no se pudieron consultar.";
     const reservations = filterReservationsByShift(result.reservations, shift);
 
@@ -479,7 +542,10 @@ class ChatbotContextService {
     const shift = currentHour >= 18 ? "cena" : "comida";
     const [statsResult, statusResult] = await Promise.all([
       tableService.getTableStats(),
-      tableAvailabilityService.getTableStatusByDateAndShift(requestedDate, shift),
+      tableAvailabilityService.getTableStatusByDateAndShift(
+        requestedDate,
+        shift,
+      ),
     ]);
 
     if (!statsResult.success && !statusResult.success) {
@@ -491,7 +557,9 @@ class ChatbotContextService {
 
     return [
       `CONTEXTO ADMIN MESAS (${requestedDate}, turno ${shift}):`,
-      stats ? `Resumen: ${stats.total} mesas, ${stats.active} activas, ${stats.inactive} inactivas.` : "",
+      stats
+        ? `Resumen: ${stats.total} mesas, ${stats.active} activas, ${stats.inactive} inactivas.`
+        : "",
       tables
         ? `Libres: ${tables.active.length}. Ocupadas: ${tables.reserved.length}. Inactivas: ${tables.inactive.length}.`
         : "",
@@ -520,12 +588,20 @@ class ChatbotContextService {
     const isAdmin = normalizeRole(role) === "admin";
     const lastIntent = this.getLastUserIntent(history);
 
-    if (fuzzyIncludes(cleanMessage, ["oferta", "ofertas", "descuento"]) || lastIntent === "offers") {
+    if (
+      fuzzyIncludes(cleanMessage, ["oferta", "ofertas", "descuento"]) ||
+      lastIntent === "offers"
+    ) {
       return this.answerOffers();
     }
 
     if (
-      fuzzyIncludes(cleanMessage, ["reserva", "reservas", "reseva", "resevas"]) ||
+      fuzzyIncludes(cleanMessage, [
+        "reserva",
+        "reservas",
+        "reseva",
+        "resevas",
+      ]) ||
       lastIntent === "reservations"
     ) {
       return isAdmin
@@ -533,7 +609,16 @@ class ChatbotContextService {
         : this.answerComensalReservations(user?.uid, cleanMessage, history);
     }
 
-    if (fuzzyIncludes(cleanMessage, ["mesa", "mesas", "libre", "libres", "disponible"]) || lastIntent === "tables") {
+    if (
+      fuzzyIncludes(cleanMessage, [
+        "mesa",
+        "mesas",
+        "libre",
+        "libres",
+        "disponible",
+      ]) ||
+      lastIntent === "tables"
+    ) {
       return isAdmin
         ? this.answerAdminTables(cleanMessage, history)
         : "Para consultar disponibilidad concreta, entra en tu panel y crea una reserva indicando fecha, hora y número de personas.";
@@ -582,8 +667,10 @@ class ChatbotContextService {
 
   async answerOffers() {
     const result = await offerService.getActiveOffers();
-    if (!result.success) return "No pude consultar las ofertas activas ahora mismo.";
-    if (!result.offers.length) return "Ahora mismo no hay ofertas activas registradas.";
+    if (!result.success)
+      return "No pude consultar las ofertas activas ahora mismo.";
+    if (!result.offers.length)
+      return "Ahora mismo no hay ofertas activas registradas.";
 
     return [
       "Ofertas activas:",
@@ -597,11 +684,15 @@ class ChatbotContextService {
   }
 
   async answerComensalReservations(userId, message = "", history = []) {
-    if (!userId) return "No pude identificar tu usuario para consultar tus reservas.";
+    if (!userId)
+      return "No pude identificar tu usuario para consultar tus reservas.";
     const result = await reservationService.getUserReservations(userId);
     if (!result.success) return "No pude consultar tus reservas ahora mismo.";
     const period = getRequestedPeriod(message, history);
-    const reservations = this.filterReservationsByPeriod(result.reservations, period);
+    const reservations = this.filterReservationsByPeriod(
+      result.reservations,
+      period,
+    );
     if (!reservations.length) {
       return `No tienes reservas propias registradas para ${period.label} (${period.from}${period.from !== period.to ? ` a ${period.to}` : ""}).`;
     }
@@ -623,8 +714,13 @@ class ChatbotContextService {
     const result =
       period.type === "day"
         ? await reservationTableService.getReservationsByDate(period.from, true)
-        : await reservationTableService.getReservationsByDateRange(period.from, period.to, true);
-    if (!result.success) return `No pude consultar las reservas para ${period.label}.`;
+        : await reservationTableService.getReservationsByDateRange(
+            period.from,
+            period.to,
+            true,
+          );
+    if (!result.success)
+      return `No pude consultar las reservas para ${period.label}.`;
     const reservations = filterReservationsByShift(result.reservations, shift);
     if (!reservations.length) {
       return `No hay reservas${shift ? ` de ${shift}` : ""} registradas para ${period.label} (${period.from}${period.from !== period.to ? ` a ${period.to}` : ""}).`;
@@ -645,7 +741,10 @@ class ChatbotContextService {
     const requestedDate = getRequestedDate(message, history);
     const currentHour = new Date().getHours();
     const shift = currentHour >= 18 ? "cena" : "comida";
-    const result = await tableAvailabilityService.getTableStatusByDateAndShift(requestedDate, shift);
+    const result = await tableAvailabilityService.getTableStatusByDateAndShift(
+      requestedDate,
+      shift,
+    );
     if (!result.success) return "No pude consultar la disponibilidad de mesas.";
 
     return [
@@ -656,16 +755,20 @@ class ChatbotContextService {
   }
 
   async answerMenu(cleanMessage = "") {
-    const [platesResult, allergensResult, categoriesResult] = await Promise.all([
-      menuService.getAllPlates(),
-      menuService.getAllAllergens(),
-      menuService.getAllCategories(),
-    ]);
+    const [platesResult, allergensResult, categoriesResult] = await Promise.all(
+      [
+        plateService.getAllPlates(),
+        plateService.getAllAllergens(),
+        plateService.getAllCategories(),
+      ],
+    );
     if (!platesResult.success) return "No pude consultar la carta ahora mismo.";
 
     const allergens = allergensResult.success ? allergensResult.data : {};
     const categories = categoriesResult.success ? categoriesResult.data : [];
-    const categoryById = new Map(categories.map((category) => [category.id, category]));
+    const categoryById = new Map(
+      categories.map((category) => [category.id, category]),
+    );
     const menuTerms = [
       "postre",
       "postres",
@@ -691,26 +794,35 @@ class ChatbotContextService {
       "vegano",
       "vegetariano",
     ];
-    const requestedTerms = menuTerms.filter((term) => cleanMessage.includes(term));
+    const requestedTerms = menuTerms.filter((term) =>
+      cleanMessage.includes(term),
+    );
 
-    let availablePlates = platesResult.data.filter((plate) => plate.disponible !== false);
+    let availablePlates = platesResult.data.filter(
+      (plate) => plate.disponible !== false,
+    );
     if (requestedTerms.length) {
       availablePlates = availablePlates.filter((plate) => {
         const category = categoryById.get(plate.idCategoria);
         const searchable = normalizeText(
           `${plate.nombre || ""} ${plate.descripcion || ""} ${category?.nombre || ""}`,
         );
-        return requestedTerms.some((term) => searchable.includes(normalizeText(term)));
+        return requestedTerms.some((term) =>
+          searchable.includes(normalizeText(term)),
+        );
       });
     }
 
     if (!availablePlates.length && requestedTerms.length) {
       return `No encontré ${requestedTerms.join(", ")} disponibles en la carta ahora mismo. Puedes revisar la carta completa en /menu o consultar con el restaurante.`;
     }
-    if (!availablePlates.length) return "No hay platos disponibles registrados ahora mismo.";
+    if (!availablePlates.length)
+      return "No hay platos disponibles registrados ahora mismo.";
 
     return [
-      requestedTerms.length ? "Encontré estos resultados en carta:" : "Algunos platos disponibles:",
+      requestedTerms.length
+        ? "Encontré estos resultados en carta:"
+        : "Algunos platos disponibles:",
       compactList(
         availablePlates,
         (plate) => {

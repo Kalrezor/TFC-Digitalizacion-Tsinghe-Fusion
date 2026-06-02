@@ -1,0 +1,31 @@
+/* ============================================================
+   CONTENEDORES Y TARJETAS
+   ============================================================ */
+/* ============================================================
+   CONTENEDORES Y TARJETAS
+   ============================================================ */
+.card {
+  background-color: white;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 20px;
+  transition: all 250ms ease;
+}
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+.card-header {
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+.card-header h3 {
+  margin: 0;
+  color: var(--sage-dark);
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}

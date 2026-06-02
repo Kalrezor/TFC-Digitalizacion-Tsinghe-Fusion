@@ -1,0 +1,43 @@
+/* ============================================================
+   FORMULARIOS
+   ============================================================ */
+/* ============================================================
+   FORMULARIOS
+   ============================================================ */
+.form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.form-group label {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sage-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 10px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  background-color: var(--pearl-light);
+  color: var(--text-dark);
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 250ms ease;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--sage);
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(109, 184, 136, 0.1);
+}
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}

@@ -1,8 +1,8 @@
 // Controlador: useTables.js
 // Hook para manejar CRUD de mesas con actualizaciones en tiempo real.
 
-import { useState, useEffect } from 'react';
-import TableService from '../services/TableService';
+import { useState, useEffect } from "react";
+import TableService from "../services/TableService";
 
 const useTables = () => {
   const [tables, setTables] = useState([]);
@@ -12,7 +12,7 @@ const useTables = () => {
   // Setup listener en tiempo real
   useEffect(() => {
     setLoading(true);
-    
+
     // Usar listener en tiempo real para todas las mesas
     const unsubscribe = TableService.subscribeToAllTables((result) => {
       setLoading(false);
@@ -86,7 +86,7 @@ const useTables = () => {
     deleteTable,
     loadTables,
     loadAvailableTables,
-    refetch: loadTables
+    refetch: loadTables,
   };
 };
 
