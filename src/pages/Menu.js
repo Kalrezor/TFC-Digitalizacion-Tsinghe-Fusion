@@ -29,32 +29,41 @@ const Menu = ({ role: propsRole }) => {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin, editMode]);
 
   const loadData = async () => {
     setLoading(true);
-    const [resAllergens, resCats, resPlates] = await Promise.all([
-      plateService.getAllAllergens(),
-      plateService.getAllCategories(),
-      plateService.getAllPlates(),
-    ]);
+    try {
+      const [resAllergens, resCats, resPlates] = await Promise.all([
+        plateService.getAllAllergens(),
+        plateService.getAllCategories(),
+        plateService.getAllPlates(),
+      ]);
 
-    if (resAllergens.success) setAllAllergens(resAllergens.data);
+      if (resAllergens.success) setAllAllergens(resAllergens.data);
 
-    if (resCats.success) {
-      const sortedCats = resCats.data.sort(
-        (a, b) => (a.orden || 0) - (b.orden || 0),
-      );
-      setCategories(sortedCats);
+      if (resCats.success) {
+        const sortedCats = resCats.data.sort(
+          (a, b) => (a.orden || 0) - (b.orden || 0),
+        );
+        setCategories(sortedCats);
+      }
+
+      if (resPlates.success) {
+        const visiblePlates = editMode
+          ? resPlates.data
+          : resPlates.data.filter((p) => p.disponible !== false);
+        setPlates(visiblePlates);
+      }
+    } catch (error) {
+      console.error("Error cargando datos del menú:", error);
+      setCategories([]);
+      setPlates([]);
+      setAllAllergens({});
+    } finally {
+      setLoading(false);
     }
-
-    if (resPlates.success) {
-      const visiblePlates = editMode
-        ? resPlates.data
-        : resPlates.data.filter((p) => p.disponible !== false);
-      setPlates(visiblePlates);
-    }
-    setLoading(false);
   };
 
   const handleAllergenToggle = (id) => {
@@ -101,18 +110,21 @@ const Menu = ({ role: propsRole }) => {
     }
   };
 
+  const searchLower = searchTerm.trim().toLowerCase();
+
   const getFilteredPlatesList = () => {
     const orderedPlates = [];
 
     categories.forEach((cat) => {
       const categoryPlates = plates.filter((p) => {
-        const matchesSearch = p.nombre
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
+        const matchesSearch =
+          typeof p.nombre === "string"
+            ? p.nombre.toLowerCase().includes(searchLower)
+            : false;
         const belongsToCat = p.idCategoria === cat.id;
-        const hasExcludedAllergen = p.alergenos?.some((aleId) =>
-          selectedAllergens.includes(aleId),
-        );
+        const hasExcludedAllergen = Array.isArray(p.alergenos)
+          ? p.alergenos.some((aleId) => selectedAllergens.includes(aleId))
+          : false;
         return belongsToCat && matchesSearch && !hasExcludedAllergen;
       });
 
@@ -367,6 +379,13 @@ const Menu = ({ role: propsRole }) => {
           );
         })}
       </div>
+
+      {!editMode && getFilteredPlatesList().length === 0 && (
+        <div className="menu-empty-state">
+          <p>No se encontraron platos visibles en este momento.</p>
+          <p>Verifica que las categorías y los datos de los platos estén correctamente configurados.</p>
+        </div>
+      )}
 
       {/* --- POP-UP / MODAL DEL PLATO --- */}
       {selectedPlate && (

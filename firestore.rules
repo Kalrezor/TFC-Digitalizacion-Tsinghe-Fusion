@@ -121,6 +121,42 @@ service cloud.firestore {
     }
 
     // ════════════════════════════════════════════════════════════════════
+    // ALLERGENS
+    // Leer: publico
+    // Escribir: solo admin
+    // ════════════════════════════════════════════════════════════════════
+    match /allergen/{allergenId} {
+      allow read:   if true;
+      allow create,
+            update,
+            delete: if isAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // CATEGORIES
+    // Leer: publico
+    // Escribir: solo admin
+    // ════════════════════════════════════════════════════════════
+    match /category/{categoryId} {
+      allow read:   if true;
+      allow create,
+            update,
+            delete: if isAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // PLATES
+    // Leer: publico
+    // Escribir: solo admin
+    // ════════════════════════════════════════════════════════════
+    match /plate/{plateId} {
+      allow read:   if true;
+      allow create,
+            update,
+            delete: if isAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════════════════
     // RESERVATION CONFIRMATIONS
     // Crear: cualquier usuario logueado (al confirmar reserva)
     // Leer: el propietario del email o admin
