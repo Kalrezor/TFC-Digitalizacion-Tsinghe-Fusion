@@ -1,7 +1,11 @@
 .container {
+  width: 100%;
+  max-width: 1100px;
   padding: 60px 40px;
   max-width: 1100px;
   margin: 0 auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .header {
@@ -30,15 +34,17 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
   gap: 50px;
   align-items: start;
+  width: 100%;
 }
 
 .leftColumn {
   display: flex;
   flex-direction: column;
   gap: 28px;
+  min-width: 0;
 }
 
 .field {
@@ -56,6 +62,9 @@
 }
 
 .input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 18px;
   border: 1px solid #050505;
   font-size: 16px;
@@ -65,6 +74,7 @@
 }
 
 .receipt {
+  min-width: 0;
   border: 1px solid #050505;
   background: #fff;
   padding: 40px;
@@ -95,6 +105,7 @@
 }
 
 .breakdownLabel {
+  min-width: 0;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -102,9 +113,12 @@
 }
 
 .breakdownValue {
+  min-width: 0;
   font-size: 15px;
   font-family: monospace;
   font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .resultBlock {
@@ -126,8 +140,133 @@
 
 .resultValue {
   font-family: Georgia, serif;
-  font-size: 48px;
+  font-size: clamp(36px, 8vw, 48px);
   color: #050505;
   margin: 0;
   font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 34px 14px 52px;
+  }
+
+  .header {
+    margin-bottom: 28px;
+  }
+
+  .title {
+    font-size: clamp(26px, 9vw, 34px);
+    overflow-wrap: anywhere;
+  }
+
+  .subtitle,
+  .label,
+  .resultLabel {
+    letter-spacing: 0.09em;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .receipt {
+    padding: 22px 16px;
+    min-height: 0;
+    box-shadow: 4px 4px 0 0 #050505;
+  }
+
+  .breakdownRowDashed,
+  .breakdownRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .resultBlock {
+    margin-top: 24px;
+    padding: 24px 12px;
+  }
+}
+
+@media (max-width: 380px) {
+  .container {
+    padding: 24px 8px 40px;
+  }
+
+  .header {
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: clamp(20px, 7vw, 28px);
+  }
+
+  .receipt {
+    padding: 16px 12px;
+    box-shadow: 3px 3px 0 0 #050505;
+  }
+
+  .breakdownRowDashed,
+  .breakdownRow {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .breakdownValue {
+    text-align: left;
+  }
+
+  .resultBlock {
+    padding: 18px 10px;
+    margin-top: 18px;
+  }
+
+  .resultValue {
+    font-size: clamp(28px, 7vw, 40px);
+  }
+
+  .input {
+    padding: 14px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 320px) {
+  .container {
+    padding: 16px 6px 32px;
+  }
+
+  .title {
+    font-size: clamp(18px, 6vw, 24px);
+  }
+
+  .receipt {
+    padding: 12px 8px;
+    box-shadow: 2px 2px 0 0 #050505;
+    min-height: 0;
+  }
+
+  .breakdownLabel {
+    font-size: 10px;
+  }
+
+  .breakdownValue {
+    font-size: 13px;
+  }
+
+  .resultValue {
+    font-size: clamp(24px, 6vw, 32px);
+  }
+
+  .resultBlock {
+    padding: 14px 8px;
+  }
+
+  .input {
+    padding: 12px;
+  }
 }
