@@ -22,4 +22,4 @@ jobs:
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DIGITALIZACION_TSINGE_FUSION }}
       - name: Deploy to Firebase Hosting
-        run: npx -y firebase-tools@latest deploy --only hosting,firestore:rules --project digitalizacion-tsinge-fusion
+        run: npx -y firebase-tools@latest deploy --only hosting --project digitalizacion-tsinge-fusion
