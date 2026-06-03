@@ -78,7 +78,7 @@ const WelcomePanel = ({ role, userName }) => (
 
 const ChatbotControlPanel = ({ settings, onToggle }) => {
   const controls = [
-    { key: "admin", label: "Comensal y Admin" },
+    { key: "all", label: "Comensal y Admin" },
   ];
 
   return (
@@ -91,7 +91,10 @@ const ChatbotControlPanel = ({ settings, onToggle }) => {
 
         <div className={styles.chatbotGrid}>
           {controls.map((control) => {
-            const isEnabled = settings?.[control.key] !== false;
+            const isEnabled =
+              control.key === "all"
+                ? settings?.comensal !== false || settings?.admin !== false
+                : settings?.[control.key] !== false;
             return (
               <div key={control.key} className={styles.chatbotRow}>
                 <div>

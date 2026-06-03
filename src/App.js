@@ -12,6 +12,9 @@ import NavigationBar from "./components/NavigationBar";
 import RestaurantChatbot from "./components/RestaurantChatbot";
 import CookieBanner from "./components/CookieBanner";
 import LegalFooter from "./components/LegalFooter";
+import chatbotSettingsService, {
+  DEFAULT_CHATBOT_SETTINGS,
+} from "./services/ChatbotSettingsService";
 
 // Vistas públicas
 import Home from "./pages/Home";
@@ -37,25 +40,6 @@ import AdminOffers from "./pages/AdminOffers";
 
 import { Toaster } from "react-hot-toast";
 import "./styles/index.css";
-
-const CHATBOT_SETTINGS_KEY = "tsinghe-chatbot-settings";
-const DEFAULT_CHATBOT_SETTINGS = {
-  comensal: true,
-  admin: true,
-};
-
-const getChatbotSettings = () => {
-  try {
-    const storedSettings = localStorage.getItem(CHATBOT_SETTINGS_KEY);
-    if (!storedSettings) return DEFAULT_CHATBOT_SETTINGS;
-    return {
-      ...DEFAULT_CHATBOT_SETTINGS,
-      ...JSON.parse(storedSettings),
-    };
-  } catch {
-    return DEFAULT_CHATBOT_SETTINGS;
-  }
-};
 
 const normalizeChatbotRole = (role) =>
   role === "admin" ? "admin" : "comensal";
@@ -115,7 +99,9 @@ const AdminRoute = ({ children, isAuthenticated, loading, role }) => {
 // ── App Principal ───────────────────────────────────────────────────────────
 function App() {
   const { user, userName, userEmail, role, loading, logout } = useAuth();
-  const [chatbotSettings, setChatbotSettings] = useState(getChatbotSettings);
+  const [chatbotSettings, setChatbotSettings] = useState(
+    DEFAULT_CHATBOT_SETTINGS,
+  );
 
   const isAuthenticated = !!user;
   const needsGooglePasswordSetup =
@@ -124,24 +110,34 @@ function App() {
   const isChatbotEnabled = chatbotSettings[chatbotRole] !== false;
 
   useEffect(() => {
-    const handleStorageChange = (event) => {
-      if (event.key === CHATBOT_SETTINGS_KEY) {
-        setChatbotSettings(getChatbotSettings());
-      }
-    };
+    if (!user) {
+      setChatbotSettings(DEFAULT_CHATBOT_SETTINGS);
+      return undefined;
+    }
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+    return chatbotSettingsService.subscribe(setChatbotSettings, () => {
+      setChatbotSettings(DEFAULT_CHATBOT_SETTINGS);
+    });
+  }, [user]);
 
   const toggleChatbot = (targetRole) => {
     setChatbotSettings((currentSettings) => {
-      const nextSettings = {
+      const baseSettings = {
         ...DEFAULT_CHATBOT_SETTINGS,
         ...currentSettings,
-        [targetRole]: currentSettings[targetRole] === false,
       };
-      localStorage.setItem(CHATBOT_SETTINGS_KEY, JSON.stringify(nextSettings));
+      const nextValue =
+        targetRole === "all"
+          ? !(baseSettings.comensal !== false || baseSettings.admin !== false)
+          : baseSettings[targetRole] === false;
+      const nextSettings =
+        targetRole === "all"
+          ? { ...baseSettings, comensal: nextValue, admin: nextValue }
+          : { ...baseSettings, [targetRole]: nextValue };
+
+      chatbotSettingsService.saveSettings(nextSettings).catch((error) => {
+        console.error("Error guardando configuracion del chatbot:", error);
+      });
       return nextSettings;
     });
   };

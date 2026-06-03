@@ -73,6 +73,13 @@ service cloud.firestore {
     // Escribir: solo admin
     // Fusión: solo admins, máximo 4+ comensales, con PIN de 4 dígitos
     // ════════════════════════════════════════════════════════════════════
+    match /appSettings/{settingId} {
+      allow read: if isLoggedIn();
+      allow create,
+            update,
+            delete: if isAdmin();
+    }
+
     match /tables/{tableId} {
       allow read:   if true;
       
